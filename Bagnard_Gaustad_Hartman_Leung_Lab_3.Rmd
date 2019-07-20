@@ -2,7 +2,7 @@
 title: 'Lab 3: Reducing Crime'
 subtitle: 'Stage 1: Draft Report'
 author: 
-- "Alexa Bagnard, Joseph Gaustad, Kevin Hartman, Anthony Leung"
+- "Alexa Bagnard, Joseph Gaustad, Kevin Hartman, Francis Leung"
 - "(W203 Wednesday 6:30pm Summer 2019)"
 date: "7/24/2019"
 tags: [crime, lab, w203, berkeley]
