@@ -1,0 +1,92 @@
+---
+title: 'Lab 3: Reducing Crime'
+subtitle: 'Stage 1: Draft Report'
+author: 
+- "Alexa Bagnard, Joseph Gaustad, Kevin Hartman, Anthony Leung"
+- "(W203 Wednesday 6:30pm Summer 2019)"
+date: "7/24/2019"
+tags: [crime, lab, w203, berkeley]
+abstract: This is our study on crime. Crime does not pay. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+library(stargazer)
+library(cowplot)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(reshape2)
+options(kableExtra.latex.load_packages = TRUE)
+library(kableExtra)
+library(plyr)
+library(expss)
+library(car)
+
+suppressMessages(library(stargazer))
+suppressMessages(library(cowplot))
+suppressMessages(library(ggplot2))
+suppressMessages(library(tidyr))
+suppressMessages(library(dplyr))
+suppressMessages(library(reshape2))
+suppressMessages(library(kableExtra))
+suppressMessages(library(plyr))
+suppressMessages(library(expss))
+suppressMessages(library(car))
+suppressMessages(library(knitr))
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+More background. How the report is laid out. What we are researching and who it is for. 
+
+For paper specifications, download the 5 input files --- `paper.rmd`, `header.tex`, `references.bib`, `data.csv` and `american-sociological-association.csl` --- from [this folder](https://drive.google.com/drive/folders/1zJP3cNPrHN-gj0rcmbHQgg-XA0hqDXdd?usp=sharing). Ignore the other files.
+
+
+# Exploratory Data Analysis (EDA)
+
+## Variables
+
+The crime_v2 dataset provided by () for this study includes 25 variables of interest..
+
+These variables include..
+
+\begin{center}
+\textbf{Data Dictionary}
+\end{center}
+Category | Variable
+---------- | -------------------------------
+Crime Rate | crmrte
+Crime Type | mix
+Crime Data | prbarr, prbconv, prbpris, avgsen
+Population Data | density, pctmin80, pctymle
+Economic Data | taxpc
+Geographic Data | county, west, central, urban
+Wage Data | wcon, wtuc, wtrd, wfir, wser, wmfg, wfed, wsta, wloc
+Police Enforcement Data | polpc
+Time Data | year
+\begin{center}
+Table 1: Data Dictionary
+\end{center}
+## Data Prep
+
+Description of what we did to clean the data...
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+dfCrime <- read.csv('crime_v2.csv')
+
+```
+
+Observations about our data as we were cleaning it up...
+
+Boxplots, scatterplots, crosstables, correlation map to show what we have...
+
+Justify removal ofoutliers, transformations, etc.
+
+Summary and result of the data prep work
+
+The models we propose
