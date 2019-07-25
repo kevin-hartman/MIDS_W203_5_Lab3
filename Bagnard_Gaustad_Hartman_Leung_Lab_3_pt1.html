@@ -13089,7 +13089,7 @@ div#notebook {
 
 <!-- Loading mathjax macro -->
 <!-- Load mathjax -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
     <!-- MathJax configuration -->
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -13183,7 +13183,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Exploratory-Data-Analysis">Exploratory Data Analysis<a class="anchor-link" href="#Exploratory-Data-Analysis">&#182;</a></h2><p>We begin our analysis by loading helper packages, retreiving the data set and performing basic checks and inspections.</p>
+<h2 id="Exploratory-Data-Analysis-and-Data-Cleaning">Exploratory Data Analysis and Data Cleaning<a class="anchor-link" href="#Exploratory-Data-Analysis-and-Data-Cleaning">&#182;</a></h2><p>We begin our analysis by loading helper packages, retreiving the data set and performing basic checks and inspections.</p>
 
 </div>
 </div>
@@ -13757,7 +13757,7 @@ Please cite as:
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>Warning message:
 “The `printer` argument is deprecated as of rlang 0.3.0.
-<span class="ansi-black-intense-fg">This warning is displayed once per session.</span>”</pre>
+This warning is displayed once per session.”</pre>
 </div>
 </div>
 
@@ -37681,10 +37681,9 @@ ulAAAAAASUVORK5CYII="
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Model-1">Model 1<a class="anchor-link" href="#Model-1">&#182;</a></h2><h3 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h3><p>Our base hypothesis is that crime can be fundamentally explained by two factors: the effectiveness of the criminal justice system and the economic conditions.</p>
 <p>Criminal Justice Effectiveness is self defined : To be able to track crimes, they must be reported to police, who can then make arrests and the legal system provides judgement (convictions/sentencing)
-Relationship as a deterrent: Probability of getting caught, convicted, sentenced could potentially deter crime.</p>
+Criminal justice also has a relationship to crime as a deterrent, as the probability of getting caught, convicted, sentenced could potentially deter crime.</p>
 <p>We operationalize criminal justice effectiveness as follows: probability of Convictions <em> 
 Crimes committed. We define as: prbconv </em> prbarr = conv/arrest * arrest/crime = convictions/crime. Without more granular data, this provides a single parsimonious metric that helps understand how the law enforcement and criminal justice system works.</p>
-<p>Policy recommendations here would be to increase efficiency of CJ system.</p>
 
 </div>
 </div>
@@ -40312,7 +40311,6 @@ JOBdAjTA3r331JwESIAESCCABP4P/QRF/GoLvWsAAAAASUVORK5CYII="
 <li>Lack of means: People forced into crimes because they need to make ends meet</li>
 <li>Lack of occupation: People commit crimes because they are not busy at work</li>
 <li>Lack of opportunity: High discount rate for future due to no long-term opportunity, incentive to take the risk and commit crimes hoping for big payoff. </li>
-<li>Note: I think socio demographics here are not causes but outcomes of some combination of the above. We discuss demographics in model 2</li>
 </ul>
 <p>We operationalize economic conditions by looking at wages. For this model, we define this as the sum of all average wages in each county. We think this is best proxy from our data because it answers all of the above (higher wages leads to better means and better opportunities). From our EDA we also confirm that in general these sums are not skewed by having 1 really high paying sector in each county as we see a strong relationship between avg quartile across all job types and total sum.  This can be seen in the chart below.</p>
 
@@ -44967,7 +44965,7 @@ AzEQAzHQxwb+PyV6pSlz3tQ2AAAAAElFTkSuQmCC"
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Model 1 CLM Assumptions:</strong></p>
+<p><strong>Model 1 CLM Assumptions: [To be finalized]</strong></p>
 <ul>
 <li><strong>MLR1</strong> Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model.</li>
 <li><strong>MLR2</strong> Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population. </li>
@@ -48107,7 +48105,7 @@ F-statistic: 22.64 on 5 and 83 DF,  p-value: 2.939e-14
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Model 2 CLM Assumptions:</strong></p>
+<p><strong>Model 2 CLM Assumptions: [To be Finalized]</strong></p>
 <ul>
 <li><strong>MLR1</strong> Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model.</li>
 <li><strong>MLR2</strong> Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population. </li>
@@ -52159,7 +52157,7 @@ okAUiAJRIApEgSgQBaJAFIgCUaDvFfj/wwePWb1dVo0AAAAASUVORK5CYII="
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Model 3 CLM Assumptions:</strong></p>
+<p><strong>Model 3 CLM Assumptions: [To be finalized]</strong></p>
 <ul>
 <li><strong>MLR1</strong> Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model.</li>
 <li><strong>MLR2</strong> Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population. </li>
@@ -52170,32 +52168,6 @@ okAUiAJRIApEgSgQBaJAFIgCUaDvFfj/wwePWb1dVo0AAAAASUVORK5CYII="
 <h2 id="MLR-5,6-to-be-discussed-in-week-13...?">MLR 5,6 to be discussed in week 13...?<a class="anchor-link" href="#MLR-5,6-to-be-discussed-in-week-13...?">&#182;</a></h2>
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
@@ -52304,23 +52276,10 @@ Note:                                                        *p&lt;0.1; **p&lt;0
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Comment on practical significance</p>
+<p>Comment on practical significance after week 12</p>
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
@@ -52334,25 +52293,15 @@ Note:                                                        *p&lt;0.1; **p&lt;0
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Given that across all 3 models, we show that both criminal justice efficiency and tax revenues per capita have negative correlations to crime rate, we propose the policy recommendations below to address these issues. In addition, since minority percentages and density were found to be highly significant in the model 3, we believe our recommendations will be of particularly help to those  running for political office in counties with a high percentage of minorities or dense urban populations.</p>
 <ol>
-<li>Increase criminal justice efficiency:</li>
+<li><p>Since increasing both criminal justice and tax revenues are negatively correlated, we propose providing more funding for the local justice system.</p>
+</li>
+<li><p>While increasing taxes on constituents may be difficult politically and may cost candidates the ballot, candidates can instead try to attract investment to bring more jobs with higher wages so you can increase revenues.</p>
+</li>
+<li><p>Candidates can also propose to levy taxes on things that could lead to crimes or violence such as alcohol and weapons.</p>
+</li>
+<li><p>Given the significance and relatively large coefficient size of percentage minority, candidates should enroll local law enforcement into bias training.</p>
+</li>
 </ol>
-<ul>
-<li></li>
-</ul>
-<ol>
-<li>Increase Tax Revenues:</li>
-</ol>
-<ul>
-<li>Increasing taxes on your constituents may be difficult politically and may not win you the ballot.</li>
-<li>Since increasing wages has a small effect, try to attract investment to bring more jobs with higher wages so you can increase revenues.</li>
-<li>Levy taxes on things that could lead to crimes or violence such as alcohol and weapons.</li>
-</ul>
-<ol>
-<li>Address racism:</li>
-</ol>
-<ul>
-<li>Bias training</li>
-</ul>
 
 </div>
 </div>
@@ -52425,7 +52374,7 @@ Note:                                                        *p&lt;0.1; **p&lt;0
 <li>Education is an important variable because of demographic insights it provides.  First, adults with higher education are less likely to participate in Crime and are more likely to have better economic opportunity. Second, a strong school system is also likely correlated with less youth crime.  Because of these expected correlations we are likely overestimating the economic conditions coefficient estimate. </li>
 <li>Available Social Services could also lower crime.  Citizens with strong social services support have more options to get help when they lack means for purchasing basic life needs.  However this is more difficult to predict, as some social service projects, like homeless shelters, could lead to more criminal activity.</li>
 <li>Unemployment is used as an important indicator of economic health and opportunity.  This is would be highly correlated to economic conditions variables like sum of wages.  This indicator variable if added to the model would decrease the magnitude of the sum of wage means coefficient estimate.  </li>
-<li>Gang Crime is special case of crime that contains unique causes.  It is expected that it would be negatively correlated with criminal justice effectiveness as large social pressures prevent witnesses from supporting prosecution.  Gang crime is also negatively correlated with economic conditions.  From these assumed correlations, we can say that criminal justice effectiveness and economic conditions are both underestimated compared to including gang activity operationalized variable in the model.</li>
+<li>Gang or Organized Crime is special case of crime that contains unique causes.  It is expected that it would be negatively correlated with criminal justice effectiveness as large social pressures prevent witnesses from supporting prosecution.  Gang crime is also negatively correlated with economic conditions.  From these assumed correlations, we can say that criminal justice effectiveness and economic conditions are both underestimated compared to including gang activity operationalized variable in the model.</li>
 </ul>
 
 </div>
@@ -52435,6 +52384,15 @@ Note:                                                        *p&lt;0.1; **p&lt;0
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have shown in this report 3 different models that seek to explain and model changes in the crime rate in North Carolina in 1980. We start with the fundamental premise that crime is caused by both criminal justice efficiency and economic conditions, and further develop our definition of these two key explanatory variables which each new model.</p>
+<p>In Model 3, we were able to explain up to 73% of the variation in our data, and found statistical significance at the 95% level or better for each of our covariates. Of these, we believe that increasing the efficiency of the criminal justice system and tax revenues were the most important, particularly for counties with high density and minority populations. However, our findings should be noted with caution as we were unable to study the effect of several ommitted variables including education, availability of social services, unemployment rates and the presence of organized crime. Had we been able to collect data on these variables and apply them in our model, we believe we could increase accuracy without bias.</p>
+
 </div>
 </div>
 </div>
