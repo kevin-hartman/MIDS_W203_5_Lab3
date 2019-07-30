@@ -1,5 +1,5 @@
 ---
-title: 'Lab 3: Reducing Crime'
+title: 'Local Policy Recommendations for Crime Reduction'
 subtitle: 'Final Report'
 author: 
 - "Alexa Bagnard, Joseph Gaustad, Kevin Hartman, Francis Leung"
@@ -10,7 +10,20 @@ abstract: This is our study on crime. Crime does not pay. Lorem ipsum dolor sit 
 output:
   pdf_document: 
     latex_engine: xelatex
+    fig_caption: yes
+    fig_crop: no
+#    fig_height: 2
+#    fig_width: 3
+    highlight: haddock
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
   html_document:
+    fig_caption: yes
+    theme: journal
+    toc: yes
+    toc_depth: 2
     df_print: paged
   word_document: default
 ---
@@ -65,19 +78,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-# Local Policy Recommendations for Crime Reduction
+# Introduction
 
 
-## Introduction
+## Background
 
 In this report, we seek to examine and discuss determinants of crime and offer recommend actionable policy recommendations for local politicians running for election at the county level. For our analysis, we draw on sample data collected from a study by Cornwell and Trumball, researchers from the University of Georgia and West Virginia University. Our sample data includes data on crime rates, arrests, sentences,  demographics, local weekly wages, tax revenues and more drawn from local and federal government data sources. Although the age of the data may be a potential limitation of our study, we believe the insights we gather and policy recommendations remain appropriate for local campaigns today.
 
 Our primary question that will drive our data exploration are to ask which variables affect crime rate the most.
 
-
-# Exploratory Data Analysis (EDA)
-
-## Variables
+## The Variables
 
 The crime_v2 dataset provided includes 25 variables of interest. 
 
@@ -113,7 +123,9 @@ Chiefly, these break down as follows.
 * The Geographic elements are categorical. They  represent they ways in which the population is segmented by geography.
 
 
-## Data Prep and Exploratory Analysis
+# Exploratory Data Analysis (EDA)
+
+## Data Prep and Exploration
 
 We begin our analysis by loading the data set and performing basic checks and inspections.
 
@@ -323,8 +335,8 @@ impute_arg <- aregImpute(~ crmrte +  urban + central + west + other +
                          prbarr + prbconv + prbpris + avgsen + polpc + 
                          density + taxpc + pctmin80 + wcon + wtuc +
                          wtrd + wfir + wser + wmfg + wfed + wsta + wloc +
-                         mix + pctymle, data = dfCrime, match="closest",
-                         burnin=15, n.impute = 15)
+                         mix + pctymle, data = dfCrime, match="weighted",
+                         nk=3, B=10, n.impute = 100)
 ```
 
 
@@ -366,8 +378,8 @@ impute_arg <- aregImpute(~ crmrte +  urban + central + west + other +
                          prbarr + prbconv + prbpris + avgsen + polpc + 
                          density + taxpc + pctmin80 + wcon + wtuc +
                          wtrd + wfir + wser + wmfg + wfed + wsta + wloc +
-                         mix + pctymle, data = dfCrime, match="closest",
-                         burnin=15, n.impute = 15)
+                         mix + pctymle, data = dfCrime, match="weighted",
+                         nk=3, B=10, n.impute = 100)
 ```
 
 
@@ -464,8 +476,8 @@ impute_arg <- aregImpute(~ crmrte +  urban + central + west +
                          prbarr + prbconv + prbpris + avgsen + polpc + 
                          density + taxpc + pctmin80 + wcon + wtuc +
                          wtrd + wfir + wser + wmfg + wfed + wsta + wloc +
-                         mix + pctymle, data = dfCrime, match="closest",
-                         burnin=15, n.impute = 15)
+                         mix + pctymle, data = dfCrime, match="weighted",
+                         nk=3, B=10, n.impute = 100)
 ```
 
 
@@ -509,8 +521,8 @@ impute_arg <- aregImpute(~ crmrte + central + other +
                          prbarr + prbconv + prbpris + avgsen + polpc + 
                          density + taxpc + pctmin80 + wcon + wtuc +
                          wtrd + wfir + wser + wmfg + wfed + wsta + wloc +
-                         mix + pctymle, data = dfCrime, match="closest",
-                         burnin=15, n.impute = 15)
+                         mix + pctymle, data = dfCrime, match="weighted",
+                         nk=3, B=10, n.impute = 100)
 ```
 
 
@@ -597,14 +609,13 @@ dfCrime$density[which(dfCrime$county==173)]<- NA
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE, results='hide'}
-dfSubset <- dfCrime %>% filter(urban==0 & west ==1) #we will use the non-urban western counties
-
+#dfSubset <-  #we will use the non-urban western counties
 impute_arg <- aregImpute(~ crmrte + 
                          prbarr + prbconv + prbpris + avgsen + polpc + 
                          density + taxpc + pctmin80 + wcon + wtuc +
                          wtrd + wfir + wser + wmfg + wfed + wsta + wloc +
-                         mix + pctymle, data = dfSubset, match="closest",
-                         burnin=15, n.impute = 10)
+                         mix + pctymle, data = dfCrime %>% filter(urban==0 & west ==1),
+                         match="weighted",  nk=3, B=10, n.impute = 100)
 ```
 
 
@@ -821,6 +832,7 @@ We propose 3 multiple linear regression models
 * Third Model: An expansion of the second model with most covariates, designed to demonstrate the robustness of our results to model specification.
 
 As we proceed with each model, we verify the CLM assumptions of OLS are addressed below:
+
 * **MLR1** Linear in parameters: The models have had its data transformed as described above to allow a linear fit of the model.
 * **MLR2** Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population.
 * **MLR3** No perfect multicollinearity: None of the variables chosen for the model are constant or perfectly collinear as demonstrated by the scatterplot below.
@@ -839,6 +851,8 @@ pairs(~ logcrimJustEff + logpolpc + allWages + logtaxpc + logdensity + logpctmin
         logpctymle, data=dfCrime, main="Scatterplot Matrix of Model Variables")
 ```
 
+# Model Analysis
+
 ## Model 1 
 ### Introduction
 Our base hypothesis is that crime can be fundamentally explained by two factors: the effectiveness of the criminal justice system and the economic conditions.
@@ -846,8 +860,7 @@ Our base hypothesis is that crime can be fundamentally explained by two factors:
 Criminal Justice Effectiveness is self defined : To be able to track crimes, they must be reported to police, who can then make arrests and the legal system provides judgement (convictions/sentencing)
 Criminal justice also has a relationship to crime as a deterrent, as the probability of getting caught, convicted, sentenced could potentially deter crime.
 
-We operationalize criminal justice effectiveness as follows: probability of Convictions * 
-Crimes committed. We define as: prbconv * prbarr = conv/arrest * arrest/crime = convictions/crime. Without more granular data, this provides a single parsimonious metric that helps understand how the law enforcement and criminal justice system works.
+We operationalize criminal justice effectiveness as (probability of Convictions * Crimes committed). We define this as: prbconv * prbarr = conv/arrest * arrest/crime = convictions/crime. Without more granular data, this provides a single parsimonious metric that helps understand how the law enforcement and criminal justice system works.
 
 ### Model 1 EDA
 
@@ -1159,6 +1172,7 @@ plot(model3, which=1)
 ```
 
 **Model 3 CLM Assumptions: [To be finalized]**
+
 * **MLR1** Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model.
 * **MLR2** Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population. 
 * **MLR3** No perfect multicollinearity: None of the variables chosen for the model are constant or perfectly collinear with each other. Our new variables for percentage minority and percentage young males may have some relationships with the other variables but they are not perfectly colinear as noted from the scatterplot matrix in our EDA.
@@ -1187,6 +1201,8 @@ We see that by expanding our definitions of criminal justice efficiency  and eco
 
 Comment on practical significance after week 12
 
+# Conclusion
+
 ## Policy Recommendations
 
 Given that across all 3 models, we show that both criminal justice efficiency and tax revenues per capita have negative correlations to crime rate, we propose the policy recommendations below to address these issues. In addition, since minority percentages and density were found to be highly significant in the model 3, we believe our recommendations will be of particularly help to those  running for political office in counties with a high percentage of minorities or dense urban populations.
@@ -1212,12 +1228,13 @@ Given that across all 3 models, we show that both criminal justice efficiency an
 | Gang Activity    | +                  | -                              | -                   |
 
 The 4 major identified ommited variables are shown above. 
+
 * Education is an important variable because of demographic insights it provides.  First, adults with higher education are less likely to participate in Crime and are more likely to have better economic opportunity. Second, a strong school system is also likely correlated with less youth crime.  Because of these expected correlations we are likely overestimating the economic conditions coefficient estimate. 
 * Available Social Services could also lower crime.  Citizens with strong social services support have more options to get help when they lack means for purchasing basic life needs.  However this is more difficult to predict, as some social service projects, like homeless shelters, could lead to more criminal activity.
 * Unemployment is used as an important indicator of economic health and opportunity.  This is would be highly correlated to economic conditions variables like sum of wages.  This indicator variable if added to the model would decrease the magnitude of the sum of wage means coefficient estimate.  
 * Gang or Organized Crime is special case of crime that contains unique causes.  It is expected that it would be negatively correlated with criminal justice effectiveness as large social pressures prevent witnesses from supporting prosecution.  Gang crime is also negatively correlated with economic conditions.  From these assumed correlations, we can say that criminal justice effectiveness and economic conditions are both underestimated compared to including gang activity operationalized variable in the model.
 
-## Conclusion
+## Research Recommendations
 
 We have shown in this report 3 different models that seek to explain and model changes in the crime rate in North Carolina in 1980. We start with the fundamental premise that crime is caused by both criminal justice efficiency and economic conditions, and further develop our definition of these two key explanatory variables which each new model. 
 
