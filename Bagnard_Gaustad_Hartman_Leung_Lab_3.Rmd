@@ -12,8 +12,6 @@ output:
     latex_engine: xelatex
     fig_caption: yes
     fig_crop: no
-#    fig_height: 2
-#    fig_width: 3
     highlight: haddock
     keep_tex: yes
     number_sections: yes
@@ -615,7 +613,7 @@ impute_arg <- aregImpute(~ crmrte +
                          density + taxpc + pctmin80 + wcon + wtuc +
                          wtrd + wfir + wser + wmfg + wfed + wsta + wloc +
                          mix + pctymle, data = dfCrime %>% filter(urban==0 & west ==1),
-                         match="weighted",  nk=3, B=10, n.impute = 100)
+                         match="weighted",  nk=3, B=10, n.impute = 30)
 ```
 
 
