@@ -149,7 +149,7 @@ tail(dfCrime)
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-summary(dfCrime)
+#summary(dfCrime)
 ```
 
 First, we note there are missing rows in the dataset that were imported. We'll remove those rows now.
@@ -307,9 +307,9 @@ grid.arrange(q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, ncol=2)
 
 We observe a few data points of interest in the comparison above, notably, wser appears to have an extreme data point.
 
-Other variables show outliers as well, but not as extreme. We determine later if any of these points have leverage or influence in model specification.
+Other variables show outliers as well, but not as extreme. We will determine if any of these points have leverage or influence during model specification.
 
-For now, lets dig deeper into one of the extreme outliers from our visual inspection.
+For now, lets dig deeper into one of the extreme outliers after our visual inspection.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
@@ -320,7 +320,7 @@ select(county, wser)
 
 This average service wage is much too high based on what we know about the 1980s and every other wage recorded in comparison. A review of the detailed population statistics describing mean wage per industry (table 231) confirms this. https://www2.census.gov/prod2/decennial/documents/1980/1980censusofpopu801352uns_bw.pdf
 
-Outliers affect our ability to estimate statistics, resulting in overestimated or underestimated values. Outliers can be due to a number of different factors such as response errors and data entry errors. Outliers will introduce bias into our estimates and are addressed during the analysis phase. The mechanism for treatment include three approaches 1) trimming 2) winsorization or 3) imputation. Trimming will remove the rest of the values in the observation and is not an preferred treatment. Winsorazion relies on replacing outliers with the second largest or second smallest value excluding the outlier. Imputation methods can use the mean of a variable, or utilize regression models to predict the missing value. A number of packages are available in R that use the sample data to predict this value through regression. A full discussion on treatment methods can be found here: http://www.asasrms.org/Proceedings/y2004/files/Jsm2004-000559.pdf
+Outliers affect our ability to estimate statistics, resulting in overestimated or underestimated values. Outliers can be due to a number of different factors such as response errors and data entry errors. Outliers will introduce bias into our estimates and are addressed during the analysis phase. The mechanism for treatment include three approaches 1) trimming 2) winsorization or 3) imputation. Trimming will remove the rest of the values in the observation and is not an preferred treatment. Winsorazion relies on replacing outliers with the second largest or second smallest value excluding the outlier. Imputation methods can use the mean of a variable, or utilize regression models to predict the missing value. A number of packages are available in R that use the sample data to predict this value through regression. A full discussion on treatment methods can be found here: 
 
 We will use the Hmisc package which contains an impute function for treatment of this outlier
 
@@ -340,12 +340,14 @@ impute_arg <- aregImpute(~ crmrte +  urban + central + west + other +
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg
+paste("R-squares for Predicting Non-Missing Values for Each Variable Using Last Imputations of Predictors")
+impute_arg$rsq
 ```
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg$imputed$wser
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$wser)
 ```
 
 We will reassign the value in our dataset to the mean from these trials.
@@ -355,8 +357,7 @@ We will reassign the value in our dataset to the mean from these trials.
 dfCrime$wser[which(dfCrime$county==185)]<-mean(impute_arg$imputed$wser)
 dfCrime$wser[which(dfCrime$county==185)]
 ```
-
-
+Next, we will examine the criminal justice variables.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 #Plot of the criminal justice and law enforcment related variables vs crmrte
@@ -389,7 +390,6 @@ We also see that prbarr and prbconv have values greater than 1. However, these a
 There is a possibility of higher arrests per incident for an area. Meaning, the area has low incidents in general but when there were incidents there were also multiple arrests. The same case can be made for the convictions per arrest variable which we see is for a different region. In that county there may have been multiple charges brought per one arrest.
 
 
-
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 #plot of demographic information for counties Outside and Inside the metro areas
 # population density, percent minority, percent young male
@@ -409,7 +409,7 @@ grid.arrange(q1, q2, q3, ncol=1)
 
 Notably more outliers are observed in demographic information. Here, pctymle in one county outside of a metro area is nearly 25%. That seems quite high in normal statistical measures of the population, however, this can be explained as a county having a large college town population.
 
-Finally, we can see our bright blue region 3 county and notice its population density. Its behavior is more similar to an inside metro area. Than outside. In addition to be coded for both western and central regions, it appears to be miscoded here as well.
+Finally, we can see our bright blue region 3 county and notice its population density. Its behavior is more similar to an inside metro area than outside. In addition to be coded for both western and central regions, it appears to be miscoded here as well.
 
 We will address the metro variable, and examine whether the region variable should be west, central or other instead of both central and west
 
@@ -441,36 +441,51 @@ impute_arg <- aregImpute(~ crmrte +  urban + central + west +
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg
+paste("R-squares for Predicting Non-Missing Values for Each Variable Using Last Imputations of Predictors")
+impute_arg$rsq
 ```
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg$imputed$central
-median(impute_arg$imputed$central)
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$central)
 ```
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg$imputed$west
-median(impute_arg$imputed$west)
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$west)
 ```
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg$imputed$urban
-median(impute_arg$imputed$urban)
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$urban)
 ```
 
-The results confirm the county is urban. It is also highly probable that county 71 is not west and is most associated with central. After correcting our data for urban and west, let's compare 'central' with 'other' to be certain we have the right region.
+The results confirm the county is urban. It is also highly probable that county 71 is not west and most likely associated with central. After correcting our data for urban and west, let's compare 'central' with 'other' to be certain we have the right region.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime$urban[which(dfCrime$county==71)]<-median(impute_arg$imputed$urban)
+#We need a mode function, so lets define one. Source - public domain
+Mode = function(x){ 
+    ta = table(x)
+    tam = max(ta)
+    if (all(ta == tam))
+         mod = NA
+    else
+         if(is.numeric(x))
+    mod = as.numeric(names(ta)[ta == tam])
+    else
+         mod = names(ta)[ta == tam]
+    return(mod)
+}
+
+dfCrime$urban[which(dfCrime$county==71)]<-Mode(impute_arg$imputed$urban)
 dfCrime$urban[which(dfCrime$county==71)]
-dfCrime$nonurban[which(dfCrime$county==71)]<-(1-median(impute_arg$imputed$urban))
+dfCrime$nonurban[which(dfCrime$county==71)]<-1-Mode(impute_arg$imputed$urban)
 dfCrime$nonurban[which(dfCrime$county==71)]
-dfCrime$west[which(dfCrime$county==71)]<-median(impute_arg$imputed$west)
+dfCrime$west[which(dfCrime$county==71)]<-Mode(impute_arg$imputed$west)
 dfCrime$west[which(dfCrime$county==71)]
 ```
 
@@ -486,21 +501,27 @@ impute_arg <- aregImpute(~ crmrte + central + other +
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg
+paste("R-squares for Predicting Non-Missing Values for Each Variable Using Last Imputations of Predictors")
+impute_arg$rsq
 ```
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg$imputed$other
-median(impute_arg$imputed$other)
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$other)
 ```
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$central)
+```
+
 
 We also show a strong likelihood of the county not being other. The case for central is high. Since the county is not western and not other it must be in central by default, and the Hmisc algorithm bolsters that suggestion. We'll assign our new values.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime$other[which(dfCrime$county==71)]<-median(impute_arg$imputed$other)
+dfCrime$other[which(dfCrime$county==71)]<-Mode(impute_arg$imputed$other)
 dfCrime$other[which(dfCrime$county==71)]
-dfCrime$central[which(dfCrime$county==71)]<-1-dfCrime$other[which(dfCrime$county==71)]
+dfCrime$central[which(dfCrime$county==71)]<-1-Mode(impute_arg$imputed$other)
 dfCrime$central[which(dfCrime$county==71)]
 ```
 
@@ -542,7 +563,7 @@ Let's review our density numbers again by looking in more detail at its distribu
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-#options(repr.plot.width=8, repr.plot.height=4)
+options(repr.plot.width=8, repr.plot.height=4)
 ggplot(data = dfCrime, aes(x = density)) + 
       geom_histogram(bins=90)
 ```
@@ -579,12 +600,14 @@ impute_arg <- aregImpute(~ crmrte +
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg
+paste("R-squares for Predicting Non-Missing Values for Each Variable Using Last Imputations of Predictors")
+impute_arg$rsq
 ```
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-impute_arg$imputed$density
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$density)
 ```
 
 
@@ -593,85 +616,143 @@ dfCrime$density[which(dfCrime$county==173)]<-mean(impute_arg$imputed$density)
 dfCrime$density[which(dfCrime$county==173)]
 ```
 
-Now, we will examine histograms for the remaining variables
+Now, we will examine transforms for better linearity.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfEconVars <- as.data.frame(cbind(dfCrime$wcon, dfCrime$wtuc, dfCrime$wtrd, dfCrime$wfir, 
-                                  dfCrime$wser, dfCrime$wmfg, dfCrime$wfed, dfCrime$wsta, 
-                                  dfCrime$wloc))
-names(dfEconVars) <- c('wcon', 'wtuc', 'wtrd', 'wfir', 'wser', 
-                              'wmfg', 'wfed', 'wsta', 'wloc')
+#dfEconVars <- as.data.frame(cbind(dfCrime$wcon, dfCrime$wtuc, dfCrime$wtrd, dfCrime$wfir, 
+#                                  dfCrime$wser, dfCrime$wmfg, dfCrime$wfed, dfCrime$wsta, 
+#                                  dfCrime$wloc))
+#names(dfEconVars) <- c('wcon', 'wtuc', 'wtrd', 'wfir', 'wser', 
+#                              'wmfg', 'wfed', 'wsta', 'wloc')
+#
+#ggplot(melt(dfEconVars),aes(x=value)) + geom_histogram(bins=30) + facet_wrap(~variable)
 
-ggplot(melt(dfEconVars),aes(x=value)) + geom_histogram(bins=30) + facet_wrap(~variable)
+#The economic variables
+q1<-ggplot(data = dfCrime, aes(x = wcon, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q1a<-ggplot(data = dfCrime, aes(x = log(wcon), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q2<-ggplot(data = dfCrime, aes(x = wtuc, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q2a<-ggplot(data = dfCrime, aes(x = log(wtuc), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q3<-ggplot(data = dfCrime, aes(x = wtrd, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q3a<-ggplot(data = dfCrime, aes(x = log(wtrd), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q4<-ggplot(data = dfCrime, aes(x = wfir, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q4a<-ggplot(data = dfCrime, aes(x = log(wfir), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q5<-ggplot(data = dfCrime, aes(x = wser, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q5a<-ggplot(data = dfCrime, aes(x = log(wser), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q6<-ggplot(data = dfCrime, aes(x = wmfg, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q6a<-ggplot(data = dfCrime, aes(x = log(wmfg), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q7<-ggplot(data = dfCrime, aes(x = wfed, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q7a<-ggplot(data = dfCrime, aes(x = log(wfed), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q8<-ggplot(data = dfCrime, aes(x = wsta, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q8a<-ggplot(data = dfCrime, aes(x = log(wsta), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q9<-ggplot(data = dfCrime, aes(x = wloc, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q9a<-ggplot(data = dfCrime, aes(x = log(wloc), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+
+options(repr.plot.width=8, repr.plot.height=16)
+grid.arrange(q1, q1a, q2, q2a, q3, q3a, ncol=2)
+grid.arrange(q4, q4a, q5, q5a, q6, q6a, ncol=2)
+grid.arrange(q7, q7a, q8, q8a, q9, q9a, ncol=2)
 ```
 
-Each histogram for the wage information looks  evenly distributed. We have no further remark at this time. We move to the justice an law enforcement variables. With these variables being mostly < 1 we'll also take the log for comparison.
-
+The transforms make the relationship more linearly distributed.  We will transform these variables to their log equivalents.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-q1<-ggplot(data = dfCrime, aes(x = prbarr)) + 
-      geom_histogram(bins=30)
-q11<-ggplot(data = dfCrime, aes(x = log(prbarr))) + 
-      geom_histogram(bins=30) 
-            
-q2<-ggplot(data = dfCrime, aes(x = prbconv)) + 
-      geom_histogram(bins=30)
-q21<-ggplot(data = dfCrime, aes(x = log(prbconv))) + 
-      geom_histogram(bins=30)
-
-q3<-ggplot(data = dfCrime, aes(x = prbpris)) + 
-      geom_histogram(bins=30)
-q31<-ggplot(data = dfCrime, aes(x = log(prbpris))) + 
-      geom_histogram(bins=30)
-
-q4<-ggplot(data = dfCrime, aes(x = avgsen)) + 
-      geom_histogram(bins=30)
-q41<-ggplot(data = dfCrime, aes(x = log(avgsen))) + 
-      geom_histogram(bins=30)
-
-q5<-ggplot(data = dfCrime, aes(x = polpc)) + 
-      geom_histogram(bins=30)
-q51<-ggplot(data = dfCrime, aes(x = log(polpc))) + 
-      geom_histogram(bins=30)
-
-q6<-ggplot(data = dfCrime, aes(x = mix)) + 
-      geom_histogram(bins=30)
-q61<-ggplot(data = dfCrime, aes(x = log(mix))) + 
-      geom_histogram(bins=30)
-
-
-grid.arrange(q1, q11, q2, q21, q3, q31, q4, q41, q5, q51, q6, q61, ncol=2)
+dfCrime$logwcon<-log(dfCrime$wcon)
+dfCrime$logwtuc<-log(dfCrime$wtuc)
+dfCrime$logwtrd<-log(dfCrime$wtrd)
+dfCrime$logwfir<-log(dfCrime$wfir)
+dfCrime$logwser<-log(dfCrime$wser)
+dfCrime$logwmfg<-log(dfCrime$wmfg)
+dfCrime$logwfed<-log(dfCrime$wfed)
+dfCrime$logwsta<-log(dfCrime$wsta)
+dfCrime$logwloc<-log(dfCrime$wloc)
 ```
 
-The log transformation for these variables makes them more evenly distributed. We will transform these variables to their log equivalents and confirm with plots to see whether the result shows more linearity.
+We move to the justice an law enforcement variables. With these variables being mostly < 1 we'll also take the log for comparison.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 #Plot of the criminal justice and law enforcment related variables vs crmrte
-q1<-ggplot(data = dfCrime, aes(x = log(prbarr), y = crmrte, color = region)) + 
+q1<-ggplot(data = dfCrime, aes(x = prbarr, y = crmrte, color = region)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q2<-ggplot(data = dfCrime, aes(x = log(prbconv), y = crmrte, color = region)) + 
+q1a<-ggplot(data = dfCrime, aes(x = log(prbarr), y = log(crmrte), color = region)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q3<-ggplot(data = dfCrime, aes(x = log(prbpris), y = crmrte, color = region)) + 
+q2<-ggplot(data = dfCrime, aes(x = prbconv, y = crmrte, color = region)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q4<-ggplot(data = dfCrime, aes(x = log(avgsen), y = crmrte, color = region)) + 
+q2a<-ggplot(data = dfCrime, aes(x = log(prbconv), y = log(crmrte), color = region)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q5<-ggplot(data = dfCrime, aes(x = log(polpc), y = crmrte, color = region)) + 
+q3<-ggplot(data = dfCrime, aes(x = prbpris, y = crmrte, color = region)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q6<-ggplot(data = dfCrime, aes(x = log(mix), y = crmrte, color = region)) + 
+q3a<-ggplot(data = dfCrime, aes(x = log(prbpris), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q4<-ggplot(data = dfCrime, aes(x = avgsen, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q4a<-ggplot(data = dfCrime, aes(x = log(avgsen), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q5<-ggplot(data = dfCrime, aes(x = polpc, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q5a<-ggplot(data = dfCrime, aes(x = log(polpc), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q6<-ggplot(data = dfCrime, aes(x = mix, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q6a<-ggplot(data = dfCrime, aes(x = log(mix), y = log(crmrte), color = region)) + 
       geom_point()+
   geom_smooth(method = "lm")
 
-grid.arrange(q1, q2, q3, q4, q5, q6, ncol=2)
+grid.arrange(q1, q1a, q2, q2a, q3, q3a, ncol=2)
+grid.arrange(q4, q4a, q5, q5a, q6, q6a, ncol=2)
 ```
 
-Of the six variables, only prbarr, prbconv and polpc show univariate correlation with crime. We believe these will be better candidates for our model selection. Further, we see mix has no correlation with crmrate and may be its own outcome variable.
+The log transformation for these variables makes the relationship more linear. We will transform these variables to their log equivalents.
+
+We also note that of the six variables, only prbarr, prbconv and polpc show univariate correlation with crime. We believe these will be better candidates for our model selection. Further, we see mix has no correlation with crmrate and may be its own outcome variable.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
@@ -683,62 +764,67 @@ dfCrime$logpolpc <- log(dfCrime$polpc)
 dfCrime$logmix <- log(dfCrime$mix)
 ```
 
-Next we take a look at the demographic histograms and their log alternatives
+Next we take a look at the demographic variables and their log alternatives
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-q1<-ggplot(data = dfCrime, aes(x = pctymle)) + 
-      geom_histogram(bins=30)
-q11<-ggplot(data = dfCrime, aes(x = log(pctymle))) + 
-      geom_histogram(bins=30) 
-            
-q2<-ggplot(data = dfCrime, aes(x = pctmin80)) + 
-      geom_histogram(bins=30)
-q21<-ggplot(data = dfCrime, aes(x = log(pctmin80))) + 
-      geom_histogram(bins=30)
+q1<-ggplot(data = dfCrime, aes(x = pctymle, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q1a<-ggplot(data = dfCrime, aes(x = log(pctymle), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q2<-ggplot(data = dfCrime, aes(x = pctmin80, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q2a<-ggplot(data = dfCrime, aes(x = log(pctmin80), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q3<-ggplot(data = dfCrime, aes(x = density, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q3a<-ggplot(data = dfCrime, aes(x = log(density), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
 
-q3<-ggplot(data = dfCrime, aes(x = density)) + 
-      geom_histogram(bins=30)
-q31<-ggplot(data = dfCrime, aes(x = log(density))) + 
-      geom_histogram(bins=30)
 
-
-grid.arrange(q1, q11, q2, q21, q3, q31, ncol=2)
+grid.arrange(q1, q1a, q2, q2a, q3, q3a, ncol=2)
 ```
 
-The shape after transformation make the data more distributed. We will include transfomations of these variables as well.
+Again we see improvements after transformation. We will include transforms of these variables as well.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$logdensity <- log(dfCrime$density)
-dfCrime$logtaxpc <- log(dfCrime$taxpc)
 dfCrime$logpctmin80 <- log(dfCrime$pctmin80)
 dfCrime$logpctymle <- log(dfCrime$pctymle)
 ```
 
-Finally, we'll take a look at taxpc and the crmrte variable itself.
+Finally, we'll take a look at taxpc and a histogram of the crmrte variable itself.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-q1<-ggplot(data = dfCrime, aes(x = taxpc)) + 
-      geom_histogram(bins=30)
-q11<-ggplot(data = dfCrime, aes(x = log(taxpc))) + 
-      geom_histogram(bins=30) 
-            
+q1<-ggplot(data = dfCrime, aes(x = taxpc, y = crmrte, color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q1a<-ggplot(data = dfCrime, aes(x = log(taxpc), y = log(crmrte), color = region)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+
 q2<-ggplot(data = dfCrime, aes(x = crmrte)) + 
       geom_histogram(bins=30)
-q21<-ggplot(data = dfCrime, aes(x = log(crmrte))) + 
+q2a<-ggplot(data = dfCrime, aes(x = log(crmrte))) + 
       geom_histogram(bins=30)
 
-grid.arrange(q1, q11, q2, q21, ncol=2)
+grid.arrange(q1, q1a, q2, q2a, ncol=2)
 ```
 
-The crmrte and taxpc variables are more evenly distributed after transformation. We'll add those to our dataframe.
+The crmrte and taxpc variables also show improvement after transformation. We'll add those to our dataframe.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$logcrmrte = log(dfCrime$crmrte)
-dfCrime4logtaxpc = log(dfCrime$taxpc)
+dfCrime$logtaxpc = log(dfCrime$taxpc)
 ```
 
 As a final point of discussion we will identify additional variables  we wish to operationalize for use in our models. The include a variable that expresses the economic condition of the county and a variable that expresses criminal justice effectiveness.
@@ -764,7 +850,7 @@ We will also create a logarithmic transformation of this variable based on our h
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime$logcrimJustEff<-log10(dfCrime$crimJustEff)
+dfCrime$logcrimJustEff<-log(dfCrime$crimJustEff)
 ```
 
 ## Summary and Results
@@ -775,7 +861,7 @@ From the boxplot below, most of the counties have a crime rate between 0.0055 an
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-options(repr.plot.width=4, repr.plot.height=4)
+options(repr.plot.width=3, repr.plot.height=4)
 ggplot(data = dfCrime, aes(y = crmrte)) + 
       geom_boxplot()
 ```
@@ -849,7 +935,70 @@ ggplot(data=dfCrime, aes(sample= crimJustEff)) + stat_qq() + stat_qq_line() +
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime <- dfCrime[dfCrime$crimJustEff < 1,] # removing high flying outlier
+dfCrime[dfCrime$crimJustEff > 1,] # find outlier
+```
+We see that pbarr and prbconv are both > 1. This is not possible because you cannot be convicted more than once for the same offense. We have an issue with the probability ratios. We will use the imputation method to replace their values and remove the outlier effect, while also retaining the rest of the variables in the county.
+
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+dfCrime$prbarr[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
+dfCrime$prbconv[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
+```
+
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE, results='hide'}
+impute_arg <- aregImpute(~ crmrte +  urban + central + west + other +
+                         prbarr + prbconv + prbpris + avgsen + polpc + 
+                         density + taxpc + pctmin80 + wcon + wtuc +
+                         wtrd + wfir + wser + wmfg + wfed + wsta + wloc +
+                         mix + pctymle, data = dfCrime, match="weighted",
+                         nk=3, B=10, n.impute = 100)
+```
+
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+paste("R-squares for Predicting Non-Missing Values for Each Variable Using Last Imputations of Predictors")
+impute_arg$rsq
+```
+
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$prbarr)
+```
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$prbconv)
+```
+
+We will reassign the value in our dataset to the mean from these trials.
+
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+dfCrime$prbarr[which(dfCrime$county==115)]<-mean(impute_arg$imputed$prbarr)
+dfCrime$prbarr[which(dfCrime$county==115)]
+
+dfCrime$prbconv[which(dfCrime$county==115)]<-mean(impute_arg$imputed$prbconv)
+dfCrime$prbconv[which(dfCrime$county==115)]
+```
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+dfCrime$logprbarr[which(dfCrime$county==115)]<-log(dfCrime$prbarr[which(dfCrime$county==115)])
+dfCrime$logprbarr[which(dfCrime$county==115)]
+
+dfCrime$logprbconv[which(dfCrime$county==115)]<-log(dfCrime$prbconv[which(dfCrime$county==115)])
+dfCrime$logprbconv[which(dfCrime$county==115)]
+```
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+dfCrime$crimJustEff<-dfCrime$prbarr * dfCrime$prbconv
+dfCrime$logcrimJustEff<-log(dfCrime$crimJustEff)
+```
+
+
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 ggplot(data=dfCrime, aes(sample= crimJustEff)) + stat_qq() + stat_qq_line() + 
   ggtitle("QQ Plot of Crim Just Eff")
 ```
@@ -982,11 +1131,11 @@ hist(dfCrime$density, breaks=25)
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 par(mfrow = c(3,2))
 hist(dfCrime$polpc, main="Hist of polpc")
-hist(dfCrime$logpolpc, main="Hist of Log10 logpolpc")
+hist(dfCrime$logpolpc, main="Hist of logpolpc")
 hist(dfCrime$taxpc, main="Hist of taxpc")
-hist(dfCrime$logtaxpc, main="Hist of Log10 logtaxpc")
+hist(dfCrime$logtaxpc, main="Hist of logtaxpc")
 hist(dfCrime$density, main="Hist of density")
-hist(dfCrime$logdensity, main="Hist of Log10 logdensity")
+hist(dfCrime$logdensity, main="Hist of logdensity")
 ```
 
 
@@ -1063,7 +1212,7 @@ We have also chosen not to include other variables from our dataset in our model
 **Percentage Minority:**
 From the summary and boxplot below, we can see that the percentage of minorities ranges from 0.0154 - 0.6435, with a mean of 0.2621. We note that there are no major outliers.
 
-In addition from the scatterplots below, we see that using applying log10 on pctmin80 exposes a more linear relationship with the points more balanced on either side of the trendline. As a result, we will use the log-transformed version of pctmin80.
+In addition from the scatterplots below, we see that using applying log on pctmin80 exposes a more linear relationship with the points more balanced on either side of the trendline. As a result, we will use the log-transformed version of pctmin80.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
