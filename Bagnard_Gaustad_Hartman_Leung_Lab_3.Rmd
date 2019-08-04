@@ -1159,6 +1159,7 @@ model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc + allWages + taxpc + density,
 model2
 
 summary(model2)
+plot(model2)
 ```
 
 The Adjusted R-squared variable penalizes for additional variables, which means there is a chance that this value will decrease if the added variables do not contribute to the model. By comparing the Adjusted R-squared value between our first and second models, we see that log(polpc), taxpc and density help describe log(crmrate). Our second model has an Adjusted R-squared value of 0.5004, which means 50.04% of the variation in the $log_{10}$ of crime rate is explained by the explanatory variables used in this model. This is a significant increase compared to our first model, that has an Adjusted R-squared value of  0.4520. 
@@ -1192,7 +1193,7 @@ Compared to model 1, the adjusted $R^2$ of model 2 is only marginally higher. Th
 ## Model 3
 
 ### Introduction
-Despite the improvements in the accuracy of model 2 over model 1, we are still only explaining about 55% of the variation in our data. As a result, we propose to also analyse the topic of demographics which could have an effec on both of our key explanatory variables.  
+Despite the improvements in the accuracy of model 2 over model 1, we are still only explaining about 55% of the variation in our data. As a result, we propose to also analyse the topic of demographics which could have an effect on both of our key explanatory variables.  
 
 One key component of demographics is the race of the county inhabitants and how they are perceived and treated by others, especially for minorities in the population.  For example, systemic racism could have an important effect on: 
 * Criminal Justice Effectiveness: If police, lawyers and judges are racially biased, this could lead to more arrests and more convictions regardless of the strength of the legal case and the evidence. As a result, we hypothesize the crime rate would increase.
@@ -1230,12 +1231,59 @@ abline(lm(dfCrime$logcrmrte~dfCrime$logpctmin80))
 
 ### Model 3 Linear Model
 
+```{r}
+## Testing
+
+##dfCrime <- dfCrime[dfCrime$county != 55,]
+##dfCrime <- dfCrime[dfCrime$county != 115,]
+dfCrime
+```
+
+
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model3<-lm(logcrmrte ~ logcrimJustEff + logpolpc + allWages + taxpc + density +
-             logpctmin80 , data = dfCrime)
+model3<-lm(logcrmrte ~ logcrimJustEff + logpolpc + log(allWages) + logtaxpc + density +
+             logpctmin80, data = dfCrime)
 summary(model3)
+plot(model3)
 ```
+**Model 3 CLM Assumptions:**
+
+* **MLR1 and 2**: Discussed earlier.
+
+* **MLR3** No perfect multicollinearity: We demonstrate that our independent variables are not perfectly multicolinear using the VIF function, and note that all of our variance inflation factors are less than 5.
+
+```{r}
+vif(model3)
+```
+
+* **MLR4'** Zero Conditional Mean: From the residual vs. fitted chart below, we see that the mean of the residuals mostly lie along 0, except towards the left side of our chart where there are fewer data points. We can reasonably conclude that we satisfy MLR4.
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+plot(model3, which = 1)
+```
+
+* **MLR5'** Spherical errors: We note from the residuals vs fitted chart above that we have some evidence of heteroscedasticity, since there are less datapoints on both the left and right of the chart. As a result, we use the vcovHC method to estimate a robust variance-covariance matrix  using White and Huber's method and generate coefficients that are robust to heteroscedasticity.
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+coeftest(model3, vcov=vcovHC)
+```
+
+* **MLR6'** Normality of errors: From the histogram below, we see that the residuals in our model follow a fairly normal distribution. In addition, since we have a large sample size of 90 datapoints, we can rely on a version of the central limit theorem to assume normally distributed errors.
+
+```{r}
+hist(model3$residuals)
+```
+
+
+By satisfying these assumptions, we can expect that our coefficients are approaching the true parameter values in probability. 
+
+```{r}
+plot(model3)
+```
+
+
+### Analysis [TO BE UPDATED]
 
 The model shows a good fit, with an adjusted R-squared of 0.7322, meaning that the model explains 73% of the variation in crime. 
 
@@ -1255,40 +1303,12 @@ Negative coefficients:
 
 In addition, the F-statistic is 40.04 with a statistically significant p-value of < 2.2e-11. As a result, we reject the null hypothesis that none of the independent variables help to describe log(crmrate). 
 
-
-**[Comment on standard error]**
-
 In the Residuals vs Leverage plot below, all the points have a cook's distance of less than 0.5. While there is a point with 0.6 leverage, there are no points that have residual that greatly alter the model coefficients.
 
 The root of standardized residuals all fall within about 1.6. This is very good, as we can expect 95% of the points to fall within 3 standardized residuals of each other. ( (⎯⎯√3)≈1.73 )
 
 Finally, the residuals vs fitted plot shows a well centered and mostly normal distribution about 0. There are no major trends or variation changes across the fitted values. This suggests that major uncorrelated variables have not been left out of the model.
 
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-plot(model3, which = 5)
-```
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-plot(mod1, which=3)
-```
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-plot(model3, which=1)
-```
-
-**Model 3 CLM Assumptions: [To be finalized]**
-
-* **MLR1** Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model.
-* **MLR2** Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population. 
-* **MLR3** No perfect multicollinearity: None of the variables chosen for the model are constant or perfectly collinear with each other. Our new variables for percentage minority and percentage young males may have some relationships with the other variables but they are not perfectly colinear as noted from the scatterplot matrix in our EDA.
-* **MLR4'** The expectation of u and and covariance of each regressor with u are ~0.  This shows that our model's regressors are exogenous with the error.
-
-By satisfying these assumptions, we can expect that our coefficients are approaching the true parameter values in probability. 
-
-##MLR 5,6 to be discussed in week 13...?
 
 ### Results:
 
