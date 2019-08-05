@@ -939,10 +939,13 @@ dfCrime[dfCrime$crimJustEff > 1,] # find outlier
 ```
 We see that pbarr and prbconv are both > 1. This is not possible because you cannot be convicted more than once for the same offense. We have an issue with the probability ratios. We will use the imputation method to replace their values and remove the outlier effect, while also retaining the rest of the variables in the county.
 
+We also see that polpc is .009. We noticed this outlier during our EDA analysis. Based on the records describing the US population on police officers per capita, the highest police per capita on record is .007 in Atlantic City, NJ. https://www.governing.com/gov-data/safety-justice/police-officers-per-capita-rates-employment-for-city-departments.html This datapoint is also in error and we will impute it's replacement.
+
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$prbarr[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
 dfCrime$prbconv[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
+dfCrime$polpc[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
 ```
 
 
@@ -971,6 +974,10 @@ table(impute_arg$imputed$prbarr)
 paste("Distribution of Values for Each Imputation")
 table(impute_arg$imputed$prbconv)
 ```
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+paste("Distribution of Values for Each Imputation")
+table(impute_arg$imputed$polpc)
+```
 
 We will reassign the value in our dataset to the mean from these trials.
 
@@ -981,6 +988,9 @@ dfCrime$prbarr[which(dfCrime$county==115)]
 
 dfCrime$prbconv[which(dfCrime$county==115)]<-mean(impute_arg$imputed$prbconv)
 dfCrime$prbconv[which(dfCrime$county==115)]
+
+dfCrime$polpc[which(dfCrime$county==115)]<-mean(impute_arg$imputed$polpc)
+dfCrime$polpc[which(dfCrime$county==115)]
 ```
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
@@ -989,6 +999,9 @@ dfCrime$logprbarr[which(dfCrime$county==115)]
 
 dfCrime$logprbconv[which(dfCrime$county==115)]<-log(dfCrime$prbconv[which(dfCrime$county==115)])
 dfCrime$logprbconv[which(dfCrime$county==115)]
+
+dfCrime$logpolpc[which(dfCrime$county==115)]<-log(dfCrime$polpc[which(dfCrime$county==115)])
+dfCrime$logpolpc[which(dfCrime$county==115)]
 ```
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
@@ -1245,6 +1258,7 @@ dfCrime
 model3<-lm(logcrmrte ~ logcrimJustEff + logpolpc + log(allWages) + logtaxpc + density +
              logpctmin80, data = dfCrime)
 summary(model3)
+coeftest(model3, vcov = vcovHC)
 plot(model3)
 ```
 **Model 3 CLM Assumptions:**
