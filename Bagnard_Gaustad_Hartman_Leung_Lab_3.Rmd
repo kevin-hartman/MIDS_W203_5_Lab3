@@ -1199,15 +1199,53 @@ In the histograms above, we see that the both polpc and taxpc exhibit right skew
 
 As a result, we will use the $log$ of polpc (logpolpc) in our second model and will not transform the taxpc and density variables. 
 
+
 ### Model 2 Linear Model
 
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc + log(allWages) + logtaxpc + sqrt(dfCrime$density), data = dfCrime)
+model2
+plot(model2)
+```
+
+
+**Model 2 CLM Assumptions:**
+* **MLR1** Discussed above.
+* **MLR2** Discussed above.
+* **MLR3** Through the VIF function, we know that all of our variance inflation factors are less than 5, which allows us to conclude that our variables in model2 aer not perfectly multicolinear.
+
+```{r}
+vif(model2)
+```
+
+* **MLR4: Zero Conditional Mean** The residual vs. fitted chart, below, gives us evidence that we meet the zero conditional mean assumption as the majority of the residual means lie close to zero. The exceptions to this trend, lie on the right side of the chart where there are fewer data points (evidence for heteroscedasticity - see MLR5, below). 
+```{r}
+plot(model2, which=1)
+```
+
+* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right side of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the Huber-White test with vcovHC. 
+
+using White and Huber's method and generate coefficients that are robust to heteroscedasticity.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc + allWages + taxpc + density, data = dfCrime)
-model2
+coeftest(model2, vcov=vcovHC)
+```
 
+* **MLR6: Normal Distribution of Errors** The Normal Q-Q plot, below, provides evidence that our residuals follow a normal distribution. While there are some data points on the left and right side of the graph that stray from the diagonal line, since our data set has over 30 datapoints, per the CLT, we can assume residuals have a normal distribution. 
+
+```{r}
+plot(model2, which=2)
+# hist(model2$residuals)
+# shapiro.test(model2$residuals)
+#null hypothesis: residuals drawn from population with a normal distribution. 
+#small p-value tells you if you can reject the null hypothesis. 
+#this test depends on sample size, it does not take very much deviation from normality for
+#us to get a statistically significant result
+```
+
+
+```{r}
 summary(model2)
-plot(model2)
 ```
 
 The Adjusted R-squared variable penalizes for additional variables, which means there is a chance that this value will decrease if the added variables do not contribute to the model. By comparing the Adjusted R-squared value between our first and second models, we see that log(polpc), taxpc and density help describe log(crmrate). Our second model has an Adjusted R-squared value of 0.5004, which means 50.04% of the variation in the $log_{10}$ of crime rate is explained by the explanatory variables used in this model. This is a significant increase compared to our first model, that has an Adjusted R-squared value of  0.4520. 
@@ -1223,17 +1261,6 @@ Coefficient Analysis (assuming ceterus paribus):
 
 ### Results - **WIP**
 - Standard Errors explanation will go here. Placeholder cell for now.
-
-
-**Model 2 CLM Assumptions: [To be Finalized]**
-* **MLR1** Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model.
-* **MLR2** Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population. 
-* **MLR3** No perfect multicollinearity: None of the variables chosen for the model are constant or perfectly collinear as the economy and criminal justice effectiveness are independent.
-* **MLR4'** The expectation of u and and covariance of each regressor with u are ~0.  This shows that our model's regressors are exogenous with the error.  
-
-By satisfying these assumptions, we can expect that our coefficients are approaching the true parameter values in probability. 
-
-##MLR 5,6 to be discussed in week 13...?
 
 ### Conclusion : Are the conclusions they draw based on this evaluation appropriate? Did the team interpret the results in terms of their research question?
 Compared to model 1, the adjusted $R^2$ of model 2 is only marginally higher. This suggests that we should continue our analysis by focusing on the join significance of the variables added in model 2.  
