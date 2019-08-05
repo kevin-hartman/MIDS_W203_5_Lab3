@@ -1150,27 +1150,40 @@ $$log(crmrate) = \beta_0 + \beta_1crimjusteff + \beta_2log(polpc) + \beta_3densi
 
 ### Model 2 EDA and Data Transformations
 
-
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 corrplot(cor(dfCrime[,c("logcrmrte", "logcrimJustEff", "logprbarr", "logprbconv", 
                         "prbpris", "polpc", "taxpc", "allWages", "urban", "density",
                         "pctymle", "pctmin80")]),method='circle', type = 'lower')
-
-par(mfrow = c(2,2))
-hist(dfCrime$polpc, breaks=25)
-hist(dfCrime$taxpc, breaks=25)
-hist(dfCrime$density, breaks=25)
 ```
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-par(mfrow = c(3,2))
-hist(dfCrime$polpc, main="Hist of polpc")
-hist(dfCrime$logpolpc, main="Hist of logpolpc")
-hist(dfCrime$taxpc, main="Hist of taxpc")
-hist(dfCrime$logtaxpc, main="Hist of logtaxpc")
-hist(dfCrime$density, main="Hist of density")
-hist(dfCrime$logdensity, main="Hist of logdensity")
+# polpc transformation analysis 
+par(mfrow = c(2,2))
+hist(dfCrime$polpc, main="Hist of polpc", breaks=50)
+hist(dfCrime$logpolpc, main="Hist of logpolpc", breaks=50)
+hist(1/dfCrime$polpc, main="Hist of Recip polpc", breaks=50)
+hist(sqrt(dfCrime$polpc), main="Hist of Sqrt polpc", breaks=50)
+```
+
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+# taxpc transformation analysis 
+par(mfrow = c(2,2))
+hist(dfCrime$taxpc, main="Hist of taxpc", breaks=50)
+hist(dfCrime$logtaxpc, main="Hist of logtaxpc",breaks=50)
+hist(1/dfCrime$taxpc, main="Hist of Recip taxpc", breaks=50)
+hist(sqrt(dfCrime$taxpc), main="Hist of Sqrt taxpc", breaks=50)
+```
+
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+# density transformation analysis 
+par(mfrow = c(2,2))
+hist(dfCrime$density, main="Hist of density", breaks=50)
+hist(dfCrime$logdensity, main="Hist of logdensity",breaks=50)
+hist(1/dfCrime$density, main="Hist of Recip density", breaks=50)
+hist(sqrt(dfCrime$density), main="Hist of Sqrt density", breaks=50)
 ```
 
 
@@ -1182,7 +1195,7 @@ hist(dfCrime$logdensity, main="Hist of logdensity")
 # plot(dfCrime$logcrimJustEff, dfCrime$logtaxpc, main = 'logtaxpc vs logcrimJustEff', xlab='logcrimJustEff', ylab='logtaxpc')
 ```
 
-In the histograms above, we see that the both polpc and taxpc exhibit right skew. Taking the $log_{10}$ of polpc brings the distribution closer to normal. However, the $log$ of taxpc and density makes the distributions even more skewed. 
+In the histograms above, we see that the both polpc and taxpc exhibit right skew. Taking the natural log of polpc brings the distribution closer to normal. However, the $log$ of taxpc and density makes the distributions even more skewed. 
 
 As a result, we will use the $log$ of polpc (logpolpc) in our second model and will not transform the taxpc and density variables. 
 
