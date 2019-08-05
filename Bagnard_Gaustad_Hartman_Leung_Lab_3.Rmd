@@ -1139,7 +1139,7 @@ mean(resid(mod1))
 ### Introduction
 In this model, we introduce the additional covariates of population per square mile (density), tax per capita (taxpc) and police per capita (polpc) to increase the accuracy of our regression. We are including these additional variables to our second model, as they add accuracy to the explanatory variables used in our first model:  
 
-1. The **DENSITY** of an area can have significant impacts on:
+1. The **Density** of an area can have significant impacts on:
     - **Criminal Justice Effectiveness**: with more people in a given area, crime frequency increases (+ bias direction). However, more people means there are more potential witnesses, making it easier to catch criminals (- bias direction). 
     - **Economic Opportunity (ie. AllWages)**: in high density areas, there is an increase in demand for support services such as food, retail, utilities, etc. As a result, there is a high demand for service jobs, which increases the economic opportunities within the area (+ bias direction).  However, more people in a given area, there is a closer proximity to drugs, alcohol and gang violence - all of which are inhimitors to better economic outcomes. 
 2. The **Police Per Capita** in a county can be influential on the Criminal Justice Effectiveness. With more police in a given area, one would think that crime rates would decrease, however our correlation plot below tells a different story. Including this variable in our analysis will give us more insight into the variables used in model 1. 
@@ -1195,6 +1195,8 @@ hist(sqrt(dfCrime$density), main="Hist of Sqrt density", breaks=50)
 # plot(dfCrime$logcrimJustEff, dfCrime$logtaxpc, main = 'logtaxpc vs logcrimJustEff', xlab='logcrimJustEff', ylab='logtaxpc')
 ```
 
+-- AXLB - WIP
+
 In the histograms above, we see that the both polpc and taxpc exhibit right skew. Taking the natural log of polpc brings the distribution closer to normal. However, the $log$ of taxpc and density makes the distributions even more skewed. 
 
 As a result, we will use the $log$ of polpc (logpolpc) in our second model and will not transform the taxpc and density variables. 
@@ -1212,8 +1214,8 @@ plot(model2)
 **Model 2 CLM Assumptions:**
 * **MLR1** Discussed above.
 * **MLR2** Discussed above.
-* **MLR3** Through the VIF function, we know that all of our variance inflation factors are less than 5, which allows us to conclude that our variables in model2 aer not perfectly multicolinear.
 
+* **MLR3: Non-perfect Collinearity** We will use the VIF function to provide evidence that our variables in model2 are not perfectly multicollinear. As we can see from the VIF results, below, all of the variables' values are less than five, which allows us to conclude model2 is free from multicollinearity.
 ```{r}
 vif(model2)
 ```
@@ -1223,9 +1225,9 @@ vif(model2)
 plot(model2, which=1)
 ```
 
-* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right side of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the Huber-White test with vcovHC. 
+* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right side of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the White test with vcovHC
 
-using White and Huber's method and generate coefficients that are robust to heteroscedasticity.
+-- AXLB - WIP
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 coeftest(model2, vcov=vcovHC)
@@ -1264,6 +1266,8 @@ Coefficient Analysis (assuming ceterus paribus):
 
 ### Conclusion : Are the conclusions they draw based on this evaluation appropriate? Did the team interpret the results in terms of their research question?
 Compared to model 1, the adjusted $R^2$ of model 2 is only marginally higher. This suggests that we should continue our analysis by focusing on the join significance of the variables added in model 2.  
+
+
 
 ## Model 3
 
