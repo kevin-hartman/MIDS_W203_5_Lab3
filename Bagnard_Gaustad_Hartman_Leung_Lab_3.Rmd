@@ -635,28 +635,28 @@ myData<-dfCrime
 myData<-myData[, c("crmrte", "west", "central", "other", "urban", "prbarr", "prbconv", "prbpris", "avgsen", "polpc", "taxpc",
            "pctmin80", "wcon", "wtuc", "wtrd", "wfir", "wser", "wmfg", "wfed", "wsta", "wloc",
            "mix", "pctymle", "density")]
-plot<-myData %>% correlate() %>% network_plot(min_cor=.25)
+plot<-myData %>% correlate() %>% network_plot(min_cor=.2)
 grid.arrange(arrangeGrob(plot, bottom = 'Correlations Among Variables'), 
              top = "Network plot for Correlation Study", ncol=1)
 ```
-First, we note the general proximity of variables with one another. Variables that are clustered together have stronger affinities and degrees of collinearity. In fact, the cluster of the wage variables are an indication of multicollinearity. Only state wages fall outside this group. The telecome and utlity wage variable, while still near the cluster,  show a little less collinearity. If we choose to operationalize the wage variables we must pick an appropriate strategy to minimize their multicollinearity impact. We also see the wage variables are positively correlated with our crime outcome variable. Density also positively correlates with wage and the crime rate variable. Urban also correlates with wage, but suprisingly the correlation between crime and urban is not as high.
+First, we note the general proximity of variables with one another. Variables that are clustered together represent the overall magnitude of their correlations. In fact, the cluster of the wage variables are an indication of very tight correlation. Only state wages fall outside this group. The telecom and utlity wage variable, while still near the cluster, show a little relationship.We also see the wage variables are positively correlated with our crime outcome variable. Density also positively correlates with wage and the crime rate variable. Urban correlates with wage, but suprisingly the correlation between crime and urban is not as high.
 
-Next, we notice the Law enforcement and Judicial variables are clustered and have a negative correlation with our outcome variable on crime. We also see they tend to be negatively correlated amongst one another. For example, probability of conviction is slightly negatively corrrelated with the probability of arrest, and both are negatively correlated with our outcome variable. We may wish to combine their impacts. We also see that police per capita and tax per capita are positively correlated with another. This makes sense as the more revenues collected the higher the ability to pay for community services such as law enforcement and protection. Both are also positively correlated with our outcome variable on crime. We also notice that percent young male has a positive correlation with crime rate. A possible explanation for this is that more crimes are committed by younger men as a whole. We also note that counties with higher state wages are correlated with higher percentages of young males, and these two variables are clustered together.
+Next, we notice the Law enforcement and Judicial variables are clustered and have a negative correlation with our outcome variable on crime. We also see they tend to be negatively correlated among one another. For example, probability of conviction is slightly negatively corrrelated with the probability of arrest, and both are negatively correlated with our outcome variable. We also see that police per capita and tax per capita are positively correlated with another. This makes sense as the more revenues collected the higher the ability to pay for law enforcement and protection. Both are also positively correlated with our outcome variable on crime. We also notice that percent young male has a positive correlation with crime rate. A possible explanation for this is that more crimes are committed by younger men as a whole. We also note that the state wage variable is in nearby proximity.
 
-The mix variable is an odd one. It is positively correlated with probability of arrests, negatively correlated with probability of convictions, and negatively correlated with service wages and manufacturing wages. It also has a slight positive correlation with the state wage and seems to be clustered with it. 
+The mix variable is an odd one. It is possitively correlated with probability of arrests, negatively correlated with probability of convictions, and negatively correlated with service and manufacturing wages. It also has a slight positive correlation with the state wage variable and seems to be clustered with it. 
 
-Last, we turn to our region variables and notice the high negative correlation of the minority variable with the western region. We also notice a high positive corrlation of minorities with the 'other' (eastern) region. This variable also correlates positively with  crime rate, although the two are not clustered. We especially note that west is negatively correlated with  crime rate. There appears to be a lessor propensity for crime in this region. We will examine this phenomenom further. Also, for a futher examination of correlation plots for each of the regions please see the network diagrams in the appendix.
+Last, we turn to our region variables and notice the high negative correlation of the minority variable with the western region dummy variable. We also notice a high positive corrlation of minorities with the 'other' (coastal) dummy variable. The pctmin80 variable also correlates positively with crime rate, although the two are not clustered. We especially note that west is negatively correlated with crime rate. There appears to be a lessor propensity for crime in this region, or perhaps a lack of suffient means to detect it. For a futher examination of correlation plots for each of the regions please see the network diagrams in the appendix.
 
 ## Additional Variables to Operationalize
 
 As a final point of discussion we will identify variables we wish to operationalize for use in our models. We will include a variable that expresses the economic condition of the county and a variable that expresses criminal justice effectiveness.
 
-The first variable on the economic condition will include the sum of all average weekly wages from the 1980 census information. Since we do not know how many were employed at that wage we use this summary the best available proxy. Summing the wages into one variable will also remove their multicollinearity effects.
+The first variable on the economic condition will include the sum of all average weekly wages from the 1980 census information. Since we do not know how many were employed at that wage we use this summary the best available proxy. Additionally, we will scale this wage variable by 9 to highlight indication of industry diversity within a county.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime$allWages<-dfCrime$wcon + dfCrime$wtuc + dfCrime$wtrd + dfCrime$wfir +
-    dfCrime$wser + dfCrime$wmfg + dfCrime$wfed + dfCrime$wsta + dfCrime$wloc
+dfCrime$scaledWages<-(dfCrime$wcon + dfCrime$wtuc + dfCrime$wtrd + dfCrime$wfir +
+    dfCrime$wser + dfCrime$wmfg + dfCrime$wfed + dfCrime$wsta + dfCrime$wloc) / 9
 ```
 
 As a second variable, we are interested in understanding the effectiveness of the criminal justice system as a crime deterrent. Our proxy will be the number of convictions per incident.
@@ -783,7 +783,6 @@ We will reassign this value using the mean from the trials.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$prbarr[which(dfCrime$county==115)]<-mean(impute_arg$imputed$prbarr)
-dfCrime$logprbarr[which(dfCrime$county==115)]<-log(dfCrime$prbarr[which(dfCrime$county==115)])
 ```
 
 
@@ -831,13 +830,13 @@ dfWage<-mutate(dfWage,qLoc=ntile(dfCrime$wloc,4))
 ## Average quantile
 dfWage$qAvg= (dfWage$qCon+dfWage$qTuc+dfWage$qTrd+dfWage$qFir+dfWage$qSer+dfWage$qMfg+
                 dfWage$qFed+dfWage$qSta+dfWage$qLoc)/9
-plot(dfCrime$allWages,dfWage$qAvg)
+plot(dfCrime$scaledWages,dfWage$qAvg)
 ```
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-hist(dfCrime$allWages)
-ggplot(data=dfCrime, aes(sample= allWages)) + stat_qq() + stat_qq_line() +
+hist(dfCrime$scaledWages)
+ggplot(data=dfCrime, aes(sample= scaledWages)) + stat_qq() + stat_qq_line() +
   ggtitle("QQ Plot of sum of wages")
 ```
 
@@ -845,8 +844,8 @@ ggplot(data=dfCrime, aes(sample= allWages)) + stat_qq() + stat_qq_line() +
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime$unweighted_avg_wage <- dfCrime$allWages/9
-mod1 <- lm(dfCrime$logcrmrte ~ dfCrime$unweighted_avg_wage + dfCrime$logcrimJustEff)
+#dfCrime$unweighted_avg_wage <- dfCrime$scaledWages/9
+mod1 <- lm(dfCrime$logcrmrte ~ dfCrime$scaledWages + dfCrime$logcrimJustEff)
 coeftest(mod1, vcov=vcovHC)
 vif(mod1)
 summary(mod1)$adj.r.square
@@ -895,7 +894,7 @@ To summarize the value of model 1 we found a strong predictor in the form of cri
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-cov(resid(mod1), dfCrime$allWages)
+cov(resid(mod1), dfCrime$scaledWages)
 cov(resid(mod1), log(dfCrime$crimJustEff))
 mean(resid(mod1))
 ```
@@ -907,18 +906,18 @@ In this model, we introduce the additional covariates of population per square m
 
 1. The **Density** of an area can have significant impacts on:
     - **Criminal Justice Effectiveness**: with more people in a given area, crime frequency increases (+ bias direction). However, more people means there are more potential witnesses, making it easier to catch criminals (- bias direction). 
-    - **Economic Opportunity (ie. AllWages)**: in high density areas, there is an increase in demand for support services such as food, retail, utilities, etc. As a result, there is a high demand for service jobs, which increases the economic opportunities within the area (+ bias direction).  However, more people in a given area, there is a closer proximity to drugs, alcohol and gang violence - all of which are inhimitors to better economic outcomes. 
+    - **Economic Opportunity (ie. scaledWages)**: in high density areas, there is an increase in demand for support services such as food, retail, utilities, etc. As a result, there is a high demand for service jobs, which increases the economic opportunities within the area (+ bias direction).  However, more people in a given area, there is a closer proximity to drugs, alcohol and gang violence - all of which are inhimitors to better economic outcomes. 
 2. The **Police Per Capita** in a county can be influential on the Criminal Justice Effectiveness. With more police in a given area, one would think that crime rates would decrease, however our correlation plot below tells a different story. Including this variable in our analysis will give us more insight into the variables used in model 1. 
 3. The **Tax Per Capita** can have a direct impact on the Police Per Capita. A higher tax per capita, means that the county has more tax dollars to spend on protection services (ie. increasing the number of police in the county). 
 
 
-$$log(crmrate) = \beta_0 + \beta_1crimjusteff + \beta_2log(polpc) + \beta_3density + \beta_4allWages + \beta_5taxpc + u$$
+$$log(crmrate) = \beta_0 + \beta_1crimjusteff + \beta_2log(polpc) + \beta_3density + \beta_4scaledWages + \beta_5taxpc + u$$
 
 ### Model 2 EDA and Data Transformations
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 corrplot(cor(dfCrime[,c("logcrmrte", "logcrimJustEff", "logprbarr", "logprbconv", 
-                        "prbpris", "polpc", "taxpc", "allWages", "urban", "density",
+                        "prbpris", "polpc", "taxpc", "scaledWages", "urban", "density",
                         "pctymle", "pctmin80")]),method='circle', type = 'lower')
 ```
 
@@ -971,7 +970,7 @@ As a result, we will use the $log$ of polpc (logpolpc) in our second model and w
 ### Model 2 Linear Model
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc + log(allWages) + logtaxpc + sqrt(dfCrime$density), data = dfCrime)
+model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc + log(scaledWages) + logtaxpc + sqrt(dfCrime$density), data = dfCrime)
 model2
 ```
 
@@ -1026,7 +1025,7 @@ In addition, the F-statistic is 16.62 with a statistically significant p-value o
 Coefficient Analysis (assuming ceterus paribus):
 - logcrimJustEff: -0.1607. This suggests that for a 1% increase in criminal justice efficiency, there is a 0.1607% decrease in crime rate. 
 - logpolpc: 0.3701. This suggests that for a 1% increase in police per capita, there is a 0.3701% increase in crime rate. 
-- allWages: 0.00006692. This suggests that for a 1% increase in total average weekly wage, there is a 0.0067% increase in crime rate.
+- scaledWages: 0.00006692. This suggests that for a 1% increase in total average weekly wage, there is a 0.0067% increase in crime rate.
 - taxpc: -0.001632. This suggests that for a 1% increase in tax per capita, there is a 0.1632% decrease in crime rate.
 - density: 0.06259. This suggests that for a 1% increase in density, there is a 6.259% increase in crime rate.
 
@@ -1067,7 +1066,7 @@ We have also chosen not to include other variables from our dataset in our model
 * Judgement: We chose not to include the varibles concerning the probability of a prison sentence as well as the average sentence as we believe it is unlikely that potential criminals would have good access to this information. In addition, local county officials have limited influence over the decisions of the judiciary system, as they are separate branches of government.
 
 Our equation for model 3 is as follows:
-$$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3density + \beta_4log(allWages) + \beta_5logpctmin80 + \beta_6west + \beta_7central+u$$
+$$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3density + \beta_4log(scaledWages) + \beta_5logpctmin80 + \beta_6west + \beta_7central+u$$
 
 
 
@@ -1085,7 +1084,7 @@ linearHypothesis(model3_initial,c("west=0","central=0","logpctmin80=0"), vcov=vc
 vif(model3_initial)
 ```
 Our revised equation for model 3 is as follows:
-$$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3density + \beta_4log(allWages) + \beta_5logpctmin80 +u$$
+$$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3density + \beta_4log(scaledWages) + \beta_5logpctmin80 +u$$
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 model3<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logunweightedavg +  density + logpctmin80, data = dfCrime)
 model3
@@ -1101,7 +1100,7 @@ plot(model3,which=5)
 
 * **MLR1 and 2**: Discussed earlier.
 
-* **MLR3** No perfect multicollinearity: We demonstrate that our independent variables are not perfectly multicolinear using the VIF function, and note that all of our variance inflation factors are less than 5.
+* **MLR3** No perfect multicollinearity: We demonstrate that our independent variables are not perfectly multicollinear using the VIF function, and note that all of our variance inflation factors are less than 5.
 
 ```{r}
 vif(model3)
@@ -1138,7 +1137,7 @@ After accounting for coefficients that are robust to heteroscedasticity, we note
 
 Positive coefficients:
 * Police presence: If we increase police per capita by 1 percent, we expect the crime rate to increase by 0.28%.
-* AllWages: If we increase wages by 1 percent, we expect the crime rate to increase by 0.94%
+* scaledWages: If we increase wages by 1 percent, we expect the crime rate to increase by 0.94%
 * Density: If we increase density by 1 person per square mile, we expect the crime rate to increase by 8%
 * Percentage of minorities: If the percentage of minorities increase by 1%, we expect the crime rate to increase by 0.24%
 
@@ -1161,7 +1160,7 @@ Comparing the 3 models, we see that our adjusted R2 value has steadily increased
 
 At the same time, our standard errors have decreased **insert more commentary on standard errors**.
 
-We see that by expanding our definitions of criminal justice efficiency  and economic opportunity between model 1 and model 3 lowered the coefficients for logcrimJustEff and allWages. This is most likely because that we were able to better explain the effects with our newer variables.
+We see that by expanding our definitions of criminal justice efficiency  and economic opportunity between model 1 and model 3 lowered the coefficients for logcrimJustEff and scaledWages. This is most likely because that we were able to better explain the effects with our newer variables.
 
 Comment on practical significance after week 12
 
