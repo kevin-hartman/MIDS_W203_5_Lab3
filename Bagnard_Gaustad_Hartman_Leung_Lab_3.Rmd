@@ -369,9 +369,23 @@ select(county, wser)
 
 This average service wage is much too high based on what we know about the 1980s and every other wage recorded in comparison. A review of the detailed population statistics describing mean wage per industry (table 231) confirms this. https://www2.census.gov/prod2/decennial/documents/1980/1980censusofpopu801352uns_bw.pdf
 
-Outliers affect our ability to estimate statistics, resulting in overestimated or underestimated values. Outliers can be due to a number of different factors such as response errors and data entry errors. Outliers will introduce bias into our estimates and are addressed during the analysis phase. The mechanism for treatment include three approaches 1) trimming 2) winsorization or 3) imputation. Trimming will remove the rest of the values in the observation and is not an preferred treatment. Winsorazion relies on replacing outliers with the second largest or second smallest value excluding the outlier. Imputation methods can use the mean of a variable, or utilize regression models to predict the missing value. A number of packages are available in R that use the sample data to predict this value through regression. A full discussion on treatment methods can be found here: http://www.asasrms.org/Proceedings/y2004/files/Jsm2004-000559.pdf
+Outliers affect our ability to estimate statistics, resulting in overestimated or underestimated values. Outliers can be due to a number of different factors such as response errors and data entry errors. Outliers will introduce bias into our estimates and are addressed during the analysis phase. The mechanism for treatment include three approaches 
 
-We will use the Hmisc package which contains an impute function for treatment of this outlier
+1 Trimming - *remove* outliers from the dataset based on a local maxima or minima from the mean.
+2 Winsorization - *replace* extreme values so they fall at the edge of the main distribution
+3 Imputation - *recode* outliers by calculating the mean of the sample, or by applying a regression model approach to predict the missing value
+
+Trimming will remove the entire record. This is not an preferred treatment as we will lose valuable information.. 
+
+Winsorization is a symmetric process that will replace *all* of the smallest and largest data values in the sample. This is not a preferred treatment as we will again lose valuable information, especially when we only seek to replace values that are a result of a coding error.
+
+Imputation recodes the data point using a predictive model derived from the remainder of the sample data points. Multiple imputations are performed to account for uncertainty, and each imputed data set is analyzed for its distribution. Then, the mean, mode or median can be chosen from this distribution as the replacement.
+
+We favor the imputation method as we do not wish to apply Winsorization to our data set wholistically, nor do we wish to remove the entire observation and lose its contribution to other variables. Fortunately, a number of packages are available in R that predict this value through regression against the existing sample data. A commonly used imputation library can be found in the Hmisc package which we will use for our outlier treatment.
+
+A full discussion of treatment methods can be found here: http://www.asasrms.org/Proceedings/y2004/files/Jsm2004-000559.pdf
+
+Finally, we should make note that none of these methods are ideal. We would be better suited to discover the nature of the mistake and recode it from real data. Since we do not have access to the underlying data from which this sample set was derived we are not in the position to do that. Thus we continue our analysis.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$wser[which(dfCrime$county==185)]<-NA # set the value to NA so it will be imputed
@@ -399,7 +413,7 @@ paste("Distribution of Values for Each Imputation")
 table(impute_arg$imputed$wser)
 ```
 
-We will reassign the value in our dataset to the mean from these trials.
+We will reassign the value in our dataset to the mean of these trials.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
