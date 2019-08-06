@@ -49,6 +49,8 @@ library(PerformanceAnalytics)
 library(psych)
 library(GGally)
 library(ggcorrplot)
+library(tmap)
+library(sf)
 
 suppressMessages(library(stargazer))
 suppressMessages(library(cowplot))
@@ -72,6 +74,8 @@ suppressMessages(library(psych))
 suppressMessages(library(GGally))
 suppressMessages(library(ggcorrplot))
 suppressMessages(library(knitr))
+suppressMessages(library(tmap))
+suppressMessages(library(sf))
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -81,9 +85,77 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Background
 
-In this report, we seek to examine and discuss determinants of crime and offer recommend actionable policy recommendations for local politicians running for election at the county level. For our analysis, we draw on sample data collected from a study by Cornwell and Trumball, researchers from the University of Georgia and West Virginia University. Our sample data includes data on crime rates, arrests, sentences,  demographics, local weekly wages, tax revenues and more drawn from local and federal government data sources. Although the age of the data may be a potential limitation of our study, we believe the insights we gather and policy recommendations remain appropriate for local campaigns today.
+In this report, we seek to examine and discuss determinants of crime and offer recommend actionable policy recommendations for local politicians running for election at the county level in North Carolina. For our analysis, we draw on sample data collected from a study by Cornwell and Trumball, researchers from the University of Georgia and West Virginia University. Our sample data includes data on crime rates, arrests, sentences,  demographics, local weekly wages, tax revenues and more drawn from local and federal government data sources. Although the age of the data may be a potential limitation of our study, we believe the insights we gather and policy recommendations remain appropriate for local campaigns today.
 
 Our primary question that will drive our data exploration are to ask which variables affect crime rate the most.
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=FALSE}
+#Add a nice little map of North Carolina and shade it by region.
+nc <- read_sf(system.file("shape/nc.shp", package = "sf"))
+nc$REGION<-"COASTAL"
+nc$REGION[nc$NAME=="Ashe"]<-"WEST"
+nc$REGION[nc$NAME=="Alleghany"]<-"WEST"
+nc$REGION[nc$NAME=="Wilkes"]<-"WEST"
+nc$REGION[nc$NAME=="Watauga"]<-"WEST"
+nc$REGION[nc$NAME=="Caldwell"]<-"WEST"
+nc$REGION[nc$NAME=="Avery"]<-"WEST"
+nc$REGION[nc$NAME=="Burke"]<-"WEST"
+nc$REGION[nc$NAME=="Rutherford"]<-"WEST"
+nc$REGION[nc$NAME=="Polk"]<-"WEST"
+nc$REGION[nc$NAME=="Mitchell"]<-"WEST"
+nc$REGION[nc$NAME=="McDowell"]<-"WEST"
+nc$REGION[nc$NAME=="Yancey"]<-"WEST"
+nc$REGION[nc$NAME=="Madison"]<-"WEST"
+nc$REGION[nc$NAME=="Buncombe"]<-"WEST"
+nc$REGION[nc$NAME=="Henderson"]<-"WEST"
+nc$REGION[nc$NAME=="Transylvania"]<-"WEST"
+nc$REGION[nc$NAME=="Haywood"]<-"WEST"
+nc$REGION[nc$NAME=="Jackson"]<-"WEST"
+nc$REGION[nc$NAME=="Swain"]<-"WEST"
+nc$REGION[nc$NAME=="Macon"]<-"WEST"
+nc$REGION[nc$NAME=="Graham"]<-"WEST"
+nc$REGION[nc$NAME=="Cherokee"]<-"WEST"
+nc$REGION[nc$NAME=="Clay"]<-"WEST"
+nc$REGION[nc$NAME=="Surry"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Yadkin"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Alexander"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Catawba"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Lincoln"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Gaston"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Cleveland"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Stokes"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Forsyth"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Davie"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Rowan"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Cabarrus"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Mecklenburg"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Union"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Stanly"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Davidson"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Rockingham"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Guilford"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Randolph"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Montgomery"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Anson"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Richmond"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Caswell"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Alamance"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Chatham"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Moore"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Lee"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Person"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Orange"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Durham"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Granville"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Wake"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Vance"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Franklin"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Warren"]<-"CENTRAL"
+nc$REGION[nc$NAME=="Iredell"]<-"CENTRAL"
+ggplot() + 
+  geom_sf(data = nc, aes(fill = REGION)) + theme_map() + 
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
+```
 
 ## The Variables
 
@@ -205,9 +277,9 @@ dfCrime$region <- case_when (
         )
 dfCrime$regcode =
             factor( dfCrime$region , levels = 0:3 , labels =
-                    c( 'O',
-                       'W',
-                       'C',
+                    c( 'Coastal',
+                       'West',
+                       'Central',
                        'CW')
                    )
 ```
@@ -517,9 +589,9 @@ dfCrime$region <- case_when (
         )
 dfCrime$regcode =
             factor( dfCrime$region , levels = 0:2 , labels =
-                    c( 'O',
-                       'W',
-                       'C' )
+                    c( 'Coastal',
+                       'West',
+                       'Central' )
                    )
 ```
 
@@ -527,8 +599,8 @@ dfCrime$regcode =
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$metro =
             factor( dfCrime$urban , levels = 0:1 , labels =
-                    c( 'Outside',
-                       'Inside'
+                    c( 'Outside Metro',
+                       'Inside Metro'
                       )
                    )
 ```
