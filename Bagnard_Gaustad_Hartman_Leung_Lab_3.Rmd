@@ -1252,62 +1252,66 @@ Compared to model 1, the adjusted $R^2$ of model 2 is only marginally higher. Th
 
 ## Model 3
 
-### Introduction
+### Discussion of Variables
 Despite the improvements in the accuracy of model 2 over model 1, we are still only explaining about 55% of the variation in our data. As a result, we propose to also analyse the topic of demographics which could have an effect on both of our key explanatory variables.  
 
 One key component of demographics is the race of the county inhabitants and how they are perceived and treated by others, especially for minorities in the population.  For example, systemic racism could have an important effect on: 
 * Criminal Justice Effectiveness: If police, lawyers and judges are racially biased, this could lead to more arrests and more convictions regardless of the strength of the legal case and the evidence. As a result, we hypothesize the crime rate would increase.
 * Economic Opportunity: Racism could prohibit members of the minority from having access to education, jobs and higher wages. Racism could also limit access to healthcare and social programmes which has a negative effect on economic opportunity. 
     
-However, since we cannot directly measure racism, we have to operationalize this covariate by examining its effect in the real world. We propose to use the variable pctmin80, which represents the percentage of minorities in the population of the county. This is a good indicator that is also a linear parameter: given a higher the percentage of minorities, we should expect to see a greater effect. 
+However, since we cannot directly measure racism, we have to operationalize this covariate by examining its effect in the real world. We propose to use the variable pctmin80, which represents the percentage of minorities in the population of the county. This is also a continous parameter and so given a higher the percentage of minorities, we should expect to see a greater effect. 
 
-We propose to operationalize gender and age with the variable 
-
-We have also chosen not to include other variables from our dataset in our model:
-* Region: While geographical indicators are also important, particularly as they may represent clusters of jobs and skilled workers, it is not a linear parameter (i.e. we can not simply increase a region by "1" and expect to see an effect on the crime rate.")
-* Urban: We believe the variable "density" better explains the same effects as "urban", while also being a linear parameter. In addition, there may be data points that failed to meet the cutoff for being defined as urban, but may still see the same effects as being urban and hence may distort our analysis.
-* Age and Gender: While age and gender are important demographic variables, the only variable in our dataset is pctymle which provides the percentage of young males in the population. However, given that this variable encompasses both male and young, we may not be able to discern if age or gender has the larger effect (if any at all). 
-
-### Model 3 EDA and Data Transformations
-
-**Percentage Minority:**
-From the summary and boxplot below, we can see that the percentage of minorities ranges from 0.0154 - 0.6435, with a mean of 0.2621. We note that there are no major outliers.
-
-In addition from the scatterplots below, we see that using applying log on pctmin80 exposes a more linear relationship with the points more balanced on either side of the trendline. As a result, we will use the log-transformed version of pctmin80.
-
-
+From the summary and boxplot below, we can see that the percentage of minorities ranges from 0.0154 - 0.6435, with a mean of 0.2621. We note that there are no major outliers. 
+We will apply the natural log to the variable pctmin80 to 1) make it easier for us to interpret the coefficient in our linear model and 2) to better expose the linear relationship in the model. 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 summary(dfCrime$pctmin80)
 boxplot(dfCrime$pctmin80)
 ```
 
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-plot(dfCrime$pctmin80, dfCrime$logcrmrte)
-abline(lm(dfCrime$logcrmrte~dfCrime$pctmin80))
-plot(dfCrime$logpctmin80, dfCrime$logcrmrte)
-abline(lm(dfCrime$logcrmrte~dfCrime$logpctmin80))
-```
-
-### Model 3 Linear Model
+In addition, we hypothesize that the location of the county can have an impact on demographcs. We can see that counties in the West have a significantly lower percentage of minorities than the other two regions. As a result, we will also test for region in our model. 
 
 ```{r}
-## Testing
-
-##dfCrime <- dfCrime[dfCrime$county != 55,]
-##dfCrime <- dfCrime[dfCrime$county != 115,]
-dfCrime
+ggplot(data = dfCrime, aes(y = pctmin80, color=regcode)) + 
+      geom_boxplot() + ggtitle("Percentage of minorities in the County by Region")
 ```
+**UPDATE AFTER ALEXA** Given that our analysis of model 2 showed that taxpc was not statistically significant, we will not consider it in our model.
+
+We have also chosen not to include other variables from our dataset in our model:
+* Urban: We believe the variable "density" better explains the same effects as "urban", while also being a linear parameter. In addition, there may be data points that failed to meet the cutoff for being defined as urban, but may still see the same effects as being urban and hence may distort our analysis.
+* Age and Gender: While age and gender are important demographic variables, the only variable in our dataset is pctymle which provides the percentage of young males in the population. However, given that this variable encompasses both male and young, we may not be able to discern if age or gender has the larger effect (if any at all). 
+* Judgement: We chose not to include the varibles concerning the probability of a prison sentence as well as the average sentence as we believe it is unlikely that potential criminals would have good access to this information. In addition, local county officials have limited influence over the decisions of the judiciary system, as they are separate branches of government.
+
+Our equation for model 3 is as follows:
+$$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3density + \beta_4log(allWages) + \beta_5logpctmin80 + \beta_6west + \beta_7central+u$$
 
 
 
+### Model 3 Linear Model
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model3<-lm(logcrmrte ~ logcrimJustEff + logpolpc + log(allWages) + logtaxpc + density +
-             logpctmin80, data = dfCrime)
-summary(model3)
-coeftest(model3, vcov = vcovHC)
-plot(model3)
+dfCrime$logunweightedavg<-log(dfCrime$unweighted_avg_wage)
+model3_initial<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logunweightedavg +  density + logpctmin80 + west + central, data = dfCrime)
+summary(model3_initial)
 ```
+We note from the two F-tests below that west and central were not statistically significant to the model, but the inclusion of logpctmin80 is highly significant. An analysis of VIF(model3) also indicates that logpctmin80 and west have higher variance inflation factors as compared to the others. It appears then that logpctmin80 better explains the difference in demographics than west or central, and we thus remove the latter 2 variables from our model. 
+
+```{r}
+linearHypothesis(model3_initial,c("west=0","central=0"), vcov=vcovHC)
+linearHypothesis(model3_initial,c("west=0","central=0","logpctmin80=0"), vcov=vcovHC)
+vif(model3_initial)
+```
+Our revised equation for model 3 is as follows:
+$$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3density + \beta_4log(allWages) + \beta_5logpctmin80 +u$$
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+model3<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logunweightedavg +  density + logpctmin80, data = dfCrime)
+model3
+summary(model3)$adj.r.square
+```
+
+From the Residuals vs Leverage plot below, we also note that there are no major outliers that have significant influence on our model (no points have a cook's distance > 0.5).
+```{r}
+plot(model3,which=5)
+```
+
 **Model 3 CLM Assumptions:**
 
 * **MLR1 and 2**: Discussed earlier.
@@ -1330,48 +1334,34 @@ plot(model3, which = 1)
 coeftest(model3, vcov=vcovHC)
 ```
 
-* **MLR6'** Normality of errors: From the histogram below, we see that the residuals in our model follow a fairly normal distribution. In addition, since we have a large sample size of 90 datapoints, we can rely on a version of the central limit theorem to assume normally distributed errors.
+* **MLR6'** Normality of errors: From the qqplot below, we see that the residuals in our model follow a fairly normal distribution. In addition, since we have a large sample size of 90 datapoints, we can rely on a version of the central limit theorem to assume normally distributed errors.
 
 ```{r}
-hist(model3$residuals)
+plot(model3,which=2)
 ```
 
 
 By satisfying these assumptions, we can expect that our coefficients are approaching the true parameter values in probability. 
 
-```{r}
-plot(model3)
-```
+### Analysis
 
+The model shows a good fit, with an adjusted R-squared of 0.72, meaning that the model explains 72% of the variation in crime. 
 
-### Analysis [TO BE UPDATED]
-
-The model shows a good fit, with an adjusted R-squared of 0.7322, meaning that the model explains 73% of the variation in crime. 
-
-For all of our 6 different independent variables, we note each of them have statistical significance at the 95% level or better. Of these 6,  criminal justice efficiency, minority percentages and density are the most significant.
+After accounting for coefficients that are robust to heteroscedasticity, we note only three them have statistical significance at the 95% level or better. These are criminal justice efficiency, minority percentages and density.
 
 **Interpretation of coefficients (Assuming ceterus paribus):**
 
 Positive coefficients:
-* Police presence: If we increase police per capita by 1 unit, we expect the crime rate to increase by 33%.
-* AllWages: If we increase wages by 1 dollar, we expect the crime rate to increase by 0.01%
-* Density: If we increase density by 1 unit, we expect the crime rate to increase by 5%
+* Police presence: If we increase police per capita by 1 percent, we expect the crime rate to increase by 0.28%.
+* AllWages: If we increase wages by 1 percent, we expect the crime rate to increase by 0.94%
+* Density: If we increase density by 1 person per square mile, we expect the crime rate to increase by 8%
 * Percentage of minorities: If the percentage of minorities increase by 1%, we expect the crime rate to increase by 0.24%
 
 Negative coefficients:
-* Criminal justice efficiency: If we increase the criminal justice efficiency by 1%, we expect the crime rate to decrease by 0.34%.
-* Tax per capita: If we increase tax per capita by 1 unit, we expect the crime rate to decrease by 0.35%
-
-In addition, the F-statistic is 40.04 with a statistically significant p-value of < 2.2e-11. As a result, we reject the null hypothesis that none of the independent variables help to describe log(crmrate). 
-
-In the Residuals vs Leverage plot below, all the points have a cook's distance of less than 0.5. While there is a point with 0.6 leverage, there are no points that have residual that greatly alter the model coefficients.
-
-The root of standardized residuals all fall within about 1.6. This is very good, as we can expect 95% of the points to fall within 3 standardized residuals of each other. ( (⎯⎯√3)≈1.73 )
-
-Finally, the residuals vs fitted plot shows a well centered and mostly normal distribution about 0. There are no major trends or variation changes across the fitted values. This suggests that major uncorrelated variables have not been left out of the model.
-
+* Criminal justice efficiency: If we increase the criminal justice efficiency by 1%, we expect the crime rate to decrease by 0.42%.
 
 ### Results:
+
 
 ## Comparison of Regression Models
 
