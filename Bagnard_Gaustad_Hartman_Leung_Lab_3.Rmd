@@ -91,19 +91,19 @@ Our primary question that will drive our data exploration are to ask which varia
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=FALSE}
 #Add a nice little map of North Carolina and shade it by region.
-nc <- read_sf(system.file("shape/nc.shp", package = "sf"))
-nc$REGION<-"COASTAL"
-nc$REGION[nc$NAME=="Ashe"]<-"WEST"
-nc$REGION[nc$NAME=="Alleghany"]<-"WEST"
-nc$REGION[nc$NAME=="Wilkes"]<-"WEST"
-nc$REGION[nc$NAME=="Watauga"]<-"WEST"
-nc$REGION[nc$NAME=="Caldwell"]<-"WEST"
-nc$REGION[nc$NAME=="Avery"]<-"WEST"
-nc$REGION[nc$NAME=="Burke"]<-"WEST"
-nc$REGION[nc$NAME=="Rutherford"]<-"WEST"
-nc$REGION[nc$NAME=="Polk"]<-"WEST"
-nc$REGION[nc$NAME=="Mitchell"]<-"WEST"
-nc$REGION[nc$NAME=="McDowell"]<-"WEST"
+#nc <- read_sf(system.file("shape/nc.shp", package = "sf"))
+#nc$REGION<-"COASTAL"
+#nc$REGION[nc$NAME=="Ashe"]<-"WEST"
+#nc$REGION[nc$NAME=="Alleghany"]<-"WEST"
+#nc$REGION[nc$NAME=="Wilkes"]<-"WEST"
+#nc$REGION[nc$NAME=="Watauga"]<-"WEST"
+#nc$REGION[nc$NAME=="Caldwell"]<-"WEST"
+#nc$REGION[nc$NAME=="Avery"]<-"WEST"
+#nc$REGION[nc$NAME=="Burke"]<-"WEST"
+#nc$REGION[nc$NAME=="Rutherford"]<-"WEST"
+#nc$REGION[nc$NAME=="Polk"]<-"WEST"
+#nc$REGION[nc$NAME=="Mitchell"]<-"WEST"
+#nc$REGION[nc$NAME=="McDowell"]<-"WEST"
 nc$REGION[nc$NAME=="Yancey"]<-"WEST"
 nc$REGION[nc$NAME=="Madison"]<-"WEST"
 nc$REGION[nc$NAME=="Buncombe"]<-"WEST"
@@ -911,6 +911,7 @@ The first variable on the economic condition will include the sum of all average
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$allWages<-dfCrime$wcon + dfCrime$wtuc + dfCrime$wtrd + dfCrime$wfir +
     dfCrime$wser + dfCrime$wmfg + dfCrime$wfed + dfCrime$wsta + dfCrime$wloc
+dfCrime$unweightedWageAvg <- dfCrime$allWages/9
 ```
 
 As a second variable, we are interested in understanding the effectiveness of the criminal justice system as a crime deterrent. Our proxy will be the number of convictions per incident.
@@ -971,15 +972,24 @@ By satisfying these assumptions, we can expect  our coefficients will be approac
 ### Introduction
 Our base hypothesis is that crime can be fundamentally explained by two factors: the effectiveness of the criminal justice system and the economic conditions.
 
-Criminal Justice Effectiveness is self defined : To be able to track crimes, they must be reported to police, who can then make arrests and the legal system provides judgement (convictions/sentencing)
+Criminal Justice Effectiveness is self defined : To be able to track crimes, they must be reported to police, who can then make arrests and the legal system provides judgement (convictions/sentencing).  
 Criminal justice also has a relationship to crime as a deterrent, as the probability of getting caught, convicted, sentenced could potentially deter crime.
 
-We operationalize criminal justice effectiveness as (probability of Convictions * Crimes committed). We define this as: prbconv * prbarr = conv/arrest * arrest/crime = convictions/crime. Without more granular data, this provides a single parsimonious metric that helps understand how the law enforcement and criminal justice system works.
+We operationalize criminal justice effectiveness as (probability of Convictions * Crimes committed). We define this as: prbconv * prbarr = conv/arrest * arrest/crime = convictions/crime. Without more granular data, this provides a single parsimonious metric that helps understand how well the law enforcement and criminal justice system works.
+
+We theorize that the second major cause of crime are bad economic conditions.  When there are worse economic conditions, crime can be increased due to:
+
+* Lack of means: People forced into crimes because they need to make ends meet
+* Lack of occupation: People commit crimes because they are not busy at work
+* Lack of opportunity: High discount rate for future due to no long-term opportunity, incentive to take the risk and commit crimes hoping for big payoff. 
+
+We operationalize economic conditions by looking at wages. For this base, parsimonious model, we define this as the unweighted average weekly pay from each sector provided in the data set.  We think this is best proxy from our data because it answers all of the above (higher wages leads to better means and better opportunities). From our EDA we also confirm that in general these sums are not skewed by having 1 really high paying sector in each county as we see a strong relationship between avg quartile across all job types and total sum.  This can be seen in the chart below.
+
 
 ### Model 1 EDA
 
 **Data Transformations**
-
+First we look at the components of the Criminal Justice Effectiveness: Probability of arrest and Probability of conviction.  
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 options(repr.plot.width=4, repr.plot.height=4)
@@ -987,34 +997,29 @@ hist((dfCrime$prbconv))
 hist((dfCrime$prbarr))
 ```
 
-The distribution of both probability of conviction and probability of arrest are peculiar and non-normal.  It could be argued that both of these variables should be bound between 0 and 1.  However, "probability" of conviction is proxied by a ratio of convictions to arrests.  It is in fact common that defendents are charged with multiple crimes and convicted, but were only arrested once. 
+The distribution of both probability of conviction and probability of arrest are peculiar and non-normal.  It could be argued that both of these variables should be bound between 0 and 1.  However, "probability" of conviction is proxied by a ratio of convictions to arrests.  It is in fact common that defendents are charged with multiple crimes and convicted, but were only arrested once. Because of the continuity of the long right tail, we do not have sufficient evidence to claim that some values are incorrect.
 
-For "probability" of arrest, it could be possible there are multiple arrests for a single offense. However, the single data point that is greater than one, is >3 standard deviations away from the distribution.  This outlier will have high leverage on our model and will be preemptively removed as the data supplied is likely in error and is not representative of the bulk of North Carolina counties. 
-
-For parsimony, we can simply the probability of arrest and probability of conviction by multiplying to effectively get the ratio of convictions to offenses.  The normality of this factor can be improved by taking a log transform. QQ plots help to visualize how normality improves for the inner quartiles.  
+For "probability" of arrest, it could be possible there are multiple arrests for a single crime. However, the single data point that is greater than one, is >3 standard deviations away from the distribution. Since this value falls so far out of distribution, it will have high leverage on our model and will be preemptively imputed as the data supplied is likely in error and is not representative of the bulk of North Carolina counties. This is further verified by viewing the QQ plots before and after replacing the value with an imputed value.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 # how many standard deviations away the outlier lies
-(dfCrime[51,]$prbarr - mean(dfCrime$prbarr))/sd(dfCrime$prbarr) 
+(dfCrime[51,]$prbarr - mean(dfCrime$prbarr))/sd(dfCrime$prbarr) # s
 #hist(log(dfCrime$crimJustEff))
 ggplot(data=dfCrime, aes(sample= crimJustEff)) + stat_qq() + stat_qq_line() + 
   ggtitle("QQ Plot of Crim Just Eff")
 ```
 
+We will use the imputation method to replace the large prbarr value and remove the outlier effect, while also retaining the rest of the variables in the county.
 
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime[dfCrime$crimJustEff > 1,] # find outlier
-```
-We see that pbarr and prbconv are both > 1. This is not possible because you cannot be convicted more than once for the same offense. We have an issue with the probability ratios. We will use the imputation method to replace their values and remove the outlier effect, while also retaining the rest of the variables in the county.
-
+---delete----
 We also see that polpc is .009. We noticed this outlier during our EDA analysis. Based on the records describing the US population on police officers per capita, the highest police per capita on record is .007 in Atlantic City, NJ. https://www.governing.com/gov-data/safety-justice/police-officers-per-capita-rates-employment-for-city-departments.html This datapoint is also in error and we will impute it's replacement.
-
+---/delete---
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$prbarr[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
-dfCrime$prbconv[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
-dfCrime$polpc[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
+#dfCrime$prbconv[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed
+#dfCrime$polpc[which(dfCrime$county==115)]<-NA # set the value to NA so it will be imputed delete
 ```
 
 
@@ -1039,6 +1044,7 @@ paste("Distribution of Values for Each Imputation")
 table(impute_arg$imputed$prbarr)
 ```
 
+---delete---
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 paste("Distribution of Values for Each Imputation")
 table(impute_arg$imputed$prbconv)
@@ -1047,61 +1053,42 @@ table(impute_arg$imputed$prbconv)
 paste("Distribution of Values for Each Imputation")
 table(impute_arg$imputed$polpc)
 ```
+---/delete---
 
 We will reassign the value in our dataset to the mean from these trials.
-
-
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$prbarr[which(dfCrime$county==115)]<-mean(impute_arg$imputed$prbarr)
 dfCrime$prbarr[which(dfCrime$county==115)]
 
-dfCrime$prbconv[which(dfCrime$county==115)]<-mean(impute_arg$imputed$prbconv)
-dfCrime$prbconv[which(dfCrime$county==115)]
+#dfCrime$prbconv[which(dfCrime$county==115)]<-mean(impute_arg$imputed$prbconv)
+#dfCrime$prbconv[which(dfCrime$county==115)]
 
-dfCrime$polpc[which(dfCrime$county==115)]<-mean(impute_arg$imputed$polpc)
-dfCrime$polpc[which(dfCrime$county==115)]
+#dfCrime$polpc[which(dfCrime$county==115)]<-mean(impute_arg$imputed$polpc)
+#dfCrime$polpc[which(dfCrime$county==115)]
 ```
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$logprbarr[which(dfCrime$county==115)]<-log(dfCrime$prbarr[which(dfCrime$county==115)])
 dfCrime$logprbarr[which(dfCrime$county==115)]
 
-dfCrime$logprbconv[which(dfCrime$county==115)]<-log(dfCrime$prbconv[which(dfCrime$county==115)])
-dfCrime$logprbconv[which(dfCrime$county==115)]
+#dfCrime$logprbconv[which(dfCrime$county==115)]<-log(dfCrime$prbconv[which(dfCrime$county==115)])
+#dfCrime$logprbconv[which(dfCrime$county==115)]
 
-dfCrime$logpolpc[which(dfCrime$county==115)]<-log(dfCrime$polpc[which(dfCrime$county==115)])
-dfCrime$logpolpc[which(dfCrime$county==115)]
+#dfCrime$logpolpc[which(dfCrime$county==115)]<-log(dfCrime$polpc[which(dfCrime$county==115)])
+#dfCrime$logpolpc[which(dfCrime$county==115)]
 ```
+
+With the outlier imputed.  The Criminal Justice Effectiveness can be constructed as described above.  And a histogram can show how log transformation improves normality.  Also, by log transforming we can understand the resulting coefficient as a percent change in the ratio of Criminal Justice Effectiveness (convictions/crime). 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$crimJustEff<-dfCrime$prbarr * dfCrime$prbconv
 dfCrime$logcrimJustEff<-log(dfCrime$crimJustEff)
+options(repr.plot.width=4, repr.plot.height=4)
+hist((dfCrime$crimJustEff))
+hist((dfCrime$logcrimJustEff))
 ```
 
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-ggplot(data=dfCrime, aes(sample= crimJustEff)) + stat_qq() + stat_qq_line() + 
-  ggtitle("QQ Plot of Crim Just Eff")
-```
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-ggplot(data=dfCrime, aes(sample= logcrimJustEff)) + stat_qq() + stat_qq_line() + 
-ggtitle("QQ Plot of log transformed Crim Just Eff")
-## Can show histogram/qqplot side by side in RMD. 
-```
-
-We theorize that the second major cause of crime are bad economic conditions.  When there are worse economic conditions, crime can be more attractive due to:
-
-* Lack of means: People forced into crimes because they need to make ends meet
-* Lack of occupation: People commit crimes because they are not busy at work
-* Lack of opportunity: High discount rate for future due to no long-term opportunity, incentive to take the risk and commit crimes hoping for big payoff. 
-
-We operationalize economic conditions by looking at wages. For this model, we define this as the sum of all average wages in each county. We think this is best proxy from our data because it answers all of the above (higher wages leads to better means and better opportunities). From our EDA we also confirm that in general these sums are not skewed by having 1 really high paying sector in each county as we see a strong relationship between avg quartile across all job types and total sum.  This can be seen in the chart below.
-
-
-
+Now we turn our attention to the economic variable, unweighted average weekly wage of all provided sectors. The wages trend together well, so there is limited information lost when combining them into one variable.  This can be seen by plotting quartiles of each wage against the unweighted average and observing a relatively linear response.  
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
@@ -1118,49 +1105,61 @@ dfWage<-mutate(dfWage,qLoc=ntile(dfCrime$wloc,4))
 ## Average quantile
 dfWage$qAvg= (dfWage$qCon+dfWage$qTuc+dfWage$qTrd+dfWage$qFir+dfWage$qSer+dfWage$qMfg+
                 dfWage$qFed+dfWage$qSta+dfWage$qLoc)/9
-plot(dfCrime$allWages,dfWage$qAvg)
+plot(dfCrime$unweightedWageAvg,dfWage$qAvg)
 ```
+
+We will again modify this variable with a log transformation for better interpretation. This allows us to interpret percent changes in wage which is more consistent across a range of wages. The result is a relatively normal distribution as seen in the below histogram.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-hist(dfCrime$allWages)
+dfCrime$logUnweightedWageAvg <- log(dfCrime$unweightedWageAvg)
+hist(dfCrime$logUnweightedWageAvg)
 ggplot(data=dfCrime, aes(sample= allWages)) + stat_qq() + stat_qq_line() +
   ggtitle("QQ Plot of sum of wages")
 ```
 
 ### Model 1 Linear Model
 
+$$ log(Crime Rate) = B_0 + B_1log(Unweighted Average Wage) + B_2log(Criminal Justice Effectiveness)$$
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime$unweighted_avg_wage <- dfCrime$allWages/9
-mod1 <- lm(dfCrime$logcrmrte ~ dfCrime$unweighted_avg_wage + dfCrime$logcrimJustEff)
-coeftest(mod1, vcov=vcovHC)
-vif(mod1)
+mod1 <- lm(logcrmrte ~ logUnweightedWageAvg + logcrimJustEff, data = dfCrime)
+mod1
 summary(mod1)$adj.r.square
-shapiro.test(mod1$residuals)
-```
-The model gives estimates and standard errors that are heteroskedastic consistent.  The coefficient of unweighted_avg_wage is calculated to have a coefficient of .005.  This means that an increase of $100 in weekly wages is correlated with an increase of .5% in crime rate.  Generally increased wages are not associated with increased crime.  This suggests that wages are correlated with a stronger omitted variable that affects crime.
 
-Similarly, criminal justice effectiveness (convictions/crime) is given a coefficient of -0.489 which suggests that an increase 1% increase in convictions per crime is will decrease crime by nearly .5%.  This suggests that we have found a are strong correlation and perhaps a good influence on crime rate in a county.
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-plot(mod1, which=5)
 ```
 
+**Model 1 CLM Assumptions: [To be finalized]**
+* **MLR1** Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model. 
 
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-plot(mod1, which=2)
+* **MLR2** Random Sampling: The data is collected from a data set with rolled up data for each county.  We cannot comment on the randomness of the samples, though nearly all counties are represented in North Carolina.  
+* **MLR3** No perfect multicollinearity: None of the variables chosen for the model are constant or perfectly collinear as the economy and criminal justice effectiveness are independent.  Our VIF value shows very little colinearity.
+```{r}
+vif(mod1) # Variance Inflation Factor
 ```
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-plot(mod1, which=3)
+* **MLR4'** The expectation of u and and covariance of each regressor with u are ~0.  This shows that our model's regressors are exogenous with the error.  
+```{r}
+cov(resid(mod1),dfCrime$logUnweightedWageAvg)
+cov(resid(mod1),dfCrime$logcrimJustEff)
+mean(resid(mod1))
 ```
-
-
+* **MLR4** The zero conditional mean assumption is well supported when viewing the Residuals vs fitted plot.  The spline fit is nearly flat and centered at 0.
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 plot(mod1, which=1)
 ```
+* **MLR5** There does appear to be heteroskedacity in the 'lips' appearance of the Residuals vs fitted plot.  This is acknowledged and can be accounted for by using the heteroskedastic robust standard errors.  This is seen in the coeftest.
+```{r}
+coeftest(mod1, vcov=vcovHC) #coefficients with heteroskedastic consistent standard errors
+```
+* **MLR6** The final assumption of linear regression is that the errors are normall distributed.  This appears to hold for the bulk of the residuals with some skewness in the tails.  This is also reflected in the significant return on the shapiro test.  The model should not be used when predicting crime rate for counties with extreme criminal justice effectiveness or wages.  
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+shapiro.test(mod1$residuals) # test for normality
+plot(mod1, which=2) # QQ plot for residuals
+```
+
+The model gives estimates and standard errors that are heteroskedastic consistent.  The coefficient of the log of the unweighted_avg_wage is calculated to have a coefficient of 1.85.  This means that an increase of 1% in wages is correlated with an increase of 0.5% in crime rate.  Generally increased wages are not associated with increased crime.  This suggests that wages are correlated with a stronger omitted variable that affects crime.  Further on in this paper, we discuss how population density and urban centers may explain why high wages are correlated with increased crime.
+
+Similarly, criminal justice effectiveness (convictions/crime) is given a coefficient of -0.489 which suggests that an increase of 1% increase in convictions per crime will decrease crime by nearly .5%.  This suggests that we have found a relatively strong correlation and perhaps a good influence on crime rate in a county.
 
 The model shows a moderate good fit, with an adjusted R square of 0.46.  This can be interpreted as, the model explains 46% of the variation in crime.  Next the model is plotted in a Residuals vs Leverage plot.  This plot shows that all the points have a cook's distance of less than 0.5.  There are no points that have enough leverage and residual than when deleted greatly alter the model coefficients. 
 
@@ -1168,24 +1167,6 @@ The root of standardized residuals all fall within about 1.6.  This is very good
 
 Finally, the residuals vs fitted plot shows a well centered and mostly nromal distribution about 0.  There are no major trends or variation changes across the fitted values.  This suggests that major uncorrelated variables have not been left out of the model.  We will discuss the possible ommited variable biases further, in the next sections.
 
-**Model 1 CLM Assumptions: [To be finalized]**
-* **MLR1** Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model. 
-* **MLR2** Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population. 
-* **MLR3** No perfect multicollinearity: None of the variables chosen for the model are constant or perfectly collinear as the economy and criminal justice effectiveness are independent.
-* **MLR4'** The expectation of u and and covariance of each regressor with u are ~0.  This shows that our model's regressors are exogenous with the error.  
-* **MLR4** The zero conditional mean assumption is well supported when viewing the Residuals vs fitted plot.  The split fit is nearly flat and centered at 0.
-* **MLR5** There does appear to be heteroskedacity in the 'lips' appearance of the Residuals vs fitted plot.  This is acknowledged and can be accounted for by using the heteroskedastic robust standard errors.  This is seen in the coeftest.
-* **MLR6** The final assumption of linear regression is that the errors are normall distributed.  This appears to hold for the bulk of the residuals with some skewness in the tails.  This is shown in the significant return on the shapiro test.  The model should not be used when predicting crime rate for counties with extreme criminal justice effectiveness or wages.  
-
-To summarize the value of model 1 we found a strong predictor in the form of criminal justice effectiveness while wages are not good predictors. 
-
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-cov(resid(mod1), dfCrime$allWages)
-cov(resid(mod1), log(dfCrime$crimJustEff))
-mean(resid(mod1))
-```
 
 ## Model 2
 
