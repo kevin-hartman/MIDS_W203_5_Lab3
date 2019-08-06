@@ -156,8 +156,10 @@ First, we note there are missing rows in the dataset that were imported. We'll r
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+print('Orginal Number of Records (includes NAs):')
 nrow(dfCrime)
 dfCrime <-na.omit(dfCrime) # omit the NA rows
+print('Number of Records After Removing NAs:')
 nrow(dfCrime)
 ```
 
@@ -170,9 +172,9 @@ dfCrime[duplicated(dfCrime),]
 
 A duplicate row exists. We'll remove it.
 
-
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime <- dfCrime[!duplicated(dfCrime),] # remove the duplicated row
+print('Number of Records After Removing Duplicate:')
 nrow(dfCrime)
 ```
 
@@ -210,7 +212,7 @@ dfCrime %>%
 filter(west ==1 & central ==1)
 ```
 
-One county was either mis-coded, or it truly belongs to both regions. However, this is very unlikely as the intended technique is to widen the data and introduce indicator variables for each category. It is not likley the data was captured for both categories.
+One county was either mis-coded (with west=1 and central=1), or it truly belongs to both regions. However, this is very unlikely as the intended technique is to widen the data and introduce indicator variables for each category. It is not likley the data was captured for both categories.
 
 We will need further analysis on this datapoint as it relates to the rest of the data.
 
@@ -355,6 +357,7 @@ We will reassign the value in our dataset to the mean from these trials.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$wser[which(dfCrime$county==185)]<-mean(impute_arg$imputed$wser)
+print("Newly Reassigned wser Value for County 185:")
 dfCrime$wser[which(dfCrime$county==185)]
 ```
 Next, we will examine the criminal justice variables.
@@ -482,10 +485,13 @@ Mode = function(x){
 }
 
 dfCrime$urban[which(dfCrime$county==71)]<-Mode(impute_arg$imputed$urban)
+print("Newly Reassigned urban Value for County 71:")
 dfCrime$urban[which(dfCrime$county==71)]
 dfCrime$nonurban[which(dfCrime$county==71)]<-1-Mode(impute_arg$imputed$urban)
+print("Newly Reassigned nonurban Value for County 71:")
 dfCrime$nonurban[which(dfCrime$county==71)]
 dfCrime$west[which(dfCrime$county==71)]<-Mode(impute_arg$imputed$west)
+print("Newly Reassigned west Value for County 71:")
 dfCrime$west[which(dfCrime$county==71)]
 ```
 
@@ -834,12 +840,12 @@ options(repr.plot.width=8, repr.plot.height=8)
 myData<-dfCrime
 myData<-myData[, c("logcrmrte", "west", "central", "other", "urban", "logprbarr", "logprbconv", "logprbpris", "logavgsen", "logpolpc", "logtaxpc",
            "logpctmin80", "logwcon", "logwtuc", "logwtrd", "logwfir", "logwser", "logwmfg", "logwfed", "logwsta", "logwloc",
-           "logmix", "logpctymle")]
+           "logmix", "logpctymle", "logdensity")]
 plot<-myData %>% correlate() %>% network_plot(min_cor=.25)
-grid.arrange(arrangeGrob(plot, bottom = 'Correlation Plot'), 
-             top = "Correlation plots for Independent Variables", ncol=1)
+grid.arrange(arrangeGrob(plot, bottom = 'Correlations Among Variables'), 
+             top = "Network plot for Correlation Study", ncol=1)
 ```
-First, we note the general proximity of variables with one another. Variables that are clustered together have stronger affinities and degrees of collinearity. In fact, the cluster of the wage variables are an indication of multicollinearity. Only state wages fall outside this group. The telecome and utlity wage variable, while still near the cluster,  show a little less collinearity. If we choose to operationalize the wage variables we must pick an appropriate strategy to minimize their multicollinearity impact. We also see the wage variables are positively correlated with our crime outcome variable.
+First, we note the general proximity of variables with one another. Variables that are clustered together have stronger affinities and degrees of collinearity. In fact, the cluster of the wage variables are an indication of multicollinearity. Only state wages fall outside this group. The telecome and utlity wage variable, while still near the cluster,  show a little less collinearity. If we choose to operationalize the wage variables we must pick an appropriate strategy to minimize their multicollinearity impact. We also see the wage variables are positively correlated with our crime outcome variable. Density also positively correlates with wage and the crime rate variable. Urban also correlates with wage, but suprisingly the correlation between crime and urban is not as high.
 
 Next, we notice the Law enforcement and Judicial variables are clustered and have a negative correlation with our outcome variable on crime. We also see they tend to be negatively correlated amongst one another. For example, probability of conviction is slightly negatively corrrelated with the probability of arrest, and both are negatively correlated with our outcome variable. We may wish to combine their impacts. We also see that police per capita and tax per capita are positively correlated with another. This makes sense as the more revenues collected the higher the ability to pay for community services such as law enforcement and protection. Both are also positively correlated with our outcome variable on crime. We also notice that percent young male has a positive correlation with crime rate. A possible explanation for this is that more crimes are committed by younger men as a whole. We also note that counties with higher state wages are correlated with higher percentages of young males, and these two variables are clustered together.
 
