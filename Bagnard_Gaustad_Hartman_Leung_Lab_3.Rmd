@@ -589,7 +589,7 @@ dfCrime$density[which(dfCrime$county==173)]<- NA
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE, results='hide'}
-#dfSubset <-  #we will use the non-urban western counties
+#dfSubset <-  we will use the non-urban western counties
 impute_arg <- aregImpute(~ crmrte + 
                          prbarr + prbconv + prbpris + avgsen + polpc + 
                          density + taxpc + pctmin80 + wcon + wtuc +
@@ -1085,12 +1085,16 @@ ggplot(data=dfCrime, aes(sample= allWages)) + stat_qq() + stat_qq_line() +
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-mod1 <- lm(dfCrime$logcrmrte ~ dfCrime$allWages + dfCrime$logcrimJustEff)
-(mod1)
+dfCrime$unweighted_avg_wage <- dfCrime$allWages/9
+mod1 <- lm(dfCrime$logcrmrte ~ dfCrime$unweighted_avg_wage + dfCrime$logcrimJustEff)
+coeftest(mod1, vcov=vcovHC)
+vif(mod1)
 summary(mod1)$adj.r.square
-## will be details on effect size and standard error as we cover this in class.
+shapiro.test(mod1$residuals)
 ```
+The model gives estimates and standard errors that are heteroskedastic consistent.  The coefficient of unweighted_avg_wage is calculated to have a coefficient of .005.  This means that an increase of $100 in weekly wages is correlated with an increase of .5% in crime rate.  Generally increased wages are not associated with increased crime.  This suggests that wages are correlated with a stronger omitted variable that affects crime.
 
+Similarly, criminal justice effectiveness (convictions/crime) is given a coefficient of -0.489 which suggests that an increase 1% increase in convictions per crime is will decrease crime by nearly .5%.  This suggests that we have found a are strong correlation and perhaps a good influence on crime rate in a county.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 plot(mod1, which=5)
@@ -1118,14 +1122,16 @@ The root of standardized residuals all fall within about 1.6.  This is very good
 Finally, the residuals vs fitted plot shows a well centered and mostly nromal distribution about 0.  There are no major trends or variation changes across the fitted values.  This suggests that major uncorrelated variables have not been left out of the model.  We will discuss the possible ommited variable biases further, in the next sections.
 
 **Model 1 CLM Assumptions: [To be finalized]**
-* **MLR1** Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model.
+* **MLR1** Linear in paramters: The model has had its data transformed as described above to allow a linear fit of the model. 
 * **MLR2** Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population. 
 * **MLR3** No perfect multicollinearity: None of the variables chosen for the model are constant or perfectly collinear as the economy and criminal justice effectiveness are independent.
 * **MLR4'** The expectation of u and and covariance of each regressor with u are ~0.  This shows that our model's regressors are exogenous with the error.  
+* **MLR4** The zero conditional mean assumption is well supported when viewing the Residuals vs fitted plot.  The split fit is nearly flat and centered at 0.
+* **MLR5** There does appear to be heteroskedacity in the 'lips' appearance of the Residuals vs fitted plot.  This is acknowledged and can be accounted for by using the heteroskedastic robust standard errors.  This is seen in the coeftest.
+* **MLR6** The final assumption of linear regression is that the errors are normall distributed.  This appears to hold for the bulk of the residuals with some skewness in the tails.  This is shown in the significant return on the shapiro test.  The model should not be used when predicting crime rate for counties with extreme criminal justice effectiveness or wages.  
 
-By satisfying these assumptions, we can expect that our coefficients are approaching the true parameter values in probability. 
+To summarize the value of model 1 we found a strong predictor in the form of criminal justice effectiveness while wages are not good predictors. 
 
-##MLR 5,6 to be discussed in week 13...?
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
