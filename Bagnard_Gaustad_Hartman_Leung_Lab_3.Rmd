@@ -132,34 +132,11 @@ We begin our analysis by loading the data set and performing basic checks and in
 dfCrime = read.csv("crime_v2.csv")
 ```
 
+First, we will remove the missing rows from the dataset.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-str(dfCrime)
-```
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-head(dfCrime)
-```
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-tail(dfCrime)
-```
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-#summary(dfCrime)
-```
-
-First, we note there are missing rows in the dataset that were imported. We'll remove those rows now.
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-print('Orginal Number of Records (includes NAs):')
 nrow(dfCrime)
 dfCrime <-na.omit(dfCrime) # omit the NA rows
-print('Number of Records After Removing NAs:')
 nrow(dfCrime)
 ```
 
@@ -174,8 +151,6 @@ A duplicate row exists. We'll remove it.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime <- dfCrime[!duplicated(dfCrime),] # remove the duplicated row
-print('Number of Records After Removing Duplicate:')
-nrow(dfCrime)
 ```
 
 We also saw that pbconv was coded as a level. It is not a level but a ratio. We'll change that now.
@@ -263,8 +238,8 @@ We create a metro factor variable to better describe this feature.
 #    https://www2.census.gov/prod2/decennial/documents/1980/1980censusofpopu8011uns_bw.pdf
 dfCrime$metro =
             factor( dfCrime$urban , levels = 0:1 , labels =
-                    c( 'Outside',
-                       'Inside'
+                    c( 'Outside Metro',
+                       'Inside Metro'
                       )
                    )
 ```
@@ -274,34 +249,34 @@ Next we will visualize each variable and its relationship to the variable crmrte
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 #Plot of the economic and tax related variables vs crmrte
-q1<-ggplot(data = dfCrime, aes(x = wcon, y = crmrte, color = region)) + 
+q1<-ggplot(data = dfCrime, aes(x = wcon, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q2<-ggplot(data = dfCrime, aes(x = wtuc, y = crmrte, color = region)) + 
+q2<-ggplot(data = dfCrime, aes(x = wtuc, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q3<-ggplot(data = dfCrime, aes(x = wtrd, y = crmrte, color = region)) + 
+q3<-ggplot(data = dfCrime, aes(x = wtrd, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q4<-ggplot(data = dfCrime, aes(x = wfir, y = crmrte, color = region)) + 
+q4<-ggplot(data = dfCrime, aes(x = wfir, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q5<-ggplot(data = dfCrime, aes(x = wser, y = crmrte, color = region)) + 
+q5<-ggplot(data = dfCrime, aes(x = wser, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q6<-ggplot(data = dfCrime, aes(x = wmfg, y = crmrte, color = region)) + 
+q6<-ggplot(data = dfCrime, aes(x = wmfg, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q7<-ggplot(data = dfCrime, aes(x = wfed, y = crmrte, color = region)) + 
+q7<-ggplot(data = dfCrime, aes(x = wfed, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q8<-ggplot(data = dfCrime, aes(x = wsta, y = crmrte, color = region)) + 
+q8<-ggplot(data = dfCrime, aes(x = wsta, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q9<-ggplot(data = dfCrime, aes(x = wloc, y = crmrte, color = region)) + 
+q9<-ggplot(data = dfCrime, aes(x = wloc, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q10<-ggplot(data = dfCrime, aes(x = taxpc, y = crmrte, color = region)) + 
+q10<-ggplot(data = dfCrime, aes(x = taxpc, y = crmrte, color = regcode)) + 
       geom_point()+
   geom_smooth(method = "lm")
 grid.arrange(q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, ncol=2)
@@ -582,7 +557,7 @@ dfCrime %>%
 filter(density < 0.01)
 ```
 
-In review of the North Carolina county density data from 1985, the smallest population density in any county in North Carolina is 0.0952. This makes the density of 0.0000203422 for county 173 statistically impossible. It is miscoded.
+In review of the North Carolina county density data from 1985, the smallest population density in any county in North Carolina is 0.0952. This makes the density of 0.0000203422 (ie. average of ~2.0 people per 10,000 square miles) for county 173 statistically impossible. It is miscoded.
 
 http://ncosbm.s3.amazonaws.com/s3fs-public/demog/dens7095.xls
 
@@ -622,6 +597,7 @@ dfCrime$density[which(dfCrime$county==173)]<-mean(impute_arg$imputed$density)
 dfCrime$density[which(dfCrime$county==173)]
 ```
 
+ -- MOVE TO END OF PUT IN EACH MODEL -- 
 Now, we will examine transforms for better linearity.
 
 
@@ -908,21 +884,14 @@ As we proceed with each model, we verify the CLM assumptions of OLS are addresse
 
 * **MLR1** Linear in parameters: The models have had its data transformed as described above to allow a linear fit of the model.
 * **MLR2** Random Sampling: The data is collected from a data set with rolled up data for each county.  It is not randomly sampled by area or population.
-* **MLR3** No perfect multicollinearity: None of the variables chosen for the model are constant or perfectly collinear as demonstrated by the scatterplot below.
-* **MLR4'** The expectation of u and and covariance of each regressor with u are ~0.  This shows that our model’s regressors are exogenous with the error.
-* **MLR5'** Spherical errors: There is homoscedasticity and no autocorrelation [TBD].
-* **MLR6'** Our error terms should be normally distributed [TBD]. 
+
+* **MLR3** to be discussed on a model by model basis.
+* **MLR4** to be discussed on a model by model basis.
+* **MLR5'** to be discussed on a model by model basis.
+* **MLR6'** to be discussed on a model by model basis.
 
 By satisfying these assumptions, we can expect  our coefficients will be approaching the true parameter values in probability.
 
-#### Evidence of multi-collinearity (or perfect collinearity)?
-
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-options(repr.plot.width=8, repr.plot.height=8)
-pairs(~ logcrimJustEff + logpolpc + allWages + logtaxpc + logdensity + logpctmin80 +
-        logpctymle, data=dfCrime, main="Scatterplot Matrix of Model Variables")
-```
 
 # Model Analysis
 
@@ -1219,11 +1188,12 @@ As a result, we will use the $log$ of polpc (logpolpc) in our second model and w
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc + log(allWages) + logtaxpc + sqrt(dfCrime$density), data = dfCrime)
 model2
-plot(model2)
 ```
 
+-- cooks distance analysis -- 
 
 **Model 2 CLM Assumptions:**
+
 * **MLR1** Discussed above.
 * **MLR2** Discussed above.
 
@@ -1237,7 +1207,9 @@ vif(model2)
 plot(model2, which=1)
 ```
 
-* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right side of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the White test with vcovHC
+* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right side of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the White test to generate coefficients with robust with vcovHC
+
+non-significan coeffs (pr(>t)) > .05...make a model to remove all the non-significant and then analyze using the f-test. 
 
 -- AXLB - WIP
 
@@ -1272,9 +1244,6 @@ Coefficient Analysis (assuming ceterus paribus):
 - allWages: 0.00006692. This suggests that for a 1% increase in total average weekly wage, there is a 0.0067% increase in crime rate.
 - taxpc: -0.001632. This suggests that for a 1% increase in tax per capita, there is a 0.1632% decrease in crime rate.
 - density: 0.06259. This suggests that for a 1% increase in density, there is a 6.259% increase in crime rate.
-
-### Results - **WIP**
-- Standard Errors explanation will go here. Placeholder cell for now.
 
 ### Conclusion : Are the conclusions they draw based on this evaluation appropriate? Did the team interpret the results in terms of their research question?
 Compared to model 1, the adjusted $R^2$ of model 2 is only marginally higher. This suggests that we should continue our analysis by focusing on the join significance of the variables added in model 2.  
