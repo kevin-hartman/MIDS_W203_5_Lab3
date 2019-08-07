@@ -933,6 +933,7 @@ In this model, we introduce the additional covariates of tax per capita (taxpc) 
 
 2. The **Tax Per Capita** can have a direct impact on the Police Per Capita. A higher tax per capita, means that the county has more tax dollars to spend on public services like the police force (ie. increasing the number of police in the county). 
 
+-- correlation discussion. Also could mean economic activity (look at mod1) or overbearing sales tax?
 
 $$logcrmrte = \beta_0 + \beta_1logScaledWages + \beta_2logcrimJustEff + \beta_3logpolpc * regcode + \beta_4logtaxpc + u$$
 
