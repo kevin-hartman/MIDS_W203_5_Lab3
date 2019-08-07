@@ -1150,19 +1150,17 @@ grid.arrange(p, p2, ncol=2)
 
 
 **Variables not considered**
-Given that our analysis of model 2 showed that taxpc was not statistically significant, we will not consider it in our model.
-
 We have also chosen not to include other variables from our dataset in our model:
 * Urban: We believe the variable "density" better explains the same effects as "urban" while also being a continous. We believe a continous variable is more meaningful rather a binary indicator such as urban as there may be data points that failed to meet the cutoff for being defined as urban, but may still see the same effects as being urban and hence may distort our analysis.
 * Age and Gender: While age and gender are important demographic variables, the only variable in our dataset is pctymle which provides the percentage of young males in the population. However, given that this variable encompasses both male and young, we may not be able to discern if age or gender has the larger effect (if any at all). 
 * Judgement: We chose not to include the varibles concerning the probability of a prison sentence as well as the average sentence as we believe it is unlikely that potential criminals would have good access to this information. In addition, local county officials have limited influence over the decisions of the judiciary system, as they are separate branches of government.
 
 Our equation for model 3 is as follows:
-$$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3log(scaledWages) + \beta_4regcode + \beta_5log(pctmin80) + \beta_6density +u$$
+$$log(crmrate) = \beta_0 + \beta_1log(scaledWages) + \beta_2log(crimjusteff) + \beta_3regcode + \beta_4log(polpc) + \beta_5log(taxpc)+ \beta_6log(pctmin80) + \beta_7density +u$$
 
 ### Model 3 Linear Model
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model3_initial<-lm(logcrmrte ~ logcrimJustEff + logScaledWages +  regcode + logpolpc + logpctmin80 + density, data = dfCrime)
+model3_initial<-lm(logcrmrte ~ logScaledWages + logcrimJustEff   +  regcode + logpolpc + logtaxpc + logpctmin80 + density, data = dfCrime)
 summary(model3_initial)
 ```
 We note from the the summary above and the F-tests below that west and central were not statistically significant to the model, but the inclusion of logpctmin80 and density are significant at the 99% confidence level. It appears that our new variables better explain the variation between counties rather than purely based on their geographic location and we thus remove the latter 2 variables from our model. 
@@ -1172,9 +1170,10 @@ linearHypothesis(model3_initial,c("regcodeWest=0","regcodeCentral=0"), vcov=vcov
 vif(model3_initial)
 ```
 Our revised equation for model 3 is as follows:
-$$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3log(scaledWages) + \beta_4log(pctmin80) + \beta_5density +u$$
+$$log(crmrate) = \beta_0 + \beta_1log(scaledWages) + \beta_2log(crimjusteff) + \beta_3log(polpc) + \beta_4log(taxpc)+ \beta_5log(pctmin80) + \beta_6density +u$$
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model3<-lm(logcrmrte ~ logcrimJustEff + logScaledWages +  logpolpc + logpctmin80 + density, data = dfCrime)
+model3<-lm(logcrmrte ~ logcrimJustEff + logScaledWages +  logpolpc + 
+              logtaxpc + logpctmin80 + density, data = dfCrime)
 model3
 summary(model3)$adj.r.square
 ```
@@ -1221,13 +1220,13 @@ The model shows a good fit, with an adjusted R-squared of 0.72, meaning that the
 After accounting for coefficients that are robust to heteroscedasticity, we note only three them have individual statistical significance at the 95% level or better. These are criminal justice efficiency, minority percentages and density. However, running a F-test on the other two variables logpolpc and logScaledWages show that jointly they are still significant for our model. 
 
 ```{r}
-linearHypothesis(model3,c("logpolpc=0","logScaledWages=0"), vcov=vcovHC)
+linearHypothesis(model3,c("logpolpc=0","logScaledWages=0","logtaxpc=0"), vcov=vcovHC)
 ```
 **Interpretation of coefficients (Assuming ceterus paribus):**
 
 Positive coefficients:
 * Police presence: If we increase police per capita by 1 percent, we expect the crime rate to increase by 0.28%.
-* scaledWages: If we increase wages by 1 percent, we expect the crime rate to increase by 0.95%
+* scaledWages: If we increase wages by 1 percent, we expect the crime rate to increase by 0.96%
 * Density: If we increase density by 1 person per square mile, we expect the crime rate to increase by 7.48%
 * Percentage of minorities: If the percentage of minorities increase by 1%, we expect the crime rate to increase by 0.25%
 
@@ -1242,7 +1241,41 @@ Of these different variables, we should pay particular attention to density give
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-stargazer(mod1,model2,model3,type="text", option())
+#*** Function to convert coeftest results object into data frame
+ctdf=function(x){
+  rt=list()                             # generate empty results list
+  for(c in 1:dim(x)[2]) rt[[c]]=x[,c]   # writes column values of x to list
+  rt=as.data.frame(rt)                  # converts list to data frame object
+  names(rt)=names(x[1,])                # assign correct column names
+  rt[,"sig"]=symnum(rt$`Pr(>|z|)`, corr = FALSE, na = FALSE,
+                    cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                    symbols = c("***", "**", "*", ".", " "))
+  return(rt)
+}
+# Get vectors of robust standard errors from the coeftest output
+se.model1 <- ctdf(coeftest(mod1, vcov=vcovHC))[,"Std. Error"]
+se.model2 <- ctdf(coeftest(model2, vcov=vcovHC))[,"Std. Error"]
+#model23<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logScaledWages + logpolpc*regcode + logtaxpc +density + logpctmin80, data = dfCrime)
+#se.model23 <- ctdf(coeftest(model23, vcov=vcovHC))[,"Std. Error"]
+se.model3 <- ctdf(coeftest(model3, vcov=vcovHC))[,"Std. Error"]
+# Pass the standard errors into stargazer
+#stargazer(mod1, model2, model23, model3, type = "text", omit.stat = "f",
+#          se = list(se.model1, se.model2, se.model23, se.model3),
+#          star.cutoffs = c(0.05, 0.01, 0.001))
+
+stargazer(mod1, model2, model3, type = "text", omit.stat = "f",
+          se = list(se.model1, se.model2, se.model3),
+          star.cutoffs = c(0.05, 0.01, 0.001))
+
+
+# waldtest(mod1, model2, vcov=vcovHC)
+# waldtest(model2, model23, vcov=vcovHC)
+# waldtest(model23, model3, vcov=vcovHC)
+# 
+# model4<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logScaledWages + logpolpc*west  +density + logpctmin80, data = dfCrime)
+# coeftest(model4, vcov=vcovHC)
+# summary(model4)$adj.r.square
+# linearHypothesis(model4,c("logpolpc:west=0", "west=0"), vcov=vcovHC)
 ```
 
 Comparing the 3 models, we see that our adjusted R2 value has steadily increased from 0.456-0.732 as we introduce more covariates which indicates that we were able to explain more variation in our model not purely by increasing the number of indepedent variables. 
