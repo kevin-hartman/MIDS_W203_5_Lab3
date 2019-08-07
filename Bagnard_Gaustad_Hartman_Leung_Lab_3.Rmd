@@ -906,7 +906,7 @@ In this model, we introduce the additional covariates of tax per capita (taxpc) 
 
 -- correlation discussion. Also could mean economic activity (look at mod1) or overbearing sales tax?
 
-$$logcrmrte = \beta_0 + \beta_1logScaledWages + \beta_2logcrimJustEff + \beta_3logpolpc * regcode + \beta_4logtaxpc + u$$
+$$logcrmrte = \beta_0 + \beta_1log(Unweighted Average Wage) + \beta_2log(Criminal Justice Effectiveness) + \beta_3log(Police Per Capita)*West\\ +  \beta_4log(Police Per Capita)*Central  + \beta_5logtaxpc + u$$
 
 ### Model 2 EDA and Data Transformations
 
