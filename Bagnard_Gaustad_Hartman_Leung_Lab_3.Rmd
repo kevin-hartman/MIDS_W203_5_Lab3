@@ -682,6 +682,14 @@ Our outcome variable is the *crime rate* (“crmrte”), which is defined as the
 
 From the boxplot below, most of the counties have a crime rate between 0.0055 and 0.0700, with 5 outliers having a crime rate > 0.0700.
 
+```{r}
+p<-ggplot(data = dfCrime, aes(y = crmrte, color = regcode)) + 
+     geom_boxplot() + facet_wrap(~ regcode)
+p2<-ggplot(data = dfCrime, aes(y = crmrte)) +
+     geom_boxplot()
+
+grid.arrange(p, p2, ncol=2)
+```
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 options(repr.plot.width=3, repr.plot.height=4)
@@ -716,7 +724,9 @@ By satisfying these assumptions, we can expect  our coefficients will be approac
 
 ## Model 1 
 ### Introduction
-Our base hypothesis is that crime can be fundamentally explained by two factors: the effectiveness of the criminal justice system and the economic conditions.
+3 factors + region...
+
+Our base hypothesis is that crime can be fundamentally explained by three factors: the effectiveness of the criminal justice system, economic conditions, and regional differences..
 
 Criminal Justice Effectiveness is self defined : To be able to track crimes, they must be reported to police, who can then make arrests and the legal system provides judgement (convictions/sentencing).  
 Criminal justice also has a relationship to crime as a deterrent, as the probability of getting caught, convicted, sentenced could potentially deter crime.
@@ -866,7 +876,7 @@ $$ log(Crime Rate) = B_0 + B_1log(Unweighted Average Wage) + B_2log(Criminal Jus
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 
 #dfCrime$unweighted_avg_wage <- dfCrime$scaledWages/9
-mod1 <- lm(crmrte ~ logScaledWages + logcrimJustEff, data=dfCrime)
+mod1 <- lm(logcrmrte ~ logScaledWages + logcrimJustEff + regcode, data=dfCrime)
 summary(mod1)$adj.r.square
 
 ```
@@ -899,7 +909,14 @@ shapiro.test(mod1$residuals) # test for normality
 plot(mod1, which=2) # QQ plot for residuals
 ```
 
-The model gives estimates and standard errors that are heteroskedastic consistent.  The coefficient of the log of the unweighted_avg_wage is calculated to have a coefficient of 1.85.  This means that an increase of 1% in wages is correlated with an increase of 0.5% in crime rate.  Generally increased wages are not associated with increased crime.  This suggests that wages are correlated with a stronger omitted variable that affects crime.  Further on in this paper, we discuss how population density and urban centers may explain why high wages are correlated with increased crime.
+The model gives estimates and standard errors that are heteroskedastic consistent.  The coefficient of the log of the unweighted_avg_wage is calculated to have a coefficient of 1.85.  This means that an increase of 1% in wages is correlated with an increase of 0.5% in crime rate.  Generally increased wages are not associated with increased crime.  This suggests that wages are correlated with a stronger omitted variable that affects crime.  In model 2, we will investigate regional variations that could explain the positive correlation of wages and crime.  TALK MORE ABOUT THIS CORRELATION >>> OMitted variable bias --> mean wage is easily affected by extreme high wages, perhaps income inequality.
+
+```{r}
+q9<-ggplot(data = dfCrime, aes(x = logScaledWages, y = logcrmrte, color = urban)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q9
+```
 
 Similarly, criminal justice effectiveness (convictions/crime) is given a coefficient of -0.489 which suggests that an increase of 1% increase in convictions per crime will decrease crime by nearly .5%.  This suggests that we have found a relatively strong correlation and perhaps a good influence on crime rate in a county.
 
@@ -915,6 +932,8 @@ Finally, the residuals vs fitted plot shows a well centered and mostly nromal di
 ### Introduction
 In this model, we introduce the additional covariates of population per square mile (density), tax per capita (taxpc) and police per capita (polpc) to increase the accuracy of our regression. We are including these additional variables to our second model, as they add accuracy to the explanatory variables used in our first model:  
 
+
+NEED TO ADD REGION INTRODUCTION
 1. The **Density** of an area can have significant impacts on:
     - **Criminal Justice Effectiveness**: with more people in a given area, crime frequency increases (+ bias direction). However, more people means there are more potential witnesses, making it easier to catch criminals (- bias direction). 
     - **Economic Opportunity (ie. scaledWages)**: in high density areas, there is an increase in demand for support services such as food, retail, utilities, etc. As a result, there is a high demand for service jobs, which increases the economic opportunities within the area (+ bias direction).  However, more people in a given area, there is a closer proximity to drugs, alcohol and gang violence - all of which are inhimitors to better economic outcomes. 
@@ -926,30 +945,64 @@ $$log(crmrate) = \beta_0 + \beta_1crimjusteff + \beta_2log(polpc) + \beta_3densi
 
 ### Model 2 EDA and Data Transformations
 
+To start, we will look at how police per capita is better 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-corrplot(cor(dfCrime[,c("logcrmrte", "logcrimJustEff", "logprbarr", "logprbconv", 
-                        "prbpris", "polpc", "taxpc", "scaledWages", "urban", "density",
-                        "pctymle", "pctmin80")]),method='circle', type = 'lower')
+p1 <- ggplot(dfCrime, aes(x = polpc, color=regcode, fill = regcode)) + 
+  geom_histogram(position="identity", alpha=0.5, bins=30) +
+  labs(title="Police per Capita", x="Police per Capita", y="Count")
+p2 <- ggplot(dfCrime, aes(x = log(polpc), color=regcode, fill = regcode)) + 
+  geom_histogram(position="identity", alpha=0.5, bins=30) +
+  labs(title="Log TransformedPolice per Capita", x="Log(Police per Capita)", y="Count")
+grid.arrange(p1, p2, ncol=2)
+```
+why WE LIKE LOG of police per capita
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+dfCrime$logpolpc <- log(dfCrime$polpc)
 ```
 
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+p1 <- ggplot(dfCrime, aes(x = taxpc, color=regcode, fill = regcode)) + 
+  geom_histogram(position="identity", alpha=0.5, bins=30) +
+  labs(title="Tax revenue per capita", x="Tax revenue per Capita", y="Count")
+p2 <- ggplot(dfCrime, aes(x = log(taxpc), color=regcode, fill = regcode)) + 
+  geom_histogram(position="identity", alpha=0.5, bins=30) +
+  labs(title="Log Transformed Tax revenue per Capita", x="Log(Tax revenue per Capita)", y="Count")
+grid.arrange(p1, p2, ncol=2)
+```
+In tax revenue, we see that each region is approximately normal but centered on a different mean.... and we like log.  more normal for each region. log transform helps outlier,  outlier--> this could be major economic hub...
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-# polpc transformation analysis 
-par(mfrow = c(2,2))
-hist(dfCrime$polpc, main="Hist of polpc", breaks=50)
-hist(dfCrime$logpolpc, main="Hist of logpolpc", breaks=50)
-hist(1/dfCrime$polpc, main="Hist of Recip polpc", breaks=50)
-hist(sqrt(dfCrime$polpc), main="Hist of Sqrt polpc", breaks=50)
+
+q9<-ggplot(data = dfCrime, aes(x = logScaledWages, y = logcrmrte, color = regcode)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q9a<-ggplot(data = dfCrime, aes(x = log(wfed), y = log(crmrte), color = regcode)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+
+options(repr.plot.width=8, repr.plot.height=16)
+grid.arrange(q9,q9a, ncol=2)
 ```
 
-
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-# taxpc transformation analysis 
-par(mfrow = c(2,2))
-hist(dfCrime$taxpc, main="Hist of taxpc", breaks=50)
-hist(dfCrime$logtaxpc, main="Hist of logtaxpc",breaks=50)
-hist(1/dfCrime$taxpc, main="Hist of Recip taxpc", breaks=50)
-hist(sqrt(dfCrime$taxpc), main="Hist of Sqrt taxpc", breaks=50)
+
+q9<-ggplot(data = dfCrime, aes(x = logtaxpc, y = logcrmrte, color = regcode)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+q9a<-ggplot(data = dfCrime, aes(x = logpolpc, y = logcrmrte, color = regcode)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+
+options(repr.plot.width=8, repr.plot.height=16)
+grid.arrange(q9,q9a, ncol=2)
+```
+NOTES: -regionally we see a difference in the polpc regression on crime rate
+      - this suggests that we should investigate the interaction between polpc and region. --> law enforcement style could be different in the regions which.  
+      - we do not need to look at taxpc and region as the slopes do not vary greatly across regions.
+      
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+dfCrime$logtaxpc <- log(dfCrime$taxpc)
 ```
 
 
@@ -981,8 +1034,9 @@ As a result, we will use the $log$ of polpc (logpolpc) in our second model and w
 ### Model 2 Linear Model
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc + log(scaledWages) + logtaxpc + sqrt(dfCrime$density), data = dfCrime)
+model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc*regcode + logtaxpc + logScaledWages, data = dfCrime)
 model2
+summary(model2)$adj.r.square
 ```
 
 -- cooks distance analysis -- 
@@ -1010,6 +1064,11 @@ non-significan coeffs (pr(>t)) > .05...make a model to remove all the non-signif
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 coeftest(model2, vcov=vcovHC)
+```
+NOTES: INTERACTIONS BETWETEEN POLPC AND REGCODE WEST AND CENTRAL ARE NOT BY THEMSELVES SIGNIFICANT.  LETS F TEST TO SEE IF THEY ARE JOINTLY SIGNIFICANT...and they are barely not significant.  The dummy variable for central is not significant which suggests that central and other are very similar while west is different.
+
+```{R}
+linearHypothesis(model2, c("logpolpc:regcodeWest=0", "logpolpc:regcodeCentral"), vcov=vcovHC)
 ```
 
 * **MLR6: Normal Distribution of Errors** The Normal Q-Q plot, below, provides evidence that our residuals follow a normal distribution. While there are some data points on the left and right side of the graph that stray from the diagonal line, since our data set has over 30 datapoints, per the CLT, we can assume residuals have a normal distribution. 
@@ -1063,7 +1122,7 @@ summary(dfCrime$pctmin80)
 boxplot(dfCrime$pctmin80)
 ```
 
-In addition, we hypothesize that the location of the county can have an impact on demographcs. We can see that counties in the West have a significantly lower percentage of minorities than the other two regions. As a result, we will also test for region in our model. 
+In addition, we hypothesize that the location of the county can have an impact on demographics. We can see that counties in the West have a significantly lower percentage of minorities than the other two regions. As a result, we will also test for region in our model. 
 
 ```{r}
 ggplot(data = dfCrime, aes(y = pctmin80, color=regcode)) + 
@@ -1083,21 +1142,20 @@ $$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3
 
 ### Model 3 Linear Model
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-dfCrime$logunweightedavg<-log(dfCrime$unweighted_avg_wage)
-model3_initial<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logunweightedavg +  density + logpctmin80 + west + central, data = dfCrime)
+dfCrime$logpctmin80 <- log(dfCrime$pctmin80)
+model3_initial<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logScaledWages +  density + logpctmin80 + regcode, data = dfCrime)
 summary(model3_initial)
 ```
 We note from the two F-tests below that west and central were not statistically significant to the model, but the inclusion of logpctmin80 is highly significant. An analysis of VIF(model3) also indicates that logpctmin80 and west have higher variance inflation factors as compared to the others. It appears then that logpctmin80 better explains the difference in demographics than west or central, and we thus remove the latter 2 variables from our model. 
 
 ```{r}
-linearHypothesis(model3_initial,c("west=0","central=0"), vcov=vcovHC)
-linearHypothesis(model3_initial,c("west=0","central=0","logpctmin80=0"), vcov=vcovHC)
+linearHypothesis(model3_initial,c("regcodeWest=0","regcodeCentral=0"), vcov=vcovHC)
 vif(model3_initial)
 ```
 Our revised equation for model 3 is as follows:
 $$log(crmrate) = \beta_0 + \beta_1log(crimjusteff) + \beta_2log(polpc) + \beta_3density + \beta_4log(scaledWages) + \beta_5logpctmin80 +u$$
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model3<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logunweightedavg +  density + logpctmin80, data = dfCrime)
+model3<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logScaledWages +  density + logpctmin80, data = dfCrime)
 model3
 summary(model3)$adj.r.square
 ```
@@ -1127,6 +1185,8 @@ plot(model3, which = 1)
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 coeftest(model3, vcov=vcovHC)
+linearHypothesis(model3,c("logpolpc=0","logScaledWages=0"), vcov=vcovHC)
+
 ```
 
 * **MLR6'** Normality of errors: From the qqplot below, we see that the residuals in our model follow a fairly normal distribution. In addition, since we have a large sample size of 90 datapoints, we can rely on a version of the central limit theorem to assume normally distributed errors.
@@ -1164,7 +1224,7 @@ Negative coefficients:
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-stargazer(mod1,model2,model3,type="text")
+stargazer(mod1,model2,model3,type="text", option())
 ```
 
 Comparing the 3 models, we see that our adjusted R2 value has steadily increased from 0.456-0.732 as we introduce more covariates which indicates that we were able to explain more variation in our model not purely by increasing the number of indepedent variables. 
@@ -1225,19 +1285,19 @@ options(repr.plot.width=8, repr.plot.height=4)
 #           "pctmin80", "wcon", "wtuc", "wtrd", "wfir", "wser", "wmfg", "wfed", "wsta", "wloc",
 #           "mix", "pctymle")]
 myData<-dfCrime %>% filter(other==1)
-myData<-myData[, c("logcrmrte", "logprbarr", "logprbconv", "logprbpris", "logavgsen", "logpolpc", "logtaxpc",
-           "logpctmin80", "logwcon", "logwtuc", "logwtrd", "logwfir", "logwser", "logwmfg", "logwfed", "logwsta", "logwloc",
-           "logmix", "logpctymle")]
+myData<-myData[, c("crmrte", "prbarr", "prbconv", "prbpris", "avgsen", "polpc", "density", "taxpc",
+          "pctmin80", "wcon", "wtuc", "wtrd", "wfir", "wser", "wmfg", "wfed", "wsta", "wloc",
+          "mix", "pctymle")]
 r0 <- myData %>% correlate() %>% network_plot(min_cor=.25)
 myData<-dfCrime %>% filter(central==1)
-myData<-myData[, c("logcrmrte", "logprbarr", "logprbconv", "logprbpris", "logavgsen", "logpolpc", "logtaxpc",
-           "logpctmin80", "logwcon", "logwtuc", "logwtrd", "logwfir", "logwser", "logwmfg", "logwfed", "logwsta", "logwloc",
-           "logmix", "logpctymle")]
+myData<-myData[, c("crmrte", "prbarr", "prbconv", "prbpris", "avgsen", "polpc", "density", "taxpc",
+          "pctmin80", "wcon", "wtuc", "wtrd", "wfir", "wser", "wmfg", "wfed", "wsta", "wloc",
+          "mix", "pctymle")]
 r1 <- myData %>% correlate() %>% network_plot(min_cor=.25)
 myData<-dfCrime %>% filter(west==1)
-myData<-myData[, c("logcrmrte", "logprbarr", "logprbconv", "logprbpris", "logavgsen", "logpolpc", "logtaxpc",
-           "logpctmin80", "logwcon", "logwtuc", "logwtrd", "logwfir", "logwser", "logwmfg", "logwfed", "logwsta", "logwloc",
-           "logmix", "logpctymle")]
+myData<-myData[, c("crmrte", "prbarr", "prbconv", "prbpris", "avgsen", "polpc", "density", "taxpc",
+          "pctmin80", "wcon", "wtuc", "wtrd", "wfir", "wser", "wmfg", "wfed", "wsta", "wloc",
+          "mix", "pctymle")]
 r2 <- myData %>% correlate() %>% network_plot(min_cor=.25)
 grid.arrange(arrangeGrob(r1, bottom = 'Central Region Correlation Plot'), ncol=1)
 grid.arrange(arrangeGrob(r2, bottom = 'Western Region Correlation Plot'), ncol=1)
@@ -1246,14 +1306,14 @@ grid.arrange(arrangeGrob(r0, bottom = 'Other Region Correlation Plot'), ncol=1)
 
 
 myData<-dfCrime %>% filter(urban==0)
-myData<-myData[, c("logcrmrte", "logprbarr", "logprbconv", "logprbpris", "logavgsen", "logpolpc", "logtaxpc",
-           "logpctmin80", "logwcon", "logwtuc", "logwtrd", "logwfir", "logwser", "logwmfg", "logwfed", "logwsta", "logwloc",
-           "logmix", "logpctymle")]
+myData<-myData[, c("crmrte", "prbarr", "prbconv", "prbpris", "avgsen", "polpc", "density", "taxpc",
+          "pctmin80", "wcon", "wtuc", "wtrd", "wfir", "wser", "wmfg", "wfed", "wsta", "wloc",
+          "mix", "pctymle")]
 r0 <- myData %>% correlate() %>% network_plot(min_cor=.25)
 myData<-dfCrime %>% filter(urban==1)
-myData<-myData[, c("logcrmrte", "logprbarr", "logprbconv", "logprbpris", "logavgsen", "logpolpc",  "logtaxpc",
-           "logpctmin80", "logwcon", "logwtuc", "logwtrd", "logwfir", "logwser", "logwmfg", "logwfed", "logwsta", "logwloc",
-           "logmix", "logpctymle")]
+myData<-myData[, c("crmrte", "prbarr", "prbconv", "prbpris", "avgsen", "polpc", "density", "taxpc",
+          "pctmin80", "wcon", "wtuc", "wtrd", "wfir", "wser", "wmfg", "wfed", "wsta", "wloc",
+          "mix", "pctymle")]
 r1 <- myData %>% correlate() %>% network_plot(min_cor=.25)
 grid.arrange(arrangeGrob(r0, bottom = 'Non-Urban Correlation Plot'), ncol=1)
 grid.arrange(arrangeGrob(r1, bottom = 'Urban Correlation Plot'), ncol=1)
@@ -1276,58 +1336,58 @@ Transform examinations through ggplots. Feel free to cherry pick what you need. 
 #ggplot(melt(dfEconVars),aes(x=value)) + geom_histogram(bins=30) + facet_wrap(~variable)
 
 #The economic variables
-q1<-ggplot(data = dfCrime, aes(x = wcon, y = crmrte, color = regcode)) + 
+q1<-ggplot(data = dfCrime, aes(x = wcon, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q1a<-ggplot(data = dfCrime, aes(x = log(wcon), y = log(crmrte), color = regcode)) + 
+q1a<-ggplot(data = dfCrime, aes(x = log(wcon), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q2<-ggplot(data = dfCrime, aes(x = wtuc, y = crmrte, color = regcode)) + 
+q2<-ggplot(data = dfCrime, aes(x = wtuc, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q2a<-ggplot(data = dfCrime, aes(x = log(wtuc), y = log(crmrte), color = regcode)) + 
+q2a<-ggplot(data = dfCrime, aes(x = log(wtuc), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q3<-ggplot(data = dfCrime, aes(x = wtrd, y = crmrte, color = regcode)) + 
+q3<-ggplot(data = dfCrime, aes(x = wtrd, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q3a<-ggplot(data = dfCrime, aes(x = log(wtrd), y = log(crmrte), color = regcode)) + 
+q3a<-ggplot(data = dfCrime, aes(x = log(wtrd), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q4<-ggplot(data = dfCrime, aes(x = wfir, y = crmrte, color = regcode)) + 
+q4<-ggplot(data = dfCrime, aes(x = wfir, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q4a<-ggplot(data = dfCrime, aes(x = log(wfir), y = log(crmrte), color = regcode)) + 
+q4a<-ggplot(data = dfCrime, aes(x = log(wfir), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q5<-ggplot(data = dfCrime, aes(x = wser, y = crmrte, color = regcode)) + 
+q5<-ggplot(data = dfCrime, aes(x = wser, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q5a<-ggplot(data = dfCrime, aes(x = log(wser), y = log(crmrte), color = regcode)) + 
+q5a<-ggplot(data = dfCrime, aes(x = log(wser), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q6<-ggplot(data = dfCrime, aes(x = wmfg, y = crmrte, color = regcode)) + 
+q6<-ggplot(data = dfCrime, aes(x = wmfg, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q6a<-ggplot(data = dfCrime, aes(x = log(wmfg), y = log(crmrte), color = regcode)) + 
+q6a<-ggplot(data = dfCrime, aes(x = log(wmfg), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q7<-ggplot(data = dfCrime, aes(x = wfed, y = crmrte, color = regcode)) + 
+q7<-ggplot(data = dfCrime, aes(x = wfed, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q7a<-ggplot(data = dfCrime, aes(x = log(wfed), y = log(crmrte), color = regcode)) + 
+q7a<-ggplot(data = dfCrime, aes(x = log(wfed), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q8<-ggplot(data = dfCrime, aes(x = wsta, y = crmrte, color = regcode)) + 
+q8<-ggplot(data = dfCrime, aes(x = wsta, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q8a<-ggplot(data = dfCrime, aes(x = log(wsta), y = log(crmrte), color = regcode)) + 
+q8a<-ggplot(data = dfCrime, aes(x = log(wsta), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q9<-ggplot(data = dfCrime, aes(x = wloc, y = crmrte, color = regcode)) + 
+q9<-ggplot(data = dfCrime, aes(x = wloc, y = crmrte, color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
-q9a<-ggplot(data = dfCrime, aes(x = log(wloc), y = log(crmrte), color = regcode)) + 
+q9a<-ggplot(data = dfCrime, aes(x = log(wloc), y = log(crmrte), color = metro)) + 
       geom_point()+
   geom_smooth(method = "lm")
 
