@@ -185,9 +185,11 @@ The variables above operationalize the conditions we wish to explore and their a
 
 Chiefly, these break down as follows.
 
-* The Economic variables measures the county's economic activity and health (e.g. opportunity to pursue legal forms of income). These variables come in the form of available wages and tax revenue returned to the county.
+* The Economic variables measure the county's economic activity and health (e.g. opportunity to pursue legal forms of income). These variables come in the form of available wages and tax revenue returned to the county.
 
-* The Law enforcment variables measures the county's ability to utilize law enforcment policy to deter crime.  Similarly, the Judicial variables also signify impact of deterence to crime.
+* The Law enforcment variables measure crime statistics as ratios such as arrests-to-offenses, convictions-to-arrests, police per capita and crime mix.  
+
+* The the Judicial variables meaure the outcome of the judicial process in the form of prison sentences-to-convictions and average sentence length.
 
 * The Demographic variables measure the cultural variability that represent the social differences between each county, such as urban vs rural and minority populations.
 
@@ -317,6 +319,8 @@ dfCrime$metro =
                    )
 ```
 
+### Outlier Analysis
+
 Now we will visualize our numerical variables in boxplots and use our categorical variables to highlight differences. 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
@@ -368,17 +372,15 @@ We have identified our first outlier. Outliers affect our ability to estimate st
 
 3 Imputation - *recode* outliers by calculating the mean of the sample, or by applying a regression model to predict the missing value
 
-Trimming will remove the entire record. This is not an preferred treatment as we will lose valuable information.
+Trimming an entire county is not a preferred treatment as we may lose valuable information in other fields.
 
-Winsorization is a symmetric process that will replace *all* of our smallest and largest data values in the sample. This is not a preferred treatment as we will again lose valuable information, especially when we only seek to replace values that are a result of a coding error.
+Winsorization is a symmetric process that will replace *all* of our smallest and largest data values in the sample. This is not a preferred treatment as we may again lose valuable information, especially when we only seek to replace values that are a result of a coding error.
 
 Imputation recodes the data point using a predictive model derived from the sample. Multiple imputations are performed on the data to account for uncertainty, and each imputed result set is analyzed for its distribution. Then, the mean, mode or median can be chosen from this distribution as the replacement.
 
-We favor the imputation method as we do not wish to apply Winsorization to our data set wholistically and lose some of our information, nor do we wish to apply trimming and remove an entire observation and lose its contribution. Fortunately, a number of packages are available in R that predict a replacement value through imputation A commonly used library for imputation can be found in the Hmisc package which we will use for our outlier treatment.
+We note that none of these methods are ideal. We would be better suited if we could track the nature of the mistake and recode the value from underlying data. Since we do not have access to the underlying data rom which this sample set was derived, we must utilize one of the methods above in order to continue with our analysis. We favor the imputation method as it reduces the chances of us losing valuable data. Fortunately, a number of packages are available in R that predict a replacement value through imputation A commonly used library for imputation can be found in the Hmisc package which we will use for our outlier treatment.
 
 A full discussion of treatment methods can be found here: http://www.asasrms.org/Proceedings/y2004/files/Jsm2004-000559.pdf
-
-Finally, we make note that none of these methods are ideal. We would be better suited if we could track the nature of the mistake and recode the value from underlying data. Since we do not have access to the underlying data rom which this sample set was derived, we must utilize one of the methods above in order to continue with our analysis.
 
 Now we will begin our treatment.
 
@@ -409,7 +411,7 @@ impute_arg$rsq
 table(impute_arg$imputed$wser)
 ```
 
-We note from the distribution above we see a mode appear from the multiple imputation trials. One may argue that taking the mode is sufficient for replacement. Indeed, taking a mode would be required if this were a categorical value to replace. In this circumstance, and to err on the side of caution, we will reassign this value using the mean value from the prediction trials.
+We note from the distribution above we see a mode appear from the multiple imputation trials. While taking the mode may sufficient for replacement (particularly for categorical values), to be conservative, we will reassign this value using the mean value from the prediction trials.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$wser[which(dfCrime$county==185)]<-mean(impute_arg$imputed$wser)
@@ -485,9 +487,9 @@ ggplot(data = dfCrime, aes(y = pctymle, color = regcode)) +
       geom_boxplot() + facet_wrap(~ metro)
 ```
 
-More outliers are observed in demographic information. Looking at pctymle, in one county it is nearly 25% young male from 16-24. That seems quite high in normal statistical measures of the population. However, this can be explained as coming from county with a large college town population. Specifically, Appalachian State University in Watauga County (https://en.wikipedia.org/wiki/Watauga_County,_North_Carolina), where the presense of the university notably affects the overall age distribution and our median age. This is further confirmed in county estimate records located here: https://www.osbm.nc.gov/demog/county-estimates.
+More outliers are observed in demographic information. Looking at pctymle, in one county it is nearly 25% young male from 16-24, which seems quite high. However, this can be explained as coming from county with a large college town population. Specifically, Appalachian State University in Watauga County (https://en.wikipedia.org/wiki/Watauga_County,_North_Carolina), where the presense of the university notably affects the overall age distribution and our median age. This is further confirmed in county estimate records located here: https://www.osbm.nc.gov/demog/county-estimates.
 
-Finally, we see our CW encoded county prominantely appearing in the density plot. It is clearly not an outside metro county. In addition to being miscoded as both western and central regions it has been miscoded as a non-urban county as well.
+Finally, we see our CW encoded county prominently in the density plot, where it has a higher density than its outside metro peers. In addition to being miscoded as both western and central regions we believe it has been miscoded as a non-urban county as well.
 
 We will address the variable now, and also examine whether the region should be 'west', 'central' or 'other' instead of both central and west
 
@@ -541,7 +543,7 @@ Mode(impute_arg$imputed$central)
 Mode(impute_arg$imputed$west)
 ```
 
-The results confirm the county is urban. It is also highly probable that county 71 is not west and most likely associated with central. After correcting our data for urban and west, let's compare 'central' with 'other' to be certain we have the right region.
+The results predict the county is urban. It is also highly probable that county 71 is not west and most likely associated with central. After correcting our data for urban and west, let's compare 'central' with 'other' to be certain we have the right region.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$urban[which(dfCrime$county==71)]<-Mode(impute_arg$imputed$urban)
@@ -595,7 +597,7 @@ filter(density < 0.01)
 
 In review of the North Carolina county density data from 1985, the smallest population density in any county in North Carolina is 0.0952. http://ncosbm.s3.amazonaws.com/s3fs-public/demog/dens7095.xls
 
-This makes the density of 0.0000203422 for county 173 statistically impossible. It is miscoded and we will impute a new statistically predicted value.
+This makes the density of 0.0000203422 for county 173 impossible. It is miscoded and we will impute a new statistically predicted value.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
@@ -673,14 +675,12 @@ We propose 3 multiple linear regression models
 
 * Third Model: An expansion of the second model with most covariates, designed to demonstrate the robustness of our results before yielding to a discussion on observations of our model specifications.
 
-We are keen to begin.
-
 # Model Analysis
 
 ## Model 1
 ### Introduction
 
-Our base hypothesis is that county level crime can be fundamentally explained by three factors in a county: regional variations, the effectiveness of the criminal justice system, and economic conditions.
+Our base hypothesis is that county level crime can be fundamentally explained by three factors in a county: the effectiveness of the criminal justice system, economic conditions, and regional variations.
 
 * **Criminal Justice Effectiveness**  
 Criminal Justice Effectiveness is an abstract concept that is operationalized by comparing the number of crimes to convictions. To track crimes, they must be reported to police, who can then make arrests. Then, the legal system provides judgement in the form of convictions and sentencing.  Besides removing some criminals from society, criminal justice can serve as deterrent, as the probability of getting caught, convicted, and sentenced could discourage some would-be criminals from committing crimes.
@@ -697,7 +697,7 @@ Region is easily identified as possible factor for predicting crime as seen from
 * **Economic Conditions**  
 Finally, we theorize that the third major cause of crime are economic conditions.  We would expect that as someone's economic success and opportunity increases their propensity to commit crime is lowered.  And similarly when there are worse economic conditions, crime would increase due to lack of means, lack of occupation or boredom.  This also means that individuals have less to look forward to and are willing to risk their freedom or endanger themselves.
 
->We operationalize economic conditions by looking at wages, which includes the sum of all average weekly wages from the 1980 census information in our data set. For this base, parsimonious model, we define economic opportunity as the *scaled* average weekly pay from each sector provided in the data set. We scale this variable by dividing the sum by 9 to underscore the significance of industry diversity within a county. We think this is best proxy from our data because it answers all of the above (higher wages leads to better means and better opportunities). From our EDA we also confirm that in general these sums are not skewed by having one really high paying sector in each county as we see a strong relationship between average quartile across all job types and sector average wages. 
+>We operationalize economic conditions by looking at wages, which includes the sum of all average weekly wages from the 1980 census information in our data set. For this base, parsimonious model, we define economic opportunity as the *scaled* average weekly pay from each sector provided in the data set. We scale this variable by dividing the sum by 9 to underscore the significance of industry diversity within a county. Ideally, we would like to use a weighted average, but given the lack of data, we think this is best proxy from our data because it answers all of the above (higher wages leads to better means and better opportunities). From our EDA we also confirm that in general these sums are not skewed by having one really high paying sector in each county as we see a strong relationship between average quartile across all job types and sector average wages. 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$scaledWages<-(dfCrime$wcon + dfCrime$wtuc + dfCrime$wtrd + dfCrime$wfir +
@@ -812,7 +812,7 @@ p1 <- ggplot(dfCrime, aes(x = logScaledWages, color=regcode, fill = regcode)) +
   labs(title="log(Scaled Wages)", x="log(Scaled Wages)", y="Count")
 p1
 ```
-Interestingly, when viewing the wage data plotted against crime rate (below) we see that there is a positive correlation between wages and crime. In model 1, we will see if this holds ture when taking into account the effect of Criminal Justice Effectiveness and discuss some possible causes.  
+Interestingly, when viewing the wage data plotted against crime rate (below) we see that there is a positive correlation between wages and crime. In model 1, we will see if this holds true when taking into account the effect of Criminal Justice Effectiveness and discuss some possible causes.  
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 
 q9<-ggplot(data = dfCrime, aes(x = logScaledWages, y = logcrmrte, color = regcode)) +
@@ -852,7 +852,7 @@ summary(model1)$adj.r.square # Adjusted R^2 value.
 
 ```
 **Cook's Distance (Leverage/Influence) Analysis**  
-None of the points approach a cook's distance of concern.  Some of the higher leveraged points do trend towards larger negative residuals.  This suggests that our model might not be capturing a phenomenon at more extreme values of the regressors. For an initial model there is nothing of major concern.
+None of the points approach a Cook's distance of concern.  Some of the higher leveraged points do trend towards larger negative residuals.  This suggests that our model might not be capturing a phenomenon at more extreme values of the regressors. For an initial model there is nothing of major concern.
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 plot(model1, which=5) # Variance Inflation Factor
 ```
@@ -1022,7 +1022,6 @@ We also see that logtaxpc and logpolpc together are not jointly significant. See
 
 ```{r}
 plot(model2, which=2)
-summary(model2)
 ```
 
 ### Model 2 Interpretation
@@ -1033,9 +1032,9 @@ Our second model has an Adjusted R-squared value of approx 0.70, which means 70%
 
 Coefficient Analysis (assuming ceterus paribus):
 - logcrimJustEff: This suggests that for a 1% increase in criminal justice efficiency, there is approximately 6.9% decrease in crime rate.
-- logpolpc: This suggests that for a 1% increase in police per capita, there is a .5% increase in crime rate.
+- logpolpc: This suggests that for a 1% increase in police per capita, there is a 0.5% increase in crime rate.
 - logScaledWages: This suggests that for a 1% increase in total average weekly wage, there is a 1.2% increase in crime rate.
-- taxpc: This suggests that for a 1% increase in tax per capita, there is a .15% decrease in crime rate.
+- taxpc: This suggests that for a 1% increase in tax per capita, there is a 0.15% decrease in crime rate.
 
 Compared to model 1, the adjusted $R^2$ of model 2 shows improvement from the variables selected, although interaction behavior for the regions was less pronounced. This suggests we should continue our analysis by focusing on the joint significance of the variables we added in model 2, but without the regional interactions. 
 
@@ -1110,7 +1109,7 @@ We note from the the summary above that west and central are no longer statistic
 linearHypothesis(model3_initial,c("west=0","central=0"), vcov=vcovHC)
 ```
 Our revised equation for model 3 thus becomes:
-$$log(CrimeRate) = \beta_0 + \beta_1log(UnweightedAverageWage) + \beta_2log(CriminalJusticeEffectiveness) +  \beta_3log(PolicePerCapita) +\beta_4log(PercentageofMinorities) + \beta_5Density +u$$
+$$log(CrimeRate) = \beta_0 + \beta_1log(UnweightedAverageWage) + \beta_2log(CriminalJusticeEffectiveness) +  \\ \beta_3log(PolicePerCapita) +\beta_4log(PercentageofMinorities) + \beta_5Density +u$$
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 model3<-lm(logcrmrte ~ logcrimJustEff + logScaledWages +  logpolpc  
               + logpctmin80 + density, data = dfCrime)
@@ -1171,7 +1170,7 @@ coeftest(model3, vcov=vcovHC)
 Positive coefficients:  
 * Police presence: If we increase police per capita by 1 percent, we expect the crime rate to increase by around 0.28%.  
 * scaledWages: If we increase wages by 1 percent, we expect the crime rate to also increase by roughly 1%.  
-* Density: If we increase density by 100 people per square mile, we expect the crime rate to increase by approximately 6.6%.  
+* Density: If we increase density by 100 people per square mile, we expect the crime rate to increase by approximately 6.9%.  
 * Percentage of minorities: If the percentage of minorities increase by 1%, we expect the crime rate to increase by 0.25%.   
 
 Negative coefficients:  
@@ -1205,16 +1204,16 @@ stargazer(model1, model2, model3, type = "text", omit.stat = "f",
 ```
 
 ### Interpretation and Discussion
-Comparing the 3 models, we see that by increasing the complexity of our model specifications we have increased the fit of our model. The adjusted R2 value has steadily increased from 63% to nearly 73% between model 1 and 3, indicating that we were able to explain approximately 10% more of the variation in our model. At the same time, our overall standard errors (which have been adjusted to account for hetereoscedacity) have also decreased.  
+Comparing the 3 models, we see that by increasing the complexity of our model specifications we have increased the fit of our model. The adjusted $R^2$ value has steadily increased from 63% to nearly 73% between model 1 and 3, indicating that we were able to explain approximately 10% more of the variation in our model. At the same time, our overall standard errors (which have been adjusted to account for hetereoscedacity) have also decreased.  
 
 * logScaledWages: As we dived deeper into our analysis of independent variables that operationalized economic conditions, we note that the scaled average weekly wage has decreased both in terms of its practical significance (as measured by the magnitude of the coefficient) as well as its statistical significance. This indicates that as we controlled for additional covariates, the effect of wages are not as pronounced. In addition, the size of our standard errors increased from model 1 to 3. As a result, we do not believe that the average wage is a good determinant of crime.  
-* logcrimJustEff: Criminal justice effectiveness has maintained relatively stable across all 3 models with a negative coefficient of approximately -0.4 to -0.5, holding constant the effect for other covariates. It also maintained high statistical significance at the 99.9% confidence level and has relatively low standard errors across the models.. Hence, criminal justice effectiveness is an important deterrent of crime, having the ability to lower the crime rate by 0.4% to 0.5% per 1% increase in convictions per crime.  
+* logcrimJustEff: Criminal justice effectiveness has maintained relatively stable across all 3 models with a negative coefficient of approximately -0.4 to -0.5, holding constant the effect for other covariates. It also maintained high statistical significance at the 99.9% confidence level and has relatively low standard errors across the models. Hence, criminal justice effectiveness is an important deterrent of crime, having the ability to lower the crime rate by 0.4% to 0.5% per 1% increase in convictions per crime.  
 * logpolpc: Police per capita was statistically significant in the model 2, but once we controlled for density and the minority percentage, it became statistically insignificant in model 3. However, the higher joint significance with wage shows there is justification that merits further study. 
 * West and Central: The two regions were statistically significant in model 1, but became less significant in the later two models once we started controlling for other variables. However, the western region in particular consistently demonstrated a negative effect on the crime rate and we believe that it would be meaningful for researchers to pursue further analysis with additional data beyond our existing dataset.   
-* Interactions between police presence and regions: These interactions were deemed not statistically significant and removed for model 3.
-* Tax per capita: Taxes did not appear to be practically or statistically significant.
+* Interactions between police presence and regions: These interactions were deemed not statistically significant and removed for model 3.  
+* Tax per capita: Taxes did not appear to be practically or statistically significant.  
 * Percentage of minorities: This variable was highly statistically significant, and its inclusion helped explain some of the variation in the different regions. In addition, compared to the other variables, it has a relatively low residual standard error. While we think that the percentage of minorities is an important consideration for crime rates, but due to the fact that is opertionalizes a difficult demographic concept (racism), it is unlikely that a high minority percentage in itself is a cause of crime.   
-* Density: Density is statistically significant at the 95% confidence level and represents a large practical effect as an increase in 100 people per square mile leads to approximately 6.7% increase in the crime rate.  
+* Density: Density is statistically significant at the 95% confidence level and represents a large practical effect as an increase in 100 people per square mile leads to approximately 6.9% increase in the crime rate.  
 
 From the analysis of the coefficients, as well as their practical and statistical significance, we highlight specifically 1) Criminal Justice Effectiveness, 2) Percentage of Minorities and 3) Population density as the most important factors in explaining crime. Criminal justice effectiveness can be increased by either increasing convictions or decreasing the number of crimes, while the two demographic variables indicate the areas of focus for policy recommendations. We also note that the western region and possible varations of policing style is deserving of further research and analysis beyond the scope of this paper.
 
@@ -1235,10 +1234,10 @@ From the analysis of the coefficients, as well as their practical and statistica
 
 The 5 major identified ommited variables are shown above.
 
-* Education is an important variable because of demographic insights it provides.  First, adults with higher education are less likely to participate in Crime and are more likely to have better economic opportunity. Second, a strong school system is also likely correlated with less youth crime.  Because of these expected correlations we are likely overestimating the economic conditions coefficient estimate.
-* Available Social Services could also lower crime.  Citizens with strong social services support have more options to get help when they lack means for purchasing basic life needs.  However this is more difficult to predict, as some social service projects, like homeless shelters, could lead to more criminal activity.
-* Unemployment is used as an important indicator of economic health and opportunity.  This is would be highly correlated to economic conditions variables like sum of wages.  This indicator variable if added to the model would decrease the magnitude of the sum of wage means coefficient estimate. 
-* Economic Inequality may also increase the crime rate as it may provide incentives for certain types of crime such as theft, kidnapping or extortion by people who have less economic means on those who have more economic means.  As discussed in model 1, it is possible that mean wage is correlated to inequality, which explains why wages positively correlate to crime in model 1.  As we add more regressors in later models, this effect is limited.  Likely because inequality is better correlated to these new regressors like density and minority population.  
+* Education is an important variable because of demographic insights it provides.  First, adults with higher education are less likely to participate in Crime and are more likely to have better economic opportunity. Second, a strong school system is also likely correlated with less youth crime.  Because of these expected correlations we are likely overestimating the economic conditions coefficient estimate.  
+* Available Social Services could also lower crime.  Citizens with strong social services support have more options to get help when they lack means for purchasing basic life needs.  However this is more difficult to predict, as some social service projects, like homeless shelters, could lead to more criminal activity.  
+* Unemployment is used as an important indicator of economic health and opportunity.  This is would be highly correlated to economic conditions variables like sum of wages.  This indicator variable if added to the model would decrease the magnitude of the sum of wage means coefficient estimate.  
+* Economic Inequality may also increase the crime rate as it may provide incentives for certain types of crime such as theft, kidnapping or extortion by people who have less economic means on those who have more economic means.  As discussed in model 1, it is possible that mean wage is correlated to inequality, which explains why wages positively correlate to crime in model 1.  As we add more regressors in later models, this effect is limited.  Likely because inequality is better correlated to these new regressors like density and minority population.   
 * Gang or Organized Crime is a special case of crime that contains unique causes.  It is expected that it would be negatively correlated with criminal justice effectiveness as large social pressures prevent witnesses from supporting prosecution.  Gang crime is also negatively correlated with economic conditions.  From these assumed correlations, we can say that criminal justice effectiveness and economic conditions are both underestimated compared to including a gang activity operationalized variable in the model.  
 * Government spending: Our analysis showed that local tax revenues per capita were not an important variable and part of this may be because tax revenues and government spending may not actually be strongly correlated. Effective government spending could help boost criminal justice effectiveness as well as local economic conditions, including some of the variables noted above such as education, social services and inequality. 
 
@@ -1257,8 +1256,6 @@ We have shown in this report 3 different models that seek to explain and model c
 
 ## Recommendations for Future Research
 Our findings can be further strengthed by studying the ommitted variables we have identified, the differences in the western region, as well as a time-panel of data that shows how criminal data and our independent variables change over time. Political candidates who are interested in making crime reduction an important campaign promise should consider funding these studies.
-
-We thank you for the opportunity to research this important matter. We hope our suggestions benefit understanding and provide adequate material for policy discussion in the upcoming campaign.
 
 
 # Appendix
