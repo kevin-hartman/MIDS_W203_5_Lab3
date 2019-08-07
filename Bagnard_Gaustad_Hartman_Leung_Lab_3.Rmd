@@ -1013,13 +1013,13 @@ coeftest(model2, vcov=vcovHC)
 
 As we can see from the coeftest results above, the interactions between logpolpc and regcode west and central are not statistically significant (at least by themselves).  
 
-However, they may be jointly significant. We will run a f-test to see if this might be the case:
+However, they may be jointly significant. We will run a F-test to see if this might be the case:
 
 ```{R}
 linearHypothesis(model2, c("logpolpc:regcodeWest=0", "logpolpc:regcodeCentral"), vcov=vcovHC)
 ```
 
-We can see frome the f-test, above, that the interactions between logpolpc and regcodes west and central are not statistically significant to the model. 
+We can see frome the F-test, above, that the interactions between logpolpc and regcodes west and central are not statistically significant to the model. 
 
 -- DELETE ---
 NOTES: INTERACTIONS BETWETEEN POLPC AND REGCODE WEST AND CENTRAL ARE NOT BY THEMSELVES SIGNIFICANT.  LETS F TEST TO SEE IF THEY ARE JOINTLY SIGNIFICANT...and they are barely not significant.  The dummy variable for central is not significant which suggests that central and other are very similar while west is different.
