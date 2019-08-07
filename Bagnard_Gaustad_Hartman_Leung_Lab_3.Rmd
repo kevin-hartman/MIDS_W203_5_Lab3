@@ -49,8 +49,8 @@ library(PerformanceAnalytics)
 library(psych)
 library(GGally)
 library(ggcorrplot)
-#(tmap)
-#library(sf)
+library(tmap)
+library(sf)
 
 suppressMessages(library(stargazer))
 suppressMessages(library(cowplot))
@@ -74,8 +74,8 @@ suppressMessages(library(psych))
 suppressMessages(library(GGally))
 suppressMessages(library(ggcorrplot))
 suppressMessages(library(knitr))
-#suppressMessages(library(tmap))
-#suppressMessages(library(sf))
+suppressMessages(library(tmap))
+suppressMessages(library(sf))
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -342,10 +342,8 @@ q9<-ggplot(data = dfCrime, aes(y = wloc, color = regcode)) +
 q10<-ggplot(data = dfCrime, aes(y = taxpc, color = regcode)) + 
       geom_boxplot()
 grid.arrange(q1, q2, ncol=2)
-grid.arrange(q3, q4, ncol=2)
-grid.arrange(q5, q6, ncol=2)
-grid.arrange(q7, q8, ncol=2)
-grid.arrange(q9, q10, ncol=2)
+grid.arrange(q3, q4, q5, q6, ncol=2)
+grid.arrange(q7, q8, q9, q10, ncol=2)
 ```
 
 We observe a few data points of interest in the comparison above, notably, wser appears to have an extreme data point.
@@ -366,7 +364,9 @@ This average service wage is much too high based on what we know about the 1980s
 Outliers affect our ability to estimate statistics, resulting in overestimated or underestimated values. Outliers can be due to a number of different factors such as response errors and data entry errors. Outliers will introduce bias into our estimates and are addressed during the analysis phase. The mechanism for treatment include three approaches 
 
 1 Trimming - *remove* outliers from the dataset based on a maxima or minima from the mean.
+
 2 Winsorization - *replace* extreme values so they fall at the edge of the main distribution
+
 3 Imputation - *recode* outliers by calculating the mean of the sample, or by applying a regression model approach to predict the missing value
 
 Trimming will remove the entire record. This is not an preferred treatment as we will lose valuable information.. 
@@ -433,8 +433,7 @@ q6<-ggplot(data = dfCrime, aes(y = mix, color = regcode)) +
       geom_boxplot()
 
 grid.arrange(q1, q2, ncol=2)
-grid.arrange(q3, q4, ncol=2)
-grid.arrange(q5, q6, ncol=2)
+grid.arrange(q3, q4, q5, q6, ncol=2)
 ```
 
 The criminal justice and law enforcement variables show evidence of outliers, notably, pbarr and polpc appear to have extreme data points.
@@ -683,18 +682,12 @@ Our outcome variable is the *crime rate* (“crmrte”), which is defined as the
 From the boxplot below, most of the counties have a crime rate between 0.0055 and 0.0700, with 5 outliers having a crime rate > 0.0700.
 
 ```{r}
+options(repr.plot.width=8, repr.plot.height=4)
 p<-ggplot(data = dfCrime, aes(y = crmrte, color = regcode)) + 
-     geom_boxplot() + facet_wrap(~ regcode)
+     geom_boxplot(show.legend=FALSE) + facet_wrap(~ regcode)
 p2<-ggplot(data = dfCrime, aes(y = crmrte)) +
      geom_boxplot()
-
 grid.arrange(p, p2, ncol=2)
-```
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-options(repr.plot.width=3, repr.plot.height=4)
-ggplot(data = dfCrime, aes(y = crmrte)) + 
-      geom_boxplot()
 ```
 
 While mix (the type of crime committed) is also potentially an outcome variable, our research focuses on providing policy recommendations to reduce crime in general and not a specific type of crime. Mix is also not a linear outcome and hence difficult to measure. 
