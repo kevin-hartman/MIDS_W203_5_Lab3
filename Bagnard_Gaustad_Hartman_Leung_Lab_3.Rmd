@@ -87,7 +87,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 In this report, we seek to examine and discuss determinants of crime and offer recommend actionable policy recommendations for local politicians running for election at the county level in North Carolina. For our analysis, we draw on sample data collected from a study by Cornwell and Trumball, researchers from the University of Georgia and West Virginia University. Our sample data includes data on crime rates, arrests, sentences,  demographics, local weekly wages, tax revenues and more drawn from local and federal government data sources. Although the age of the data may be a potential limitation of our study, we believe the insights we gather and policy recommendations remain appropriate for local campaigns today.
 
-Our primary question that will drive our data exploration are to ask which variables affect crime rate the most.
+Our primary question that will drive our data exploration and subsequent analysis are to ask which variables affect crime rate the most.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=FALSE}
 #Add a nice little map of North Carolina and shade it by region.
@@ -1093,9 +1093,9 @@ Compared to model 1, the adjusted $R^2$ of model 2 is only marginally higher. Th
 ### Discussion of Variables
 From Model 2, we noted that the addition of the transformed variable logpolpc had statistical significance and helped improve the fit of the model, as measured by adjusted R-squared, to 70%. To increase our understanding at the linkages between police presence, economic conditions, criminal justice effectiveness and region, we propose to also analyse the areas of demographics which could have an effect on both of our key explanatory variables.  
 
-**Minorities**
-One key component of demographics is the race of the county inhabitants and how they are perceived and treated by others, especially for minorities in the population.  For example, systemic racism could have an important effect on: 
-* Criminal Justice Effectiveness: If police, lawyers and judges are racially biased, this could lead to more arrests and more convictions regardless of the strength of the legal case and the evidence. As a result, we hypothesize the crime rate would increase.
+**Minorities**  
+One key component of demographics is the race of the county inhabitants and how they are perceived and treated by others, especially for minorities in the population.  For example, systemic racism could have an important effect on:  
+* Criminal Justice Effectiveness: If police, lawyers and judges are racially biased, this could lead to more arrests and more convictions regardless of the strength of the legal case and the evidence. As a result, we hypothesize the crime rate would increase.  
 * Economic Opportunity: Racism could prohibit members of the minority from having access to education, jobs and higher wages. Racism could also limit access to healthcare and social programmes which has a negative effect on economic opportunity. 
 
 However, since we cannot directly measure racism, we have to operationalize this covariate by examining its effect in the real world. We propose to use the variable pctmin80, which represents the percentage of minorities in the population of the county. This is also a continous parameter and so given a higher the percentage of minorities, we should expect to see a greater effect. 
@@ -1116,10 +1116,10 @@ grid.arrange(p, p2, ncol=2)
 dfCrime$logpctmin80 <- log(dfCrime$pctmin80)
 ```
 
-**Density**
-Another component of demographics is the population density, which can have impacts that may be positive or negative on the crime rate:
-    - **Criminal Justice Effectiveness**: With more people in a given area, there may be more opportunities for more people to commit crimes. However, a higher density may also result in higher deterents such as more eyewitnesses or faster law-enforcement response rates. 
-    - **Economic Opportunity (ie. scaledWages)**: In high density areas, there is an increase in demand for support services such as food, retail, utilities, etc. As a result, there is a high demand for service jobs, which increases the economic opportunities within the area.  However, more people in a given area, there is a closer proximity to drugs, alcohol and gang violence - all of which are inhibitors to better economic outcomes. 
+**Density**  
+Another component of demographics is the population density, which can have impacts that may be positive or negative on the crime rate:  
+* **Criminal Justice Effectiveness**: With more people in a given area, there may be more opportunities for more people to commit crimes. However, a higher density may also result in higher deterents such as more eyewitnesses or faster law-enforcement response rates.   
+* **Economic Opportunity**: In high density areas, there is an increase in demand for support services such as food, retail, utilities, etc. As a result, there is a high demand for service jobs, which increases the economic opportunities within the area.  However, more people in a given area, there is a closer proximity to drugs, alcohol and gang violence - all of which are inhibitors to better economic outcomes. 
 
 From the summary and boxplot below, we can see that the density ranges from 0.3006 - 8.8277, with a mean of 0.9792 persons per square mile. We note that while there are some outliers to the data, this does not appear at first glance to be an issue as some counties can contain major cities which would naturally lead to a higher population density. As a result, we will not make adjustments to any outliers unless we detect datapoints having high influence in our model.
 ```{r}
@@ -1133,32 +1133,37 @@ grid.arrange(p, p2, ncol=2)
 ```
 
 
-**Variables not considered**
-We have also chosen not to include other variables from our dataset in our model:
-* Urban: We believe the variable "density" better explains the same effects as "urban" while also being a continous. We believe a continous variable is more meaningful rather a binary indicator such as urban as there may be data points that failed to meet the cutoff for being defined as urban, but may still see the same effects as being urban and hence may distort our analysis.
-* Age and Gender: While age and gender are important demographic variables, the only variable in our dataset is pctymle which provides the percentage of young males in the population. However, given that this variable encompasses both male and young, we may not be able to discern if age or gender has the larger effect (if any at all). 
-* Judgement: We chose not to include the varibles concerning the probability of a prison sentence as well as the average sentence as we believe it is unlikely that potential criminals would have good access to this information. In addition, local county officials have limited influence over the decisions of the judiciary system, as they are separate branches of government.
+**Variables not considered**  
+Tax per Capital: Given that we found taxes per capita insignificant from model 2, we will exclude it from model 3.
+
+We have also chosen not to include other variables from our dataset in our model:  
+* Urban: We believe the variable "density" better explains the same effects as "urban" while also being a continous. We believe a continous variable is more meaningful rather a binary indicator such as urban as there may be data points that failed to meet the cutoff for being defined as urban, but may still see the same effects as being urban and hence may distort our analysis.  
+* Age and Gender: While age and gender are important demographic variables, the only variable in our dataset is pctymle which provides the percentage of young males in the population. However, given that this variable encompasses both male and young, we may not be able to discern if age or gender has the larger effect (if any at all).   
+* Judgement: We chose not to include the varibles concerning the probability of a prison sentence as well as the average sentence as we believe it is unlikely that potential criminals would have good access to this information. In addition, local county officials have limited influence over the decisions of the judiciary system, as they are separate branches of government.  
 
 Our equation for model 3 is as follows:
-$$log(crmrate) = \beta_0 + \beta_1log(scaledWages) + \beta_2log(crimjusteff) + \beta_3regcode + \beta_4log(polpc) + \beta_5log(taxpc)+ \beta_6log(pctmin80) + \beta_7density +u$$
+$$log(CrimeRate) = \beta_0 + \beta_1log(UnweightedAverageWage) + \beta_2log(CriminalJusticeEffectiveness) + \beta_3West + \\
+\beta_4Central+ \beta_5log(PolicePerCapita) + \beta_6log(PercentageofMinorities) + \beta_7Density +u$$
 
 ### Model 3 Linear Model
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model3_initial<-lm(logcrmrte ~ logScaledWages + logcrimJustEff   +  regcode + logpolpc + logtaxpc + logpctmin80 + density, data = dfCrime)
+model3_initial<-lm(logcrmrte ~ logScaledWages + logcrimJustEff  +  regcode + 
+                     logpolpc + logpctmin80 + density, data = dfCrime)
 summary(model3_initial)
 ```
-We note from the the summary above and the F-tests below that west and central were not statistically significant to the model, but the inclusion of logpctmin80 and density are significant at the 99% confidence level. It appears that our new variables better explain the variation between counties rather than purely based on their geographic location and we thus remove the latter 2 variables from our model. 
+We note from the the summary above and the F-test below that west and central were not statistically significant to the model, but the inclusion of logpctmin80 and density are significant at the 99% confidence level or better. It appears that after controlling for the minority percentage and density, we can better explain the variation between counties rather than purely based on their geographic location and we thus remove the latter 2 variables from our model. 
 
 ```{r}
 linearHypothesis(model3_initial,c("regcodeWest=0","regcodeCentral=0"), vcov=vcovHC)
-vif(model3_initial)
 ```
 Our revised equation for model 3 is as follows:
-$$log(crmrate) = \beta_0 + \beta_1log(scaledWages) + \beta_2log(crimjusteff) + \beta_3log(polpc) + \beta_4log(taxpc)+ \beta_5log(pctmin80) + \beta_6density +u$$
+$$log(CrimeRate) = \beta_0 + \beta_1log(UnweightedAverageWage) + \beta_2log(CriminalJusticeEffectiveness) +  \beta_3log(PolicePerCapita) +\beta_4log(PercentageofMinorities) + \beta_5Density +u$$
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model3<-lm(logcrmrte ~ logcrimJustEff + logScaledWages +  logpolpc + 
-              logtaxpc + logpctmin80 + density, data = dfCrime)
+model3<-lm(logcrmrte ~ logcrimJustEff + logScaledWages +  logpolpc  
+              + logpctmin80 + density, data = dfCrime)
 model3
+```
+```{r}
 summary(model3)$adj.r.square
 ```
 
@@ -1183,7 +1188,7 @@ vif(model3)
 plot(model3, which = 1)
 ```
 
-* **MLR5'** Spherical errors: We note from the residuals vs fitted chart above that we have some evidence of heteroscedasticity, since there are less datapoints on both the left and right of the chart. As a result, we use the vcovHC method to estimate a robust variance-covariance matrix using White and Huber's method and generate coefficients that are robust to heteroscedasticity. Given that the coefficients in our model are fairly small, we know that the robust coeffcients generated will be appropriate for our analysis. 
+* **MLR5'** Spherical errors: We note from the residuals vs fitted chart above that we have some evidence of heteroscedasticity, since there are less datapoints on both the left and right of the chart. As a result, we use the vcovHC method to estimate a robust variance-covariance matrix using White and Huber's method and generate coefficients that are robust to heteroscedasticity. 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 coeftest(model3, vcov=vcovHC)
@@ -1198,31 +1203,30 @@ plot(model3,which=2)
 
 By satisfying these assumptions, we can expect that our coefficients are approaching the true parameter values in probability. 
 
-### Analysis
-The model shows a good fit, with an adjusted R-squared of 0.72, meaning that the model explains 72% of the variation in crime. 
+### Model 3 Interpretation
+The model shows a good fit, with an adjusted R-squared of 0.725, meaning that the model explains 72.5% of the variation in crime. 
 
 After accounting for coefficients that are robust to heteroscedasticity, we note only three them have individual statistical significance at the 95% level or better. These are criminal justice efficiency, minority percentages and density. However, running a F-test on the other two variables logpolpc and logScaledWages show that jointly they are still significant for our model. 
 
 ```{r}
-linearHypothesis(model3,c("logpolpc=0","logScaledWages=0","logtaxpc=0"), vcov=vcovHC)
+linearHypothesis(model3,c("logpolpc=0","logScaledWages=0"), vcov=vcovHC)
 ```
 **Interpretation of coefficients (Assuming ceterus paribus):**
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+coeftest(model3, vcov=vcovHC)
+```
+Positive coefficients:  
+* Police presence: If we increase police per capita by 1 percent, we expect the crime rate to increase by 0.28%.  
+* scaledWages: If we increase wages by 1 percent, we expect the crime rate to increase by 0.94%.  
+* Density: If we increase density by 1 person per square mile, we expect the crime rate to increase by 7.62%.  
+* Percentage of minorities: If the percentage of minorities increase by 1%, we expect the crime rate to increase by 0.25%.   
 
-Positive coefficients:
-* Police presence: If we increase police per capita by 1 percent, we expect the crime rate to increase by 0.28%.
-* scaledWages: If we increase wages by 1 percent, we expect the crime rate to increase by 0.96%
-* Density: If we increase density by 1 person per square mile, we expect the crime rate to increase by 7.48%
-* Percentage of minorities: If the percentage of minorities increase by 1%, we expect the crime rate to increase by 0.25%
-
-Negative coefficients:
+Negative coefficients:  
 * Criminal justice efficiency: If we increase the criminal justice efficiency by 1%, we expect the crime rate to decrease by 0.43%.
 
-Of these different variables, we should pay particular attention to density given its large practical effect and statistical significance, which we address in our policy recommendations section below. 
+Of these different variables, we should pay particular attention to density given its large practical effect and statistical significance, which we address in our policy recommendations section below. In addition, as discussed 
 
 ## Comparison of Regression Models
-
-***Can anyone figure out why logcrimJustEff is on 2 lines?**
-
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 #*** Function to convert coeftest results object into data frame
@@ -1239,52 +1243,29 @@ ctdf=function(x){
 # Get vectors of robust standard errors from the coeftest output
 se.model1 <- ctdf(coeftest(mod1, vcov=vcovHC))[,"Std. Error"]
 se.model2 <- ctdf(coeftest(model2, vcov=vcovHC))[,"Std. Error"]
-#model23<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logScaledWages + logpolpc*regcode + logtaxpc +density + logpctmin80, data = dfCrime)
-#se.model23 <- ctdf(coeftest(model23, vcov=vcovHC))[,"Std. Error"]
 se.model3 <- ctdf(coeftest(model3, vcov=vcovHC))[,"Std. Error"]
-# Pass the standard errors into stargazer
-#stargazer(mod1, model2, model23, model3, type = "text", omit.stat = "f",
-#          se = list(se.model1, se.model2, se.model23, se.model3),
-#          star.cutoffs = c(0.05, 0.01, 0.001))
 
+# Pass the standard errors into stargazer
 stargazer(mod1, model2, model3, type = "text", omit.stat = "f",
           se = list(se.model1, se.model2, se.model3),
           star.cutoffs = c(0.05, 0.01, 0.001))
-
-
-# waldtest(mod1, model2, vcov=vcovHC)
-# waldtest(model2, model23, vcov=vcovHC)
-# waldtest(model23, model3, vcov=vcovHC)
-# 
-# model4<-lm(logcrmrte ~ logcrimJustEff + logpolpc + logScaledWages + logpolpc*west  +density + logpctmin80, data = dfCrime)
-# coeftest(model4, vcov=vcovHC)
-# summary(model4)$adj.r.square
-# linearHypothesis(model4,c("logpolpc:west=0", "west=0"), vcov=vcovHC)
 ```
 
-Comparing the 3 models, we see that our adjusted R2 value has steadily increased from 0.456-0.732 as we introduce more covariates which indicates that we were able to explain more variation in our model not purely by increasing the number of indepedent variables. 
+### Interpretation and Discussion 
+Comparing the 3 models, we see that by increasing the complexity of our model specifications we have increased the fit of our model. The adjusted R2 value has steadily increased from 63% to 73% between model 1 and 3, indicating that we were able to explain approximately 10% more of the variation in our model. At the same time, our overall standard errors (which have been adjusted to account for hetereoscedacity) have also decreased.  
 
-At the same time, our standard errors have decreased **insert more commentary on standard errors**.
+* logScaledWages: As we dived deeper into our analysis of independent variables that operationalized economic conditions, we note that the unweighted average weekly wage has decreased both in terms of its practical significance (as measured by the magnitude of the coefficient) as well as its statistical significance. This indicates that as we controlled for additional covariates, the effect of wages was not as pronounced. In addition, our the size of our standard errors increased from model 1 to 3. As a result, we do not believe that the average wage is a good determinant of crime.  
+* logcrimJustEff: Criminal justice effectiveness has maintained relatively stable across all 3 models with a negative coefficient of approximately -0.4 to -0.5, holding constant the effect for other covariates. It also maintained high statistical significance at the 99.9% confidence level and has relatively low standard errors across the models.. Hence, criminal justice effectiveness is an important deterrent of crime, having the ability to lower the crime rate by 0.4% to 0.5% per 1% increase in convictions per crime.  
+* logpolpc: Police per capita was statistically significant in the model 2, but once we controlled for density and the minority percentage, it became statistically insignificant in model 3.  
+* West and Central: The two regions were statistically significant in model 1, but became less significant in the later two models once we started controlling for other variables. However, the western region in particular consistently demonstrated a negative effect on the crime rate and we believe that it would be meaningful for researchers to pursue further analysis with additional data beyond our existing dataset.   
+* Interactions between police presence and regions: These interactions were deemed not statistically significant and removed for model 3.
+* Tax per capita: Taxes did not appear to be practically or statistically significant.
+* Percentage of minorities: This variable was highly statistically significant, and its inclusion helped explain some of the variation in the different regions. In addition, compared to the other variables, it has a relatively low residual standard error. While we think that the percentage of minorities is an important consideration for crime rates, but due to the fact that is opertionalizes a difficult demographic concept (racism), it is unlikely that a high minority percentage in itself is a cause of crime.   
+* Density: Density is statistically significant at the 95% confidence level and represents a large practical effect as an increase in 1 person per square mile leads to approximately 8% increase in the crime rate.  
 
-We see that by expanding our definitions of criminal justice efficiency  and economic opportunity between model 1 and model 3 lowered the coefficients for logcrimJustEff and scaledWages. This is most likely because that we were able to better explain the effects with our newer variables.
+From the analysis of the coefficients, as well as their practical and statistical significance, we highlight specifically 1) Criminal Justice Effectiveness, 2) Percentage of Minorities and 3) Population density as the most important factors in explaining crime. Criminal justice effectiveness can be increased by either increasing convictions or decreasing the number of crimes, while the two demographic variables indicate the areas of focus for policy recommendations. We also note that the western region may be deserving of further analysis beyond the scope of this paper. 
 
-Comment on practical significance after week 12
-
-# Conclusion
-
-## Policy Recommendations
-
-Given that across all 3 models, we show that both criminal justice efficiency and tax revenues per capita have negative correlations to crime rate, we propose the policy recommendations below to address these issues. In addition, since minority percentages and density were found to be highly significant in the model 3, we believe our recommendations will be of particularly help to those  running for political office in counties with a high percentage of minorities or dense urban populations.
-
-1. Since increasing both criminal justice and tax revenues are negatively correlated, we propose providing more funding for the local justice system. 
-
-2. While increasing taxes on constituents may be difficult politically and may cost candidates the ballot, candidates can instead try to attract investment to bring more jobs with higher wages so you can increase revenues.
-
-3.  Candidates can also propose to levy taxes on things that could lead to crimes or violence such as alcohol and weapons.
-
-4. Given the significance and relatively large coefficient size of percentage minority, candidates should enroll local law enforcement into bias training.
-
-## Ommitted Variables
+### Ommitted Variables
 
 | Expected correlation between omitted and included variables |
 | ---- |
@@ -1297,7 +1278,7 @@ Given that across all 3 models, we show that both criminal justice efficiency an
 | Inequality       | +                  |              unknown           | -                   |
 | Gang Activity    | +                  | -                              | -                   |
 
-The 4 major identified ommited variables are shown above. 
+The 5 major identified ommited variables are shown above. 
 
 * Education is an important variable because of demographic insights it provides.  First, adults with higher education are less likely to participate in Crime and are more likely to have better economic opportunity. Second, a strong school system is also likely correlated with less youth crime.  Because of these expected correlations we are likely overestimating the economic conditions coefficient estimate. 
 * Available Social Services could also lower crime.  Citizens with strong social services support have more options to get help when they lack means for purchasing basic life needs.  However this is more difficult to predict, as some social service projects, like homeless shelters, could lead to more criminal activity.
@@ -1305,12 +1286,21 @@ The 4 major identified ommited variables are shown above.
 * Economic Inequality may also increase the crime rate as it may provide incentives for certain types of crime such as theft, kidnapping or extortion by people who have less economic means on those who have more economic means. 
 * Gang or Organized Crime is special case of crime that contains unique causes.  It is expected that it would be negatively correlated with criminal justice effectiveness as large social pressures prevent witnesses from supporting prosecution.  Gang crime is also negatively correlated with economic conditions.  From these assumed correlations, we can say that criminal justice effectiveness and economic conditions are both underestimated compared to including gang activity operationalized variable in the model.
 
-## Research Recommendations
+# Conclusion
 
-We have shown in this report 3 different models that seek to explain and model changes in the crime rate in North Carolina in 1980. We start with the fundamental premise that crime is caused by both criminal justice efficiency and economic conditions, and further develop our definition of these two key explanatory variables which each new model. 
+## Policy Recommendations
 
-In Model 3, we were able to explain up to 73% of the variation in our data, and found statistical significance at the 95% level or better for each of our covariates. Of these, we believe that increasing the efficiency of the criminal justice system and tax revenues were the most important, particularly for counties with high density and minority populations. However, our findings should be noted with caution as we were unable to study the effect of several ommitted variables including education, availability of social services, unemployment rates and the presence of organized crime. Had we been able to collect data on these variables and apply them in our model, we believe we could increase accuracy without bias.
+We have shown in this report 3 different models that seek to explain and model changes in the crime rate in North Carolina in 1980. We start with the fundamental premise that crime is affected by criminal justice efficiency, economic conditions and regional differences, and further develop our definition of these key explanatory variables which each new model. We propose the following recommendations on crime policy for local political candidates.   
 
+\begin{itemize}
+  \item Crime is more prevalent in places with higher population density and higher minority populations. Those seeking election in these areas should make crime reduction an important part of their message. Note that we do not offer recommendations on how important the issue of crime is relative to other issues as that is beyond the scope of our analysis.
+  \item Increase the number of rightful convictions by providing appropriate staffing and resources to local law enforcement and legal system. In highly populated areas, this could include increasing public safety infrastructure (such as security cameras) and reducing police response times. With the right resources, density can be used against potential criminals and act as a deterrent to crime. However, note that simply increasing the number of police will not necessarily lead to an increase in criminal justice effectiveness. 
+  \item Provide additional support for areas with high minority populations, by conducting further studies on our ommitted variables. These could come in different forms such as better access to education, social support services or by reducing income equality. Our analysis has shown that average wages do not have a strong relationship with crime so it is important to get to the root of why these areas suffer from higher crime rates in order to provide more concrete recommendations to reduce crime in these areas. 
+    \item Provide racial suboncious bias training to local law enforcement and judiciary officials to reduce the number of wrongful arrests or incidents labelled as potential crimes.
+\end{itemize}
+
+## Further Research Recommendations
+Our findings can be further strengthed by studying the ommitted variables we have identified, the differences in the western region, as well as a time-panel of data that shows how criminal data and our independent variables change over time. Political candidates who are interested in making crime reduction an important campaign promise should consider funding these studies.
 
 
 # Appendix
@@ -1359,8 +1349,7 @@ grid.arrange(arrangeGrob(r1, bottom = 'Urban Correlation Plot'), ncol=1)
 
 
 ##  Transformations
-
-Transform examinations through ggplots. Feel free to cherry pick what you need. All of these plots will be removed in the final report.
+Transform examinations through ggplots.
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
