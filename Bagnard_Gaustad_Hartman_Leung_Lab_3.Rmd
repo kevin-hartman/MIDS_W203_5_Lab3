@@ -898,13 +898,10 @@ Overall, the model shows a moderately good fit, with an adjusted R square of 0.6
 ### Introduction
 In this model, we introduce the additional covariates of tax per capita (taxpc) and police per capita (polpc) to increase the accuracy of our regression. We are including these additional variables to our second model, as they add accuracy to the explanatory variables used in our first model: 
 
---- why we are removing regcode as a direct variable
-
 1. The **Police Per Capita** in a county can be influential on the Criminal Justice Effectiveness. With more police in a given area, one would think that crime rates would decrease, however our correlation plot below tells a different story. Including this variable in our analysis will give us more insight into the variables used in model 1. 
 
 2. The **Tax Per Capita** can have a direct impact on the Police Per Capita. A higher tax per capita, means that the county has more tax dollars to spend on public services like the police force (ie. increasing the number of police in the county). 
 
--- correlation discussion. Also could mean economic activity (look at mod1) or overbearing sales tax?
 
 $$logcrmrte = \beta_0 + \beta_1log(Unweighted Average Wage) + \beta_2log(Criminal Justice Effectiveness) + \beta_3log(Police Per Capita)*West\\ +  \beta_4log(Police Per Capita)*Central  + \beta_5logtaxpc + u$$
 
@@ -1005,13 +1002,13 @@ vif(model2)
 plot(model2, which=1)
 ```
 
-* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right side of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the White-Huber test with the vcovHC method to generate coefficients that are robust to heteroscedasticity
+* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right and left sides of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the White-Huber test with the vcovHC method to generate coefficients that are robust to heteroscedasticity
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 coeftest(model2, vcov=vcovHC)
 ```
 
-As we can see from the coeftest results above, the interactions between logpolpc and regcode west and central are not statistically significant (at least by themselves).  
+As we can see from the coeftest results above, the interaction between logpolpc and west are slightly significant while the interaction between logpolpc and central is not statistically significant.  
 
 However, they may be jointly significant. We will run a F-test to see if this might be the case:
 
@@ -1019,7 +1016,7 @@ However, they may be jointly significant. We will run a F-test to see if this mi
 linearHypothesis(model2, c("logpolpc:regcodeWest=0", "logpolpc:regcodeCentral"), vcov=vcovHC)
 ```
 
-We can see frome the F-test, above, that the interactions between logpolpc and regcodes west and central are not statistically significant to the model. 
+We can see frome the F-test, above, that the interactions between logpolpc and regcodes west and central are not quite statistically significant to the model. However, given the slight significance of the interaction between logpolpc and west, we will continue to look at the standalone effect of west and central in our third model. 
 
 -- DELETE ---
 NOTES: INTERACTIONS BETWETEEN POLPC AND REGCODE WEST AND CENTRAL ARE NOT BY THEMSELVES SIGNIFICANT.  LETS F TEST TO SEE IF THEY ARE JOINTLY SIGNIFICANT...and they are barely not significant.  The dummy variable for central is not significant which suggests that central and other are very similar while west is different.
@@ -1029,18 +1026,9 @@ NOTES: INTERACTIONS BETWETEEN POLPC AND REGCODE WEST AND CENTRAL ARE NOT BY THEM
 
 ```{r}
 plot(model2, which=2)
-# hist(model2$residuals)
-#shapiro.test(model2$residuals)
-#null hypothesis: residuals drawn from population with a normal distribution. 
-#small p-value tells you if you can reject the null hypothesis. 
-#this test depends on sample size, it does not take very much deviation from normality for
-#us to get a statistically significant result
 ```
 
-
-```{r}
-summary(model2)
-```
+### Model 2 Interpretation
 
 The Adjusted R-squared variable penalizes for additional variables, which means there is a chance that this value will decrease if the added variables do not contribute to the model. By comparing the Adjusted R-squared value between our first and second models, we see that logtaxpc and the interaction between logpolpc and regcode help describe logcrmrte. 
 
