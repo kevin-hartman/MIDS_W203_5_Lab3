@@ -142,13 +142,23 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This is our study on crime. Crime does not pay. Lorem ipsum dolor sit
-amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+The manner and ways in which crime can be reduced in society is a topic
+of frequent research study. Here, we examine a sample population of data
+collected in 1987 from 90 counties in North Carolina to inform policy
+making for political organizations. Working through the development of
+three models, we conclude that two types of variables explain the
+majority of the variation in crime. First is the demographic
+characteristics of population density and minority population, which are
+positively correlated to crime rate. Second is the criminal justice
+effectiveness measured in the form of convictions per crime which is
+negatively correlated to crime rate. Our final model has an adjusted
+R\textsuperscript{2} of 0.721. With the model as evidence, we conclude
+with two main policy recommendations. First, political organizations
+should focus research efforts on uncovering and characterizing the
+ommited variables that result in positive correlation between dense,
+diverse locations and crime. Second, resources should be distributed
+towards improving the capability of justice systems particularly in
+areas of high minority populations or higher population density.
 \end{abstract}
 
 {
@@ -162,16 +172,15 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 \subsection{Background}\label{background}}
 
 In this report, we seek to examine and discuss determinants of crime and
-offer recommend actionable policy recommendations for local politicians
-running for election at the county level in North Carolina. For our
-analysis, we draw on sample data collected from a study by Cornwell and
-Trumball, researchers from the University of Georgia and West Virginia
-University. Our sample data includes data on crime rates, arrests,
-sentences, demographics, local weekly wages, tax revenues and more drawn
-from local and federal government data sources. Although the age of the
-data may be a potential limitation of our study, we believe the insights
-we gather and policy recommendations remain appropriate for local
-campaigns today.
+offer actionable policy recommendations for local politicians running
+for election at the county level in North Carolina. For our analysis, we
+draw on sample data collected from a study by Cornwell and Trumball,
+researchers from the University of Georgia and West Virginia University.
+Our sample data includes data on crime rates, arrests, sentences,
+demographics, local weekly wages, tax revenues and more drawn from local
+and federal government data sources. Although the age of the data may be
+a potential limitation of our study, we believe the insights we gather
+and policy recommendations remain appropriate for local campaigns today.
 
 Our primary question that will drive our data exploration and subsequent
 analysis are to ask which variables affect crime rate the most.
@@ -181,9 +190,8 @@ analysis are to ask which variables affect crime rate the most.
 \hypertarget{the-variables}{%
 \subsection{The Variables}\label{the-variables}}
 
-The crime\_v2 dataset provided includes 25 variables of interest.
-
-We include them below for reference by category of interest.
+The crime\_v2 dataset provided for our study includes 25 variables of
+interest, listed below by category.
 
 \begin{center}
 \textbf{Data Dictionary}
@@ -211,7 +219,7 @@ Table 1: Data Dictionary
 \end{center}
 
 The variables above operationalize the conditions we wish to explore and
-their affects on crime rate
+their affects on crime.
 
 Chiefly, these break down as follows.
 
@@ -230,7 +238,7 @@ Chiefly, these break down as follows.
   represent the social differences between each county, such as urban vs
   rural and minority populations.
 \item
-  The Geographic elements are categorical. They represent they ways in
+  The Geographic elements are categorical. They represent the ways in
   which the population is segmented by geography.
 \end{itemize}
 
@@ -310,7 +318,7 @@ checks and inspections.
  NA's   :6        
 \end{verbatim}
 
-First, we will remove the missing rows from the dataset.
+First, we note the blank rows which we will remove from the dataset.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -360,7 +368,7 @@ A duplicate row exists. We'll remove it.
 \end{Highlighting}
 \end{Shaded}
 
-We also saw that pbconv was coded as a level. It is not a level but a
+We also see that pbconv is coded as a level. It is not a level but a
 ratio. We'll change that now.
 
 \begin{Shaded}
@@ -369,9 +377,9 @@ ratio. We'll change that now.
 \end{Highlighting}
 \end{Shaded}
 
-We also notice by comparision of pctymle and pctmin80 one of the
+We also notice by comparision of pctymle and pctmin80 that one of the
 variables is off by a factor of 100. We will divide pctmin80 by 100 so
-the two variables are in the same unit terms.
+the two variables share consistent unit terms.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -424,17 +432,18 @@ correctly.
 1 348.0254 295.2301 358.95 509.43 359.11 339.58 0.1018608 0.07939028
 \end{verbatim}
 
-One county was either mis-coded (with west=1 and central=1), or it truly
-belongs to both regions. However, this is very unlikely as the proper
-coding technique is to widen the data and introduce indicator variables
-for each category. It is not likley that data was captured for both
-categories.
+One county was either mis-coded (with west=1 and central=1), or the
+county truly belongs to both regions. However, this association is very
+unlikely as the proper coding technique is to widen the data and
+introduce indicator variables for each category. The coding technique
+does not allow membership in both categories, and a separate third
+indicator variable would have been created instead.
 
 We will need further analysis on this datapoint to assess proper
 treatment options.
 
-For now, we will encode a new region variable and place the datapoint in
-its own category.
+For now, we will encode a new region variable that does place the
+datapoint in its own category.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -457,7 +466,7 @@ its own category.
 \end{Shaded}
 
 We will also introduce an indicator variable for counties located in the
-``other'' region that are not west or central
+``other'' region not in west or central
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -477,10 +486,11 @@ indicator variable and call this `nonurban'
 By way of the 1980 Census fact sheet, we discover the urban field is an
 encoding for SMSA (Standard Metropolitan Statistical Areas).
 \url{https://www2.census.gov/prod2/decennial/documents/1980/1980censusofpopu8011uns_bw.pdf}
-The value is one if the county is inside a metropolitan area. Otherwise,
-if the county is outside a metropolitan area, the value is zero.
+The value is 1 if the county is inside a metropolitan area. Otherwise,
+if the county is outside a metropolitan area, the value is 0.
 
-We create a metro factor variable to better describe this feature.
+We create a metro factor variable to better describe this feature for
+visualization purposes.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -496,8 +506,8 @@ We create a metro factor variable to better describe this feature.
 \end{Highlighting}
 \end{Shaded}
 
-Next we will visualize each variable through boxplots and subdvide the
-datapoints by region.
+Now we will visualize our numerical variables in boxplots and use our
+categorical variables to highlight differences.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -522,7 +532,7 @@ datapoints by region.
 \StringTok{      }\KeywordTok{geom_boxplot}\NormalTok{()}
 \NormalTok{q10<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ taxpc, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_boxplot}\NormalTok{()}
-\KeywordTok{grid.arrange}\NormalTok{(q1, q2, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
+\KeywordTok{grid.arrange}\NormalTok{(q1, q2, q3, q4, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -530,29 +540,20 @@ datapoints by region.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{grid.arrange}\NormalTok{(q3, q4, q5, q6, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
+\KeywordTok{grid.arrange}\NormalTok{(q5, q6, q7, q8, q9, q10, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-15-2.pdf}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{grid.arrange}\NormalTok{(q7, q8, q9, q10, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-15-3.pdf}
-
-We observe a few data points of interest in the comparison above,
-notably, wser appears to have an extreme data point.
+We note in the comparison above wser appears to have an extreme outlier.
 
 Other variables show outliers as well, but not as extreme. We will
-determine if any of these points have leverage or influence during model
+determine if any of these points have leverage or influence in model
 specification.
 
-For now, lets dig deeper into wser as we see it is an extreme outlier
-from our visual inspection.
+For now, we will dig deeper into wser to confirm our understanding of
+the variable after the visual inspection.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -567,58 +568,60 @@ from our visual inspection.
 1    185 2177.068
 \end{verbatim}
 
-This average service wage is much too high based on what we know about
-the 1980s and every other wage recorded in comparison. A review of the
+This average service wage is in extreme excess based on what we know
+about the 1980s and every wage recorded in comparison. A review of the
 detailed population statistics describing mean wage per industry (table
 231) confirms this.
 \url{https://www2.census.gov/prod2/decennial/documents/1980/1980censusofpopu801352uns_bw.pdf}
 
-Outliers affect our ability to estimate statistics, resulting in
-overestimated or underestimated values. Outliers can be due to a number
-of different factors such as response errors and data entry errors.
-Outliers will introduce bias into our estimates and are addressed during
-the analysis phase. The mechanism for treatment include three approaches
+We have identified our first outlier. Outliers affect our ability to
+estimate statistics, resulting in overestimated or underestimated
+values. Outliers can be due to a number of factors such as response
+errors and data entry errors. Outliers will introduce bias into our
+estimates and they need to be addressed during the analysis phase. The
+treatment remedies include three options.
 
 1 Trimming - \emph{remove} outliers from the dataset based on a maxima
 or minima from the mean.
 
-2 Winsorization - \emph{replace} extreme values so they fall at the edge
-of the main distribution
+2 Winsorization - \emph{replace} extreme values with the next available
+point in the range so they fall at the edge of the distribution
 
 3 Imputation - \emph{recode} outliers by calculating the mean of the
-sample, or by applying a regression model approach to predict the
-missing value
+sample, or by applying a regression model to predict the missing value
 
 Trimming will remove the entire record. This is not an preferred
-treatment as we will lose valuable information..
+treatment as we will lose valuable information.
 
-Winsorization is a symmetric process that will replace \emph{all} of the
+Winsorization is a symmetric process that will replace \emph{all} of our
 smallest and largest data values in the sample. This is not a preferred
 treatment as we will again lose valuable information, especially when we
 only seek to replace values that are a result of a coding error.
 
 Imputation recodes the data point using a predictive model derived from
-the remainder of the sample data points. Multiple imputations are
-performed to account for uncertainty, and each imputed data set is
-analyzed for its distribution. Then, the mean, mode or median can be
-chosen from this distribution as the replacement.
+the sample. Multiple imputations are performed on the data to account
+for uncertainty, and each imputed result set is analyzed for its
+distribution. Then, the mean, mode or median can be chosen from this
+distribution as the replacement.
 
 We favor the imputation method as we do not wish to apply Winsorization
-to our data set wholistically, nor do we wish to remove the entire
-observation and lose its contribution to other variables. Fortunately, a
-number of packages are available in R that predict this value through
-regression against the existing sample data. A commonly used imputation
-library can be found in the Hmisc package which we will use for our
-outlier treatment.
+to our data set wholistically and lose some of our information, nor do
+we wish to apply trimming and remove an entire observation and lose its
+contribution. Fortunately, a number of packages are available in R that
+predict a replacement value through imputation A commonly used library
+for imputation can be found in the Hmisc package which we will use for
+our outlier treatment.
 
 A full discussion of treatment methods can be found here:
 \url{http://www.asasrms.org/Proceedings/y2004/files/Jsm2004-000559.pdf}
 
-Finally, we should make note that none of these methods are ideal. We
-would be better suited to discover the nature of the mistake and recode
-it from real data. Since we do not have access to the underlying data
-from which this sample set was derived we are not in the position to do
-that. Thus we continue our analysis.
+Finally, we make note that none of these methods are ideal. We would be
+better suited if we could track the nature of the mistake and recode the
+value from underlying data. Since we do not have access to the
+underlying data rom which this sample set was derived, we must utilize
+one of the methods above in order to continue with our analysis.
+
+Now we will begin our treatment.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -639,82 +642,56 @@ that. Thus we continue our analysis.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{paste}\NormalTok{(}\StringTok{"R-squares for Predicting Non-Missing Values for Each Variable"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-[1] "R-squares for Predicting Non-Missing Values for Each Variable"
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
+\CommentTok{#Review R-squares for Predicting Non-Missing Values for Each Variable.}
+\CommentTok{#A high R-square reveals a high degree of confidence in being able to predict}
 \NormalTok{impute_arg}\OperatorTok{$}\NormalTok{rsq}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
      wser 
-0.9417865 
+0.9129068 
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{paste}\NormalTok{(}\StringTok{"Distribution of Values for Each Imputation"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-[1] "Distribution of Values for Each Imputation"
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
+\CommentTok{# Review Distribution of Values from Each Imputation}
 \KeywordTok{table}\NormalTok{(impute_arg}\OperatorTok{$}\NormalTok{imputed}\OperatorTok{$}\NormalTok{wser)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 
-133.0430603 172.4732666 182.0196228 192.3076935 196.1453247 209.6972198 
-         10           2           1           1           1           1 
-219.6342773 221.3903351 230.4980621 232.5915985 245.2060852  245.793808 
+133.0430603 172.4732666 172.6280975 182.0196228 192.3076935 196.1453247 
+          7           7           2           1           6           2 
+204.3792114  206.281601 208.2519836 212.8205109 213.5821533 215.1933289 
+          1           3           2           1           1           1 
+ 230.308609 230.4980621 230.6580658 250.8361206 256.7214355 262.9848633 
           1           1           1           1           1           1 
-246.0152435 250.8361206 257.3344421 259.3390503 266.4674072 270.4866028 
-          1           1           1           1           1           1 
-274.1774597 276.2629089 318.0335388 318.3635254  391.308075 
-         67           1           1           1           2 
+264.6729431 266.4674072 274.1774597 292.2253113 318.0335388 
+          1           1          56           1           1 
 \end{verbatim}
 
-Note from the distribution above we see a mode appear from the multiple
-imputation trials. One may argue that taking the mode is sufficient for
-replacement. Taking a mode would be required if this were a categorical
-value we were replacing. However, in this circumstance and to err on the
-side of caution, we will reassign this value by taking the mean from the
-trials.
+We note from the distribution above we see a mode appear from the
+multiple imputation trials. One may argue that taking the mode is
+sufficient for replacement. Indeed, taking a mode would be required if
+this were a categorical value to replace. In this circumstance, and to
+err on the side of caution, we will reassign this value using the mean
+value from the prediction trials.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wser[}\KeywordTok{which}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{county}\OperatorTok{==}\DecValTok{185}\NormalTok{)]<-}\KeywordTok{mean}\NormalTok{(impute_arg}\OperatorTok{$}\NormalTok{imputed}\OperatorTok{$}\NormalTok{wser)}
-\KeywordTok{print}\NormalTok{(}\StringTok{"Newly Reassigned wser Value for County 185:"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-[1] "Newly Reassigned wser Value for County 185:"
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
+\CommentTok{#Confirm assigned value}
 \NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wser[}\KeywordTok{which}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{county}\OperatorTok{==}\DecValTok{185}\NormalTok{)]}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-[1] 254.6631
+[1] 240.5069
 \end{verbatim}
 
-Next, we will examine the criminal justice variables.
+We turn our examination now to the criminal justice variables.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -747,14 +724,17 @@ Next, we will examine the criminal justice variables.
 \includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-22-2.pdf}
 
 The criminal justice and law enforcement variables show evidence of
-outliers, notably, pbarr and polpc appear to have extreme data points.
+outliers, notably, prbarr and polpc appear to have extreme data points.
 
-Upon further inspection, the extreme outlier value for polpc is .009.
-Based on records describing the US population on police officers per
-capita, the highest police per capita on record for United States
-counties is .007 in Atlantic City, NJ.
+We will suspend comment on prbarr for now, but, we will comment on the
+extreme outlier value of polpc which is .009. Based on records
+describing the US population on police officers per capita, the highest
+police per capita on record for all United States counties is .007. This
+high value occurs in Atlantic City, NJ.
 \url{https://www.governing.com/gov-data/safety-justice/police-officers-per-capita-rates-employment-for-city-departments.html}
-This datapoint is an error and we will impute it's replacement.
+
+The datapoint in our sample set is an error, and we will impute it's
+replacement.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -791,7 +771,7 @@ This datapoint is an error and we will impute it's replacement.
 
 \begin{verbatim}
     polpc 
-0.9425164 
+0.8363964 
 \end{verbatim}
 
 \begin{Shaded}
@@ -811,7 +791,7 @@ This datapoint is an error and we will impute it's replacement.
 \end{Shaded}
 
 \begin{verbatim}
-[1] 0.00243761
+[1] 0.002724358
 \end{verbatim}
 
 We will reassign this value using the mean from the trials.
@@ -822,7 +802,7 @@ We will reassign this value using the mean from the trials.
 \end{Highlighting}
 \end{Shaded}
 
-Our analysis into the demographic data is next.
+We continue our examination and look into the demographic data next.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -854,23 +834,24 @@ Our analysis into the demographic data is next.
 
 \includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-27-3.pdf}
 
-Notably more outliers are observed in demographic information. Here,
-pctymle in one county outside of a metro area is nearly 25\%. That seems
-quite high in normal statistical measures of the population. However,
-this can be explained as being county with a large college town
-population. Specifically, Appalachian State University in Watauga County
+More outliers are observed in demographic information. Looking at
+pctymle, in one county it is nearly 25\% young male from 16-24. That
+seems quite high in normal statistical measures of the population.
+However, this can be explained as coming from county with a large
+college town population. Specifically, Appalachian State University in
+Watauga County
 (\url{https://en.wikipedia.org/wiki/Watauga_County,_North_Carolina}),
 where the presense of the university notably affects the overall age
-distribution and median age. This is further confirmed in county
-estimate records here:
+distribution and our median age. This is further confirmed in county
+estimate records located here:
 \url{https://www.osbm.nc.gov/demog/county-estimates}.
 
-Finally, we can see our CW encoded county and where it appears in
-population density. It is clearly not an outside metro county. In
-addition to being improperly coded for both western and central regions
-it appears to be miscoded for its metro characteristics as well.
+Finally, we see our CW encoded county prominantely appearing in the
+density plot. It is clearly not an outside metro county. In addition to
+being miscoded as both western and central regions it has been miscoded
+as a non-urban county as well.
 
-We will address the metro variable, and examine whether the region
+We will address the variable now, and also examine whether the region
 should be `west', `central' or `other' instead of both central and west
 
 \begin{Shaded}
@@ -935,7 +916,7 @@ should be `west', `central' or `other' instead of both central and west
 
 \begin{verbatim}
     urban   central      west 
-0.9845212 0.8330772 0.9232614 
+0.9525275 0.9721736 0.9609758 
 \end{verbatim}
 
 \begin{Shaded}
@@ -1021,7 +1002,7 @@ correcting our data for urban and west, let's compare `central' with
 
 \begin{verbatim}
   central     other 
-0.9583136 0.9353917 
+0.9051858 0.9460482 
 \end{verbatim}
 
 \begin{Shaded}
@@ -1044,10 +1025,10 @@ correcting our data for urban and west, let's compare `central' with
 [1] 0
 \end{verbatim}
 
-We show with high degree of certainty that the county is not `other'.
-The case for central is high. Since the county is not western and not
-other it is central by process of elimination, and the Hmisc algorithm
-bolsters that suggestion. We'll assign our new values.
+We show with high degree of certainty that the county is also not
+`other'. The case for central is high. Since the county is not western
+and not other it must be central by process of elimination, and the
+Hmisc algorithm bolsters that suggestion. We'll assign our new values.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1058,8 +1039,9 @@ bolsters that suggestion. We'll assign our new values.
 \end{Highlighting}
 \end{Shaded}
 
-We also wish to examine the density variable in more detail by looking
-at its distribution.
+Finally, we noticed from our boxplots that the density values can be
+quite small in one of the regions. We will examine it further by taking
+a look at its distribution.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1096,9 +1078,9 @@ In review of the North Carolina county density data from 1985, the
 smallest population density in any county in North Carolina is 0.0952.
 \url{http://ncosbm.s3.amazonaws.com/s3fs-public/demog/dens7095.xls}
 
-This makes the density of 0.0000203422 (ie. average of
-\textasciitilde{}2.0 people per 10,000 square miles) for county 173
-statistically impossible. It is miscoded.
+This makes the density of 0.0000203422 for county 173 statistically
+impossible. It is miscoded and we will impute a new statistically
+predicted value.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1108,13 +1090,12 @@ statistically impossible. It is miscoded.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{#dfSubset <-  we will use the non-urban western counties}
-\NormalTok{impute_arg <-}\StringTok{ }\KeywordTok{aregImpute}\NormalTok{(}\OperatorTok{~}\StringTok{ }\NormalTok{crmrte }\OperatorTok{+}
+\NormalTok{impute_arg <-}\StringTok{ }\KeywordTok{aregImpute}\NormalTok{(}\OperatorTok{~}\StringTok{ }\NormalTok{crmrte }\OperatorTok{+}\StringTok{ }\NormalTok{urban }\OperatorTok{+}\StringTok{ }\NormalTok{central }\OperatorTok{+}\StringTok{ }\NormalTok{west }\OperatorTok{+}\StringTok{ }
 \StringTok{                         }\NormalTok{prbarr }\OperatorTok{+}\StringTok{ }\NormalTok{prbconv }\OperatorTok{+}\StringTok{ }\NormalTok{prbpris }\OperatorTok{+}\StringTok{ }\NormalTok{avgsen }\OperatorTok{+}\StringTok{ }\NormalTok{polpc }\OperatorTok{+}
 \StringTok{                         }\NormalTok{density }\OperatorTok{+}\StringTok{ }\NormalTok{taxpc }\OperatorTok{+}\StringTok{ }\NormalTok{pctmin80 }\OperatorTok{+}\StringTok{ }\NormalTok{wcon }\OperatorTok{+}\StringTok{ }\NormalTok{wtuc }\OperatorTok{+}
 \StringTok{                         }\NormalTok{wtrd }\OperatorTok{+}\StringTok{ }\NormalTok{wfir }\OperatorTok{+}\StringTok{ }\NormalTok{wser }\OperatorTok{+}\StringTok{ }\NormalTok{wmfg }\OperatorTok{+}\StringTok{ }\NormalTok{wfed }\OperatorTok{+}\StringTok{ }\NormalTok{wsta }\OperatorTok{+}\StringTok{ }\NormalTok{wloc }\OperatorTok{+}
-\StringTok{                         }\NormalTok{mix }\OperatorTok{+}\StringTok{ }\NormalTok{pctymle, }\DataTypeTok{data =}\NormalTok{ dfCrime }\OperatorTok{%>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(urban}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{west }\OperatorTok{==}\DecValTok{1}\NormalTok{),}
-                         \DataTypeTok{match=}\StringTok{"weighted"}\NormalTok{,  }\DataTypeTok{nk=}\DecValTok{3}\NormalTok{, }\DataTypeTok{B=}\DecValTok{10}\NormalTok{, }\DataTypeTok{n.impute =} \DecValTok{30}\NormalTok{)}
+\StringTok{                         }\NormalTok{mix }\OperatorTok{+}\StringTok{ }\NormalTok{pctymle, }\DataTypeTok{data =}\NormalTok{ dfCrime, }\CommentTok{#%>% filter(urban==0 & west ==1),}
+                         \DataTypeTok{match=}\StringTok{"weighted"}\NormalTok{,  }\DataTypeTok{nk=}\DecValTok{3}\NormalTok{, }\DataTypeTok{B=}\DecValTok{10}\NormalTok{, }\DataTypeTok{n.impute =} \DecValTok{100}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1135,8 +1116,8 @@ statistically impossible. It is miscoded.
 \end{Shaded}
 
 \begin{verbatim}
-density 
-      1 
+  density 
+0.9777337 
 \end{verbatim}
 
 \begin{Shaded}
@@ -1156,7 +1137,7 @@ density
 \end{Shaded}
 
 \begin{verbatim}
-[1] 0.4353036
+[1] 1.501247
 \end{verbatim}
 
 We will reassign this value using the mean from the trials.
@@ -1167,9 +1148,9 @@ We will reassign this value using the mean from the trials.
 \end{Highlighting}
 \end{Shaded}
 
-With our variables transformed, we now turn to discussion on
-collinearity and multicollinearity in our data set. To facilitate the
-discussion we'll draw reference to a network plot.
+With our variables transformed, we turn now to a discussion on
+correlation in our data set. To facilitate our discussion we'll draw
+reference to a network plot.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1196,101 +1177,58 @@ Missing treated using: 'pairwise.complete.obs'
 \end{Shaded}
 
 \includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-43-1.pdf}
-First, we note the general proximity of variables with one another.
-Variables that are clustered together represent the overall magnitude of
-their correlations. In fact, the cluster of the wage variables are an
-indication of very tight correlation. Only state wages fall outside this
-group. The telecom and utlity wage variable, while still near the
-cluster, show a little relationship.We also see the wage variables are
+We first note in the network plot the general proximity of variables
+with one another. Variables that are clustered together represent the
+overall magnitude of their correlations. In fact, the cluster of the
+wage variables are an indication of very tight correlation. Only state
+wages fall outside this group. We also see the wage variables are
 positively correlated with our crime outcome variable. Density also
 positively correlates with wage and the crime rate variable. Urban
-correlates with wage, but suprisingly the correlation between crime and
-urban is not as high.
+correlates with wage as well, but suprisingly the correlation between
+crime and the urban indicator variable is not as high, leading us to
+suspect that density may tell a better story.
 
 Next, we notice the Law enforcement and Judicial variables are clustered
-and have a negative correlation with our outcome variable on crime. We
-also see they tend to be negatively correlated among one another. For
-example, probability of conviction is slightly negatively corrrelated
-with the probability of arrest, and both are negatively correlated with
-our outcome variable. We also see that police per capita and tax per
-capita are positively correlated with another. This makes sense as the
-more revenues collected the higher the ability to pay for law
-enforcement and protection. Both are also positively correlated with our
-outcome variable on crime. We also notice that percent young male has a
-positive correlation with crime rate. A possible explanation for this is
-that more crimes are committed by younger men as a whole. We also note
-that the state wage variable is in nearby proximity.
+together and have a negative correlation with our outcome variable on
+crime. We also see they tend to be negatively correlated amongst one
+another. For example, probability of conviction is slightly negatively
+corrrelated with the probability of arrest, and both are negatively
+correlated with our outcome variable. We also see that police per capita
+and tax per capita are positively correlated with another. This makes
+sense as the more revenues collected the higher the ability to pay for
+law enforcement and protection services. Both are also positively
+correlated with our outcome variable on crime. We also notice that
+percent young male has a positive correlation with crime rate. A
+possible explanation for this is that more crimes are committed by
+younger men as a whole.
 
-The mix variable is an odd one. It is possitively correlated with
-probability of arrests, negatively correlated with probability of
-convictions, and negatively correlated with service and manufacturing
+The mix variable is an odd one. It possitively correlates with
+probability of arrests, negatively correlates with probability of
+convictions, and negatively correlates with service and manufacturing
 wages. It also has a slight positive correlation with the state wage
 variable and seems to be clustered with it.
 
 Last, we turn to our region variables and notice the high negative
-correlation of the minority variable with the western region dummy
-variable. We also notice a high positive corrlation of minorities with
-the `other' (coastal) dummy variable. The pctmin80 variable also
-correlates positively with crime rate, although the two are not
-clustered. We especially note that west is negatively correlated with
-crime rate. There appears to be a lessor propensity for crime in this
-region, or perhaps a lack of suffient means to detect it. For a futher
-examination of correlation plots for each of the regions please see the
-network diagrams in the appendix.
+correlation of the minority variable with the western region variable.
+We also notice a high positive corrlation of minorities with the `other'
+(coastal) variable. The pctmin80 variable also correlates positively
+with crime rate, although the two are not clustered. We especially note
+that west is negatively correlated with crime rate. There appears to be
+a lessor propensity for crime in this region, or perhaps a lack of
+suffient means to detect it. We put this knowledge in our back pocket.
 
-\hypertarget{additional-variables-to-operationalize}{%
-\subsection{Additional Variables to
-Operationalize}\label{additional-variables-to-operationalize}}
-
-As a final point of discussion we will identify variables we wish to
-operationalize for use in our models. We will include a variable that
-expresses the economic condition of the county and a variable that
-expresses criminal justice effectiveness.
-
-The first variable on the economic condition will include the sum of all
-average weekly wages from the 1980 census information. Since we do not
-know how many were employed at that wage we use this summary the best
-available proxy. Additionally, we will scale this wage variable by 9 to
-highlight indication of industry diversity within a county.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{scaledWages<-(dfCrime}\OperatorTok{$}\NormalTok{wcon }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wtuc }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wtrd }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wfir }\OperatorTok{+}
-\StringTok{    }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wser }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wmfg }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wfed }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wsta }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wloc) }\OperatorTok{/}\StringTok{ }\DecValTok{9}
-\end{Highlighting}
-\end{Shaded}
-
-As a second variable, we are interested in understanding the
-effectiveness of the criminal justice system as a crime deterrent. Our
-proxy will be the number of convictions per incident.
-
-This is operationalized by taking the probability of arrests, pbrarr
-(which is defined as arrests per incident) and multiplying by the
-probability of convictions, pbrconv (which is defined as convictions per
-arrest). The new variable is defined below.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{crimJustEff<-dfCrime}\OperatorTok{$}\NormalTok{prbarr }\OperatorTok{*}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{prbconv}
-\end{Highlighting}
-\end{Shaded}
-
-We will also create a logarithmic transformation of this variable based
-on our histogram analysis from before.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logcrimJustEff<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{crimJustEff)}
-\end{Highlighting}
-\end{Shaded}
+A note to the interested party - for a futher examination of network
+plots describing correlations in each of the regions please see the
+diagrams in our appendix. If you are curious about the relationships of
+data between groups we think you will enjoy them.
 
 \hypertarget{summary-and-results}{%
 \subsection{Summary and Results}\label{summary-and-results}}
 
-Our outcome variable is the \emph{crime rate} (``crmrte''), which is
-defined as the crimes committed per person in a specific county during
-1987. The crime rate of the 90 counties in our sample dataset range
-between 0.0055 - 0.0990, with a mean of 0.0335.
+Our outcome variable is the \emph{crime rate} (``crmrte'') variable,
+which is defined as the crimes committed per person in a specific county
+during 1987. The crime rate of the 90 counties in our sample dataset
+range between 0.0055 - 0.0990, with a mean of 0.0335.
 
 From the boxplot below, most of the counties have a crime rate between
 0.0055 and 0.0700, with 5 outliers having a crime rate \textgreater{}
@@ -1307,27 +1245,30 @@ From the boxplot below, most of the counties have a crime rate between
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-47-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-44-1.pdf}
 
-While mix (the type of crime committed) is also potentially an outcome
-variable, our research focuses on providing policy recommendations to
-reduce crime in general and not a specific type of crime. Mix is also
-not a linear outcome and hence difficult to measure.
+Extending the discussion of mix from our initial correllation
+discussion, we further note that mix is defined as the type of crime
+committed. Our research focuses on providing policy recommendations to
+reduce crime in general, and not a specific type of crime. As a result
+we will not include additional focus on this variable.
 
 We propose 3 multiple linear regression models
 
 \begin{itemize}
 \item
-  First Model: Has only the explanatory variables of key interest and no
-  other covariates.
+  First Model: Has basic explanatory variables of key interest by
+  region, and no other covariates.
 \item
   Second Model: Includes the explanatory variables and covariates that
   increase the accuracy of our results without substantial bias.
 \item
   Third Model: An expansion of the second model with most covariates,
-  designed to demonstrate the robustness of our results to model
-  specification.
+  designed to demonstrate the robustness of our results before yielding
+  to a discussion on observations of our model specifications.
 \end{itemize}
+
+We are keen to begin.
 
 \hypertarget{model-analysis}{%
 \section{Model Analysis}\label{model-analysis}}
@@ -1339,7 +1280,7 @@ We propose 3 multiple linear regression models
 \subsubsection{Introduction}\label{introduction-1}}
 
 Our base hypothesis is that county level crime can be fundamentally
-explained by three factors in county: regional variations, the
+explained by three factors in a county: regional variations, the
 effectiveness of the criminal justice system, and economic conditions.
 
 \begin{itemize}
@@ -1352,27 +1293,33 @@ effectiveness of the criminal justice system, and economic conditions.
   arrests. Then, the legal system provides judgement in the form of
   convictions and sentencing. Besides removing some criminals from
   society, criminal justice can serve as deterrent, as the probability
-  of getting caught, convicted, sentenced could discourage some would be
-  criminals from committing crimes.
+  of getting caught, convicted, and sentenced could discourage some
+  would-be criminals from committing crimes.
 \end{itemize}
 
 \begin{quote}
 We operationalize criminal justice effectiveness as (probability of
-Convictions * Crimes committed). We define this as: prbconv * prbarr =
+Convictions for Crimes committed). We define this as: prbconv * prbarr =
 conv/arrest * arrest/crime = convictions/crime. Without more granular
 data, this provides a single parsimonious metric that helps understand
 how well the law enforcement and criminal justice system works.
 \end{quote}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{crimJustEff<-dfCrime}\OperatorTok{$}\NormalTok{prbarr }\OperatorTok{*}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{prbconv}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{itemize}
 \item
   \textbf{Region}\\
   Region is easily identified as possible factor for predicting crime as
   seen from our initial EDA in the Introduction. It would be expected
-  that cultural, econocomic, government, geographic, and demographic
+  that cultural, economic, government, geographic, and demographic
   profiles among other important variables would vary across the
   regions. Without the ability to measure and operationalize these
-  variables, region offers a solid standin.
+  variables, region offers us a suitable proxy for stand in.
 \item
   \textbf{Economic Conditions}\\
   Finally, we theorize that the third major cause of crime are economic
@@ -1385,16 +1332,26 @@ how well the law enforcement and criminal justice system works.
 \end{itemize}
 
 \begin{quote}
-We operationalize economic conditions by looking at wages. For this
-base, parsimonious model, we define this as the unweighted average
-weekly pay from each sector provided in the data set. We think this is
-best proxy from our data because it answers all of the above (higher
-wages leads to better means and better opportunities). From our EDA we
-also confirm that in general these sums are not skewed by having one
-really high paying sector in each county as we see a strong relationship
-between average quartile across all job types and unweighted sector
-average wage.
+We operationalize economic conditions by looking at wages, which
+includes the sum of all average weekly wages from the 1980 census
+information in our data set. For this base, parsimonious model, we
+define economic opportunity as the \emph{scaled} average weekly pay from
+each sector provided in the data set. We scale this variable by dividing
+the sum by 9 to underscore the significance of industry diversity within
+a county. We think this is best proxy from our data because it answers
+all of the above (higher wages leads to better means and better
+opportunities). From our EDA we also confirm that in general these sums
+are not skewed by having one really high paying sector in each county as
+we see a strong relationship between average quartile across all job
+types and sector average wages.
 \end{quote}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{scaledWages<-(dfCrime}\OperatorTok{$}\NormalTok{wcon }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wtuc }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wtrd }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wfir }\OperatorTok{+}
+\StringTok{    }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wser }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wmfg }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wfed }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wsta }\OperatorTok{+}\StringTok{ }\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{wloc) }\OperatorTok{/}\StringTok{ }\DecValTok{9}
+\end{Highlighting}
+\end{Shaded}
 
 \hypertarget{model-1-eda}{%
 \subsubsection{Model 1 EDA}\label{model-1-eda}}
@@ -1415,23 +1372,23 @@ Probability of arrest and Probability of conviction.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-48-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-47-1.pdf}
 
 The distribution of both probability of conviction and probability of
 arrest are skewed right. It could be argued that both of these variables
 should be bound between 0 and 1. However, these ``probabilities'' are
 proxied by ratios. It is in fact possible (and perhaps common) that
-defendents are charged with multiple crimes and convicted, but were only
+defendants are charged with multiple crimes and convicted, but were only
 arrested once. For this reason we will not consider outliers in this
 variable.
 
-For ``probability'' of arrest, it could be possible there are multiple
-arrests for a single crime. However, the single data point that is
-greater than one, is \textgreater{}5 standard deviations away from the
-distribution. Since this value falls so far out of distribution, it will
-have high leverage on our model and will be preemptively imputed as the
-data supplied is likely in error and is not representative of the bulk
-of North Carolina counties.
+For ``probability'' of arrest, it could also be possible there are
+multiple arrests for a single crime. However, we have one single data
+point greater than one, and it is \textgreater{}5 standard deviations
+away from the distribution. Since this value falls so far out of
+distribution, it will have high leverage on our model. We will
+preemptively impute its value as the current data point is likely an
+error, and is not representative of the bulk of North Carolina counties.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1458,7 +1415,7 @@ of North Carolina counties.
 
 We will use the imputation method to replace the large prbarr value and
 remove the outlier effect, while also retaining the rest of the
-variables in the county.
+information about the county.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1495,7 +1452,7 @@ variables in the county.
 
 \begin{verbatim}
    prbarr 
-0.9344601 
+0.9122357 
 \end{verbatim}
 
 \begin{Shaded}
@@ -1515,7 +1472,7 @@ variables in the county.
 \end{Shaded}
 
 \begin{verbatim}
-[1] 0.3274832
+[1] 0.345041
 \end{verbatim}
 
 We will reassign this value using the mean from the trials.
@@ -1527,10 +1484,11 @@ We will reassign this value using the mean from the trials.
 \end{Shaded}
 
 With the outlier imputed, the Criminal Justice Effectiveness can be
-constructed as described above, and a histogram can show how log
-transformation improves normality. Also, by log transforming we can
+constructed. We present a histogram showing how log transformation can
+also improve normality. Be conducting a log transformation we can also
 understand the resulting coefficient as a percent change in the ratio of
-Criminal Justice Effectiveness (convictions/crime).
+Criminal Justice Effectiveness (convictions/crime) which will be more
+helpful in communicating recommendations for policy.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1548,15 +1506,15 @@ Criminal Justice Effectiveness (convictions/crime).
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-54-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-53-1.pdf}
 
 \textbf{Data Transformations: Unweighted Average of Sector Wages}
 
-Now we turn our attention to the economic variable, unweighted average
+We turn our attention now to the economic variable, the scaled average
 wage of all provided sectors. The wages trend together well, so there is
 limited information lost when combining them into one variable. This can
-be seen by plotting quartiles of each wage against the unweighted
-average and observing a relatively linear response.
+be seen by plotting quartiles of each wage against the scaled average
+and observing a relatively linear response.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1578,14 +1536,14 @@ average and observing a relatively linear response.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-55-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-54-1.pdf}
 
-We will again modify this variable with a log transformation for better
+We again modify this variable with a log transformation for better
 interpretation. This allows us to interpret percent changes in wage
 which is more consistent across a range of wages. The result is a
-relatively normal distribution as seen in the below histogram. There
-exists a small ``second mode'' for the Central region, but this is not
-very concerning.
+relatively normal distribution as seen in the below histogram. We note
+that there is a small ``second mode'' for the Central region, but this
+is not very concerning.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1597,12 +1555,12 @@ very concerning.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-56-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-55-1.pdf}
 Interestingly, when viewing the wage data plotted against crime rate
-(below). We see that there is a positive correlation between wages and
-crime. In model 1, we will see if this holds when taking into account
-the effect of Criminal Justice Effectiveness and discuss some possible
-causes.
+(below) we see that there is a positive correlation between wages and
+crime. In model 1, we will see if this holds ture when taking into
+account the effect of Criminal Justice Effectiveness and discuss some
+possible causes.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1614,11 +1572,7 @@ causes.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-57-1.pdf}
-
-\textbf{Data Transformations: Regions}\\
-Regions will be used as explained in the EDA section. No transformations
-are necessary.
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-56-1.pdf}
 
 \textbf{Data Transformations: Crime Rate}\\
 Our dependent variable is crime. Operationalized it is given as a rate
@@ -1629,7 +1583,7 @@ effect of high crime counties from exerting large leverage on our model.
 Second, the log transform allows us talk about relative percentage
 changes in crime rate for the counties. This allows changes in crime
 rate to be reported in percent which is relevant to all counties,
-irrespective of their current staus as low or high crime counties. In
+irrespective of their current status as low or high crime counties. In
 the below histograms, the improved normality is also observed in the log
 transformed variable.
 
@@ -1647,42 +1601,45 @@ transformed variable.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-58-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-57-1.pdf}
 
 \hypertarget{model-1-linear-model}{%
 \subsubsection{Model 1 Linear Model}\label{model-1-linear-model}}
 
-\[ log(Crime Rate) = B_0 + B_1log(Unweighted Average Wage) + B_2log(Criminal Justice Effectiveness) + B_3West + B_4Central\]
+We now turn to the definition of our model in terms of the variables we
+operationalized, and we perform our linear regression.
+
+\[ log(Crime Rate) = B_0 + B_1log(Scaled Wages) + B_2log(Criminal Justice Effectiveness) + B_3West + B_4Central\]
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{#dfCrime$unweighted_avg_wage <- dfCrime$scaledWages/9}
-\NormalTok{mod1 <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(logcrmrte }\OperatorTok{~}\StringTok{ }\NormalTok{logScaledWages }\OperatorTok{+}\StringTok{ }\NormalTok{logcrimJustEff }\OperatorTok{+}\StringTok{ }\NormalTok{regcode, }\DataTypeTok{data=}\NormalTok{dfCrime)}
-\NormalTok{mod1 }\CommentTok{# Coefficients}
+\NormalTok{model1 <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(logcrmrte }\OperatorTok{~}\StringTok{ }\NormalTok{logScaledWages }\OperatorTok{+}\StringTok{ }\NormalTok{logcrimJustEff }\OperatorTok{+}\StringTok{ }\NormalTok{west }\OperatorTok{+}\StringTok{ }\NormalTok{central, }\DataTypeTok{data=}\NormalTok{dfCrime)}
+\NormalTok{model1 }\CommentTok{# Coefficients}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 
 Call:
-lm(formula = logcrmrte ~ logScaledWages + logcrimJustEff + regcode, 
-    data = dfCrime)
+lm(formula = logcrmrte ~ logScaledWages + logcrimJustEff + west + 
+    central, data = dfCrime)
 
 Coefficients:
-   (Intercept)  logScaledWages  logcrimJustEff     regcodeWest  
-      -15.8310          1.9939         -0.4795         -0.5919  
-regcodeCentral  
-       -0.2427  
+   (Intercept)  logScaledWages  logcrimJustEff            west  
+      -15.8376          1.9951         -0.4793         -0.5907  
+       central  
+       -0.2424  
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{summary}\NormalTok{(mod1)}\OperatorTok{$}\NormalTok{adj.r.square }\CommentTok{# Adjusted R^2 value.}
+\KeywordTok{summary}\NormalTok{(model1)}\OperatorTok{$}\NormalTok{adj.r.square }\CommentTok{# Adjusted R^2 value.}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-[1] 0.6330099
+[1] 0.634619
 \end{verbatim}
 
 \textbf{Cook's Distance (Leverage/Influence) Analysis}\\
@@ -1694,11 +1651,11 @@ of major concern.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot}\NormalTok{(mod1, }\DataTypeTok{which=}\DecValTok{5}\NormalTok{) }\CommentTok{# Variance Inflation Factor}
+\KeywordTok{plot}\NormalTok{(model1, }\DataTypeTok{which=}\DecValTok{5}\NormalTok{) }\CommentTok{# Variance Inflation Factor}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-60-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-59-1.pdf}
 
 \textbf{Model 1 CLM Assumptions:}\\
 * \textbf{MLR1} Linear in parameters: The model has had its data
@@ -1714,21 +1671,19 @@ transformed as described above to allow a linear fit of the model.
   \textbf{MLR3} No perfect multicollinearity: None of the variables
   chosen for the model are constant or perfectly collinear as the
   economy and criminal justice effectiveness are independent. Our low
-  VIF value shows very little colinearity, as would be expected from the
-  diverse and limited variables included in the model.
+  VIF value shows very little collinearity, as would be expected from
+  the diverse and limited variables included in the model.
 \end{itemize}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{vif}\NormalTok{(mod1) }\CommentTok{# Variance Inflation Factor}
+\KeywordTok{vif}\NormalTok{(model1) }\CommentTok{# Variance Inflation Factor}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-                   GVIF Df GVIF^(1/(2*Df))
-logScaledWages 1.206814  1        1.098551
-logcrimJustEff 1.048306  1        1.023868
-regcode        1.171959  2        1.040466
+logScaledWages logcrimJustEff           west        central 
+      1.205638       1.048478       1.233871       1.412989 
 \end{verbatim}
 
 \begin{itemize}
@@ -1747,24 +1702,25 @@ regcode        1.171959  2        1.040466
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot}\NormalTok{(mod1, }\DataTypeTok{which=}\DecValTok{1}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(model1, }\DataTypeTok{which=}\DecValTok{1}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-62-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-61-1.pdf}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{MLR5} There does appear to be heteroskedacity in the `lips'
-  appearance of the Residuals vs fitted plot. A Breusch-Pagan test shows
-  that there is not heteroskedacity. However, to be conservative, we
-  will proceed with heteroskedastic robust errors.
+  \textbf{MLR5} Although there does appear to be visible heteroskedacity
+  in the `lips' appearance of the Residuals vs fitted plot, a
+  Breusch-Pagan test (below) confirms there is not. However, to be
+  conservative and consistent we will proceed with heteroskedastic
+  robust errors.
 \end{itemize}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{bptest}\NormalTok{(mod1)}
+\KeywordTok{bptest}\NormalTok{(model1)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1772,13 +1728,13 @@ regcode        1.171959  2        1.040466
 ## 
 ##  studentized Breusch-Pagan test
 ## 
-## data:  mod1
-## BP = 4.933, df = 4, p-value = 0.2942
+## data:  model1
+## BP = 5.0669, df = 4, p-value = 0.2805
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{coeftest}\NormalTok{(mod1, }\DataTypeTok{vcov=}\NormalTok{vcovHC) }\CommentTok{#coefficients with heteroskedastic consistent standard errors}
+\KeywordTok{coeftest}\NormalTok{(model1, }\DataTypeTok{vcov=}\NormalTok{vcovHC) }\CommentTok{#coefficients with heteroskedastic consistent standard errors}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1786,12 +1742,12 @@ regcode        1.171959  2        1.040466
 ## 
 ## t test of coefficients:
 ## 
-##                 Estimate Std. Error t value  Pr(>|t|)    
-## (Intercept)    -15.83098    2.67683 -5.9141 6.776e-08 ***
-## logScaledWages   1.99386    0.48984  4.0704 0.0001047 ***
-## logcrimJustEff  -0.47954    0.10478 -4.5764 1.600e-05 ***
-## regcodeWest     -0.59188    0.10226 -5.7881 1.162e-07 ***
-## regcodeCentral  -0.24266    0.08128 -2.9855 0.0036976 ** 
+##                  Estimate Std. Error t value  Pr(>|t|)    
+## (Intercept)    -15.837568   2.666454 -5.9396 6.072e-08 ***
+## logScaledWages   1.995102   0.487952  4.0887 9.807e-05 ***
+## logcrimJustEff  -0.479274   0.104511 -4.5859 1.543e-05 ***
+## west            -0.590727   0.101838 -5.8006 1.102e-07 ***
+## central         -0.242411   0.081154 -2.9870   0.00368 ** 
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -1801,15 +1757,15 @@ regcode        1.171959  2        1.040466
 \item
   \textbf{MLR6} The final assumption of linear regression is that the
   errors are normally distributed. This appears to hold for the bulk of
-  the residuals however there is skewness on the tails. This
+  the residuals, however, there is skewness on the tails. This
   non-normality is also reflected in the significant return on the
-  shapiro test. Our high sample size allows us to leverage the Central
-  Limit Theorem and assume normally distribued errors.
+  Shapiro test. But our high sample size allows us to leverage the
+  Central Limit Theorem and assume normally distributed errors.
 \end{itemize}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{shapiro.test}\NormalTok{(mod1}\OperatorTok{$}\NormalTok{residuals) }\CommentTok{# test for normality}
+\KeywordTok{shapiro.test}\NormalTok{(model1}\OperatorTok{$}\NormalTok{residuals) }\CommentTok{# test for normality}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1817,44 +1773,44 @@ regcode        1.171959  2        1.040466
 
     Shapiro-Wilk normality test
 
-data:  mod1$residuals
-W = 0.95918, p-value = 0.006445
+data:  model1$residuals
+W = 0.95975, p-value = 0.007033
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{plot}\NormalTok{(mod1, }\DataTypeTok{which=}\DecValTok{2}\NormalTok{) }\CommentTok{# QQ plot for residuals}
+\KeywordTok{plot}\NormalTok{(model1, }\DataTypeTok{which=}\DecValTok{2}\NormalTok{) }\CommentTok{# QQ plot for residuals}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-64-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-63-1.pdf}
 
 \hypertarget{model-1-interpretation}{%
 \subsubsection{Model 1 Interpretation}\label{model-1-interpretation}}
 
 The model 1 gives estimates and standard errors that are heteroskedastic
 consistent. All the coefficients are found to be statistically
-significant. The coefficient of the log of unweighted average wage is
+significant. The coefficient of the log of scaled average wage is
 calculated to be \textasciitilde{}2. This means that an increase of 1\%
 in wages is correlated with an increase of 2\% in crime rate. Generally
-an individuals increased wages are not associated with increased crime.
-This suggests that wages are correlated with a stronger omitted variable
-that affects crime. One aspect that may be missed is the economic
-inequality in the county. Averages are easily affected by extreme
-values. It is possible that there are very high earners that can
-influence a sector's average wage, but don't represent the bulk of
-workers. Further, there is no understanding of the weighting for each
-sector. For example, one sector, like telecom, may have high wages in a
-county but not have very many workers; further demonstrating inequality.
-This detail is missed when each sector is rolled up into a single
-average and then averaged with all other sector averages. However, the
-significant result of wage on crime suggests that we are capturing some
-cause of crime that is correlated to wages. We will continue to monitor
-how wage changes as a predictor when introducing more regressors in
-subsequent models.
+speaking, increased wages are not normally associated with increased
+crime. This suggests that wages are correlated with stronger omitted
+variables that affects crime. Another aspect that may be missed in our
+operationlized variable is the economic inequality in the county.
+Averages are easily affected by extreme values. It is possible there are
+very high earners that can influence a sector's average wage, but don't
+represent the bulk of workers. Further, there is no understanding of the
+weighting for each sector. For example, one sector, like telecom, may
+have high wages in a county but not have very many workers, further
+demonstrating inequality. This detail is missed when each sector is
+rolled into a single average and then scaled with all other sector
+averages. However, the significant result of wage on crime suggests that
+we are capturing some cause of crime that is correlated to wages. We
+will continue to monitor how wage changes as a predictor when we
+introduce more regressors.
 
-Criminal justice effectiveness (convictions/crime) is given a
-coefficient of -0.5 which suggests that an increase of 1\% increase in
+Criminal justice effectiveness (convictions/crime) is has a coefficient
+of around 0.5 which suggests that an increase of 1\% increase in
 convictions per crime will decrease crime by nearly .5\%. This suggests
 that we have found a relatively strong correlation and constructed a
 good operationalization of a county's criminal justice effect on crime
@@ -1865,9 +1821,9 @@ suggests that regionally, there are differences that are not captured by
 the Wages and Criminal Justice Effectiveness variable that affect crime.
 While the West and Central regions both have lower crime than the
 Coastal/Other region, the West is much more pronounced with a value of
--0.6. This suggests that when correcting for differences in Criminal
-Justice Effectiveness and Wages, the west will still have crime rate
-lower by about 60\%.
+around 0.6. This suggests that when correcting for differences in
+Criminal Justice Effectiveness and Wages, the west will still have crime
+rate lower by about 60\%.
 
 Overall, the model shows a moderately good fit, with an adjusted R
 square of 0.63. This can be interpreted as: the model explains 63\% of
@@ -1883,7 +1839,7 @@ police per capita and tax revenue per capita.
 
 In this model, we introduce the additional covariates of tax per capita
 (taxpc) and police per capita (polpc) to give us more insight into our
-economic related variables.
+economic and law enforcement related variables.
 
 \begin{itemize}
 \item
@@ -1891,19 +1847,19 @@ economic related variables.
   The Police Per Capita in a county can be influential on the Criminal
   Justice Effectiveness. With more police in a given area, one would
   assume that crime rates would decrease, however, as we mentioned
-  earlier in our report, polpc has a negative correlation with crmrte.
+  earlier in our EDA, polpc has a positive correlation with crmrte.
   Including this variable in our analysis will give us more insight into
-  the variables used in model 1.
+  the relationship of variables used in model 1.
 \item
   \textbf{Tax Per Capita}\\
   The Tax Per Capita can have a direct impact on the Police Per Capita.
-  A higher tax per capita, means that the county has more tax dollars to
+  A higher tax per capita means that the county has more revenue to
   spend on public services like the police force (ie. increasing the
   number of police in the county). This positive correlation
   relationship can be seen in our prior introductory data analysis.
+  However, taxpc may also serve as an inidication of economic health as
+  well.
 \end{itemize}
-
-\[logcrmrte = \beta_0 + \beta_1log(Unweighted Average Wage) + \beta_2log(Criminal Justice Effectiveness) + \beta_3log(Police Per Capita)*West\\ +  \beta_4log(Police Per Capita)*Central  + \beta_5logtaxpc + u\]
 
 \hypertarget{model-2-eda-and-data-transformations}{%
 \subsubsection{Model 2 EDA and Data
@@ -1926,7 +1882,7 @@ To start, we will look at the polpc variable:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-65-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-64-1.pdf}
 
 As we can see from the histograms above, taking the natural log of polpc
 brings its distribution closer to normal. As a result, we will use the
@@ -1940,7 +1896,7 @@ log(polpc) in our analysis.
 \end{Shaded}
 
 Next, we will take a look at our taxpc variable to see if a
-trasformation is warranted:
+transformation is warranted:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1954,13 +1910,13 @@ trasformation is warranted:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-67-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-66-1.pdf}
 The histogram of taxpc, depicts each region as having an approximately
-normal distribution with each cenetred on a different mean. When we take
+normal distribution with each centered on a different mean. When we take
 the natural log of taxpc, we can see in the histogram, above, that each
 region has a more normal distribution. In addition, taking the natural
 log of taxpc reduces the extremity of the outlier seen in histogram of
-taxpc. As a result, we will use the log(taxpc) in our analysis.
+taxpc. We will use the log(taxpc) in our analysis.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1968,9 +1924,8 @@ taxpc. As a result, we will use the log(taxpc) in our analysis.
 \end{Highlighting}
 \end{Shaded}
 
-Now that we have transformed the two variables we are adding to model
-two, we will take a look at how logtaxpc and logpolpc relate to
-logcrmrate and if these trends vary between each regcode.
+Now that we have transformed our variables, we will take a look at how
+they relate to crime rate, and if the trends vary between each region.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1986,26 +1941,27 @@ logcrmrate and if these trends vary between each regcode.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-69-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-68-1.pdf}
 
-Right away, we can see clear difference between each regions' logpolpc
-regression on logcrmerte.``Other'' and ``Central'' regions have
-positively sloped regression lines, while ``West'' has a negatively
-sloped regression line. This suggests that we should investigate the
-interactions between logpolpc and region (regcode) in our model.
+Right away, we can see clear difference between each region. The
+``Other'' and ``Central'' regions have positively sloped regression
+lines against police per capita, while ``West'' has a negatively sloped
+regression line. This suggests that we should investigate interactions
+between police per capita and the regions in our model.
 
-logtaxpc to logcrmrte, on the other hand, does not demonstrate this
-regression slope variation between each regions. As result, we will not
-look into the interactions between logtaxpc and region in our model.
+The tax per capita relationship, on the other hand, does not demonstrate
+the same slope variation between each regions. As result, we will not
+look into the interactions between tax per capita and regions in our
+model.
 
 \hypertarget{model-2-linear-model}{%
 \subsubsection{Model 2 Linear Model}\label{model-2-linear-model}}
 
-\[logcrmrte = \beta_0 + \beta_1logScaledWages + \beta_2logcrimJustEff + \beta_3logpolpc * regcode + \beta_4logtaxpc + u\]
+\[logcrmrte = \beta_0 + \beta_1log(Scaled Wages) + \beta_2log(Criminal Justice Effectiveness) + \beta_3West + \beta_4Central + \beta_5log(Police Per Capita)*West\\ +  \beta_6log(Police Per Capita)*Central  + \beta_7log((Police Per Capita) + \beta_8log(Tax Per Capita) + u\]
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{model2 <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(logcrmrte }\OperatorTok{~}\StringTok{ }\NormalTok{logScaledWages }\OperatorTok{+}\StringTok{ }\NormalTok{logcrimJustEff }\OperatorTok{+}\StringTok{ }\NormalTok{logpolpc}\OperatorTok{*}\NormalTok{regcode }\OperatorTok{+}\StringTok{ }\NormalTok{logtaxpc, }\DataTypeTok{data =}\NormalTok{ dfCrime)}
+\NormalTok{model2 <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(logcrmrte }\OperatorTok{~}\StringTok{ }\NormalTok{logScaledWages }\OperatorTok{+}\StringTok{ }\NormalTok{logcrimJustEff }\OperatorTok{+}\StringTok{ }\NormalTok{logpolpc}\OperatorTok{*}\NormalTok{west }\OperatorTok{+}\StringTok{ }\NormalTok{logpolpc}\OperatorTok{*}\NormalTok{central }\OperatorTok{+}\StringTok{ }\NormalTok{logtaxpc, }\DataTypeTok{data =}\NormalTok{ dfCrime)}
 \NormalTok{model2}
 \end{Highlighting}
 \end{Shaded}
@@ -2014,15 +1970,15 @@ look into the interactions between logtaxpc and region in our model.
 
 Call:
 lm(formula = logcrmrte ~ logScaledWages + logcrimJustEff + logpolpc * 
-    regcode + logtaxpc, data = dfCrime)
+    west + logpolpc * central + logtaxpc, data = dfCrime)
 
 Coefficients:
-            (Intercept)           logScaledWages           logcrimJustEff  
-                -6.8885                   1.1909                  -0.4235  
-               logpolpc              regcodeWest           regcodeCentral  
-                 0.5633                  -5.7593                   1.0017  
-               logtaxpc     logpolpc:regcodeWest  logpolpc:regcodeCentral  
-                -0.1524                  -0.7946                   0.1857  
+     (Intercept)    logScaledWages    logcrimJustEff          logpolpc  
+         -6.9142            1.1942           -0.4231            0.5625  
+            west           central          logtaxpc     logpolpc:west  
+         -5.9020            1.0004           -0.1516           -0.8171  
+logpolpc:central  
+          0.1855  
 \end{verbatim}
 
 \begin{Shaded}
@@ -2032,7 +1988,7 @@ Coefficients:
 \end{Shaded}
 
 \begin{verbatim}
-[1] 0.6982419
+[1] 0.7010331
 \end{verbatim}
 
 From the Residuals vs Leverage graph, below, we can see that our model
@@ -2045,7 +2001,7 @@ are no points with a Cook's distance of 0.5 or greater).
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-71-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-70-1.pdf}
 
 \textbf{Model 2 CLM Assumptions:}
 
@@ -2069,13 +2025,10 @@ are no points with a Cook's distance of 0.5 or greater).
 \end{Shaded}
 
 \begin{verbatim}
-##                          GVIF Df GVIF^(1/(2*Df))
-## logScaledWages   1.585675e+00  1        1.259236
-## logcrimJustEff   1.213546e+00  1        1.101611
-## logpolpc         3.163076e+00  1        1.778504
-## regcode          1.973196e+05  2       21.076212
-## logtaxpc         1.436382e+00  1        1.198492
-## logpolpc:regcode 1.945745e+05  2       21.002523
+##   logScaledWages   logcrimJustEff         logpolpc             west 
+##         1.580472         1.203717         3.199952       526.830942 
+##          central         logtaxpc    logpolpc:west logpolpc:central 
+##       511.756597         1.433775       523.538598       507.390302
 \end{verbatim}
 
 \begin{itemize}
@@ -2086,7 +2039,7 @@ are no points with a Cook's distance of 0.5 or greater).
   assumption as the majority of the residual means lie close to zero.
   The exceptions to this trend, lie on the left and right sides of the
   chart where there are fewer data points (evidence for
-  heteroscedasticity - see MLR5, below).
+  heteroskedasticity - see MLR5, below).
 \end{itemize}
 
 \begin{Shaded}
@@ -2095,17 +2048,32 @@ are no points with a Cook's distance of 0.5 or greater).
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-73-1.pdf}
+\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-72-1.pdf}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{MLR5: Homoscedasticity} The above Residuals vs Fitted graph
-  provides evidence of heteroscedasticity as right and left sides of the
-  chart have fewer datepoints. To provide further evidence of
-  heteroscedasticity, we will use the White-Huber test with the vcovHC
-  method to generate coefficients that are robust to heteroscedasticity
+  \textbf{MLR5: heteroskedasticity} The above Residuals vs Fitted graph
+  provides evidence of heteroskedasticity as right and left sides of the
+  chart have fewer date points, and further suggested by the
+  Breusch-Pagan test. Since we have evidence of heteroskedasticity, we
+  will use the White-Huber method with vcovHC to generate coefficients
+  that are robust to heteroskedasticity
 \end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{bptest}\NormalTok{(model2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+    studentized Breusch-Pagan test
+
+data:  model2
+BP = 14.826, df = 8, p-value = 0.06262
+\end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -2117,16 +2085,16 @@ are no points with a Cook's distance of 0.5 or greater).
 
 t test of coefficients:
 
-                        Estimate Std. Error t value  Pr(>|t|)    
-(Intercept)             -6.88847    3.59964 -1.9137 0.0591966 .  
-logScaledWages           1.19092    0.47517  2.5063 0.0142012 *  
-logcrimJustEff          -0.42353    0.10738 -3.9443 0.0001693 ***
-logpolpc                 0.56325    0.25341  2.2227 0.0290253 *  
-regcodeWest             -5.75931    2.91655 -1.9747 0.0517090 .  
-regcodeCentral           1.00167    1.43430  0.6984 0.4869475    
-logtaxpc                -0.15237    0.19070 -0.7990 0.4266149    
-logpolpc:regcodeWest    -0.79463    0.44558 -1.7834 0.0782744 .  
-logpolpc:regcodeCentral  0.18568    0.21957  0.8456 0.4002403    
+                 Estimate Std. Error t value  Pr(>|t|)    
+(Intercept)      -6.91425    3.59700 -1.9222 0.0580933 .  
+logScaledWages    1.19420    0.47275  2.5260 0.0134839 *  
+logcrimJustEff   -0.42311    0.10652 -3.9721 0.0001536 ***
+logpolpc          0.56246    0.25302  2.2230 0.0290043 *  
+west             -5.90200    2.95189 -1.9994 0.0489182 *  
+central           1.00040    1.43604  0.6966 0.4880221    
+logtaxpc         -0.15164    0.18995 -0.7983 0.4270211    
+logpolpc:west    -0.81709    0.45142 -1.8101 0.0739936 .  
+logpolpc:central  0.18548    0.21984  0.8437 0.4013228    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -2140,7 +2108,7 @@ this might be the case:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{linearHypothesis}\NormalTok{(model2, }\KeywordTok{c}\NormalTok{(}\StringTok{"logpolpc:regcodeWest=0"}\NormalTok{, }\StringTok{"logpolpc:regcodeCentral"}\NormalTok{), }\DataTypeTok{vcov=}\NormalTok{vcovHC)}
+\KeywordTok{linearHypothesis}\NormalTok{(model2, }\KeywordTok{c}\NormalTok{(}\StringTok{"logpolpc:west=0"}\NormalTok{, }\StringTok{"logpolpc:central=0"}\NormalTok{), }\DataTypeTok{vcov=}\NormalTok{vcovHC)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2148,27 +2116,59 @@ this might be the case:
 ## Linear hypothesis test
 ## 
 ## Hypothesis:
-## logpolpc:regcodeWest = 0
-## logpolpc:regcodeCentral = 0
+## logpolpc:west = 0
+## logpolpc:central = 0
 ## 
 ## Model 1: restricted model
-## Model 2: logcrmrte ~ logScaledWages + logcrimJustEff + logpolpc * regcode + 
-##     logtaxpc
+## Model 2: logcrmrte ~ logScaledWages + logcrimJustEff + logpolpc * west + 
+##     logpolpc * central + logtaxpc
 ## 
 ## Note: Coefficient covariance matrix supplied.
 ## 
-##   Res.Df Df      F  Pr(>F)  
-## 1     83                    
-## 2     81  2 2.9377 0.05866 .
+##   Res.Df Df     F  Pr(>F)  
+## 1     83                   
+## 2     81  2 3.057 0.05249 .
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 
 We can see frome the F-test, above, that the interactions between
-logpolpc and regcodes west and central are not quite statistically
-significant to the model. However, given the slight significance of the
-interaction between logpolpc and west, we will continue to look at the
-standalone effect of west and central in our third model.
+logpolpc and the dummy variables west and central are not quite
+statistically significant to our model. However, we will continue to
+look at the standalone effects of west and central and keep them for our
+third model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{linearHypothesis}\NormalTok{(model2, }\KeywordTok{c}\NormalTok{(}\StringTok{"logpolpc=0"}\NormalTok{, }\StringTok{"logtaxpc=0"}\NormalTok{), }\DataTypeTok{vcov=}\NormalTok{vcovHC)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Linear hypothesis test
+## 
+## Hypothesis:
+## logpolpc = 0
+## logtaxpc = 0
+## 
+## Model 1: restricted model
+## Model 2: logcrmrte ~ logScaledWages + logcrimJustEff + logpolpc * west + 
+##     logpolpc * central + logtaxpc
+## 
+## Note: Coefficient covariance matrix supplied.
+## 
+##   Res.Df Df      F  Pr(>F)  
+## 1     83                    
+## 2     81  2 2.6466 0.07702 .
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+We also see that logtaxpc and logpolpc together are not jointly
+significant. Seeing how logtaxpc is also not individually significant we
+will dismiss it from inclusion in our third model. However, we will
+continue to investigate the standalone effects of west and central and
+keep them for our third model.
 
 \begin{itemize}
 \tightlist
@@ -2199,29 +2199,29 @@ standalone effect of west and central in our third model.
 ## 
 ## Call:
 ## lm(formula = logcrmrte ~ logScaledWages + logcrimJustEff + logpolpc * 
-##     regcode + logtaxpc, data = dfCrime)
+##     west + logpolpc * central + logtaxpc, data = dfCrime)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -1.00062 -0.15398  0.03168  0.17675  0.57295 
+## -1.00023 -0.15294  0.03127  0.17462  0.57365 
 ## 
 ## Coefficients:
-##                         Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)             -6.88847    2.84781  -2.419  0.01781 *  
-## logScaledWages           1.19092    0.37323   3.191  0.00202 ** 
-## logcrimJustEff          -0.42353    0.06123  -6.917 9.73e-10 ***
-## logpolpc                 0.56325    0.17335   3.249  0.00169 ** 
-## regcodeWest             -5.75931    1.75687  -3.278  0.00154 ** 
-## regcodeCentral           1.00167    1.48284   0.676  0.50128    
-## logtaxpc                -0.15237    0.14450  -1.054  0.29480    
-## logpolpc:regcodeWest    -0.79463    0.27086  -2.934  0.00436 ** 
-## logpolpc:regcodeCentral  0.18568    0.22844   0.813  0.41870    
+##                  Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)      -6.91425    2.83188  -2.442 0.016802 *  
+## logScaledWages    1.19420    0.37061   3.222 0.001833 ** 
+## logcrimJustEff   -0.42311    0.06055  -6.988 7.11e-10 ***
+## logpolpc          0.56246    0.17252   3.260 0.001629 ** 
+## west             -5.90200    1.71634  -3.439 0.000926 ***
+## central           1.00040    1.47571   0.678 0.499760    
+## logtaxpc         -0.15164    0.14370  -1.055 0.294438    
+## logpolpc:west    -0.81709    0.26465  -3.087 0.002764 ** 
+## logpolpc:central  0.18548    0.22733   0.816 0.416950    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 0.3014 on 81 degrees of freedom
-## Multiple R-squared:  0.7254, Adjusted R-squared:  0.6982 
-## F-statistic: 26.74 on 8 and 81 DF,  p-value: < 2.2e-16
+## Residual standard error: 0.3 on 81 degrees of freedom
+## Multiple R-squared:  0.7279, Adjusted R-squared:  0.701 
+## F-statistic: 27.09 on 8 and 81 DF,  p-value: < 2.2e-16
 \end{verbatim}
 
 \hypertarget{model-2-interpretation}{%
@@ -2234,30 +2234,26 @@ R-squared value between our first and second models, we see that
 logtaxpc and the interaction between logpolpc and regcode help describe
 logcrmrte.
 
-Our second model has an Adjusted R-squared value of 0.7000, which means
-70.00\% of the variation in the natural log of the crime rate is
+Our second model has an Adjusted R-squared value of approx 0.70, which
+means 70\% of the variation in the natural log of the crime rate is
 explained by the explanatory variables used in this model. This is a
 slight increase compared to our first model, that has an Adjusted
-R-squared value of 0.6345.
+R-squared value that explaines 63\% of the model.
 
-In addition, the F-statistic is 26.83 with a statistically significant
-p-value of \textless{} 2.2e-16. As a result, we reject the null
-hypothesis that none of the independent variables help to describe
-logcrmrte.
+Coefficient Analysis (assuming ceterus paribus): - logcrimJustEff: This
+suggests that for a 1\% increase in criminal justice efficiency, there
+is approximately 6.9\% decrease in crime rate. - logpolpc: This suggests
+that for a 1\% increase in police per capita, there is a .5\% increase
+in crime rate. - logScaledWages: This suggests that for a 1\% increase
+in total average weekly wage, there is a 1.2\% increase in crime rate. -
+taxpc: This suggests that for a 1\% increase in tax per capita, there is
+a .15\% decrease in crime rate.
 
-Coefficient Analysis (assuming ceterus paribus): - logcrimJustEff:
--6.9018 . This suggests that for a 1\% increase in criminal justice
-efficiency, there is a 6.9018\% decrease in crime rate. - logpolpc:
-0.5626. This suggests that for a 1\% increase in police per capita,
-there is a 0.5626\% increase in crime rate. - logScaledWages: 1.19182.
-This suggests that for a 1\% increase in total average weekly wage,
-there is a 1.1918\% increase in crime rate. - taxpc: -0.1512. This
-suggests that for a 1\% increase in tax per capita, there is a 0.1512\%
-decrease in crime rate.
-
-Compared to model 1, the adjusted \(R^2\) of model 2 is only marginally
-higher. This suggests that we should continue our analysis by focusing
-on the join significance of the variables added in model 2.
+Compared to model 1, the adjusted \(R^2\) of model 2 shows improvement
+from the variables selected, although interaction behavior for the
+regions was less pronounced. This suggests we should continue our
+analysis by focusing on the joint significance of the variables we added
+in model 2, but without the regional interactions.
 
 \hypertarget{model-3}{%
 \subsection{Model 3}\label{model-3}}
@@ -2351,12 +2347,12 @@ and gang violence - all of which are inhibitors to better economic
 outcomes.
 
 From the summary and boxplot below, we can see that the density ranges
-from 0.3006 - 8.8277, with a mean of 0.9792 persons per square mile. We
-note that while there are some outliers to the data, this does not
-appear at first glance to be an issue as some counties can contain major
-cities which would naturally lead to a higher population density. As a
-result, we will not make adjustments to any outliers unless we detect
-datapoints having high influence in our model.
+from 0.3006 - 8.8277, with a mean of 0.9792 per square mile. We note
+that while there are some outliers to the data, this does not appear at
+first glance to be an issue as some counties can contain major cities
+which would naturally lead to a higher population density. As a result,
+we will not make adjustments to any outliers unless we detect datapoints
+having high influence in our model.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -2366,7 +2362,7 @@ datapoints having high influence in our model.
 
 \begin{verbatim}
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##  0.3006  0.5472  0.9792  1.4405  1.5693  8.8277
+##  0.3006  0.5519  1.0008  1.4524  1.5693  8.8277
 \end{verbatim}
 
 \begin{Shaded}
@@ -2407,7 +2403,8 @@ influence over the decisions of the judiciary system, as they are
 separate branches of government.
 
 Our equation for model 3 is as follows:
-\[log(CrimeRate) = \beta_0 + \beta_1log(UnweightedAverageWage) + \beta_2log(CriminalJusticeEffectiveness) + \beta_3West + \\
+
+\[log(CrimeRate) = \beta_0 + \beta_1log(Scaled Wages) + \beta_2log(CriminalJusticeEffectiveness) + \beta_3West + \\
 \beta_4Central+ \beta_5log(PolicePerCapita) + \beta_6log(PercentageofMinorities) + \beta_7Density +u\]
 
 \hypertarget{model-3-linear-model}{%
@@ -2415,51 +2412,41 @@ Our equation for model 3 is as follows:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{model3_initial<-}\KeywordTok{lm}\NormalTok{(logcrmrte }\OperatorTok{~}\StringTok{ }\NormalTok{logScaledWages }\OperatorTok{+}\StringTok{ }\NormalTok{logcrimJustEff  }\OperatorTok{+}\StringTok{  }\NormalTok{regcode }\OperatorTok{+}
+\NormalTok{model3_initial<-}\KeywordTok{lm}\NormalTok{(logcrmrte }\OperatorTok{~}\StringTok{ }\NormalTok{logScaledWages }\OperatorTok{+}\StringTok{ }\NormalTok{logcrimJustEff  }\OperatorTok{+}\StringTok{  }\NormalTok{west }\OperatorTok{+}\StringTok{ }\NormalTok{central }\OperatorTok{+}
 \StringTok{                     }\NormalTok{logpolpc }\OperatorTok{+}\StringTok{ }\NormalTok{logpctmin80 }\OperatorTok{+}\StringTok{ }\NormalTok{density, }\DataTypeTok{data =}\NormalTok{ dfCrime)}
-\KeywordTok{summary}\NormalTok{(model3_initial)}
+\KeywordTok{coeftest}\NormalTok{(model3_initial, }\DataTypeTok{vcov=}\NormalTok{vcovHC)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 
-Call:
-lm(formula = logcrmrte ~ logScaledWages + logcrimJustEff + regcode + 
-    logpolpc + logpctmin80 + density, data = dfCrime)
+t test of coefficients:
 
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.94554 -0.13318  0.04809  0.14872  0.55677 
-
-Coefficients:
-               Estimate Std. Error t value Pr(>|t|)    
-(Intercept)    -8.36727    2.50204  -3.344  0.00125 ** 
-logScaledWages  1.05054    0.38727   2.713  0.00813 ** 
-logcrimJustEff -0.40940    0.06269  -6.530 5.14e-09 ***
-regcodeWest    -0.19416    0.13351  -1.454  0.14969    
-regcodeCentral -0.15083    0.07948  -1.898  0.06127 .  
-logpolpc        0.27607    0.10679   2.585  0.01150 *  
-logpctmin80     0.19415    0.05446   3.565  0.00061 ***
-density         0.08487    0.02934   2.892  0.00490 ** 
+                Estimate Std. Error t value  Pr(>|t|)    
+(Intercept)    -8.984868   4.144938 -2.1677 0.0330833 *  
+logScaledWages  1.134562   0.596440  1.9022 0.0606528 .  
+logcrimJustEff -0.418235   0.105310 -3.9715 0.0001526 ***
+west           -0.203025   0.203025 -1.0000 0.3202538    
+central        -0.152857   0.095703 -1.5972 0.1140694    
+logpolpc        0.257369   0.186992  1.3764 0.1724556    
+logpctmin80     0.192363   0.089796  2.1422 0.0351408 *  
+density         0.078912   0.030758  2.5656 0.0121208 *  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Residual standard error: 0.2836 on 82 degrees of freedom
-Multiple R-squared:  0.7539,    Adjusted R-squared:  0.7329 
-F-statistic: 35.89 on 7 and 82 DF,  p-value: < 2.2e-16
 \end{verbatim}
 
-We note from the the summary above and the F-test below that west and
-central were not statistically significant to the model, but the
-inclusion of logpctmin80 and density are significant at the 99\%
-confidence level or better. It appears that after controlling for the
-minority percentage and density, we can better explain the variation
-between counties rather than purely based on their geographic location
-and we thus remove the latter 2 variables from our model.
+We note from the the summary above that west and central are no longer
+statistically significant to the model, but the inclusion of logpctmin80
+and density are significant at the 99\% confidence level or better. It
+appears that after controlling for the minority percentage and density,
+we can better explain the variation between counties rather than purely
+based on their geographic location and we thus remove the latter 2
+variables from our model. We confirm by checking whether we have joint
+signifcance of west and central below.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{linearHypothesis}\NormalTok{(model3_initial,}\KeywordTok{c}\NormalTok{(}\StringTok{"regcodeWest=0"}\NormalTok{,}\StringTok{"regcodeCentral=0"}\NormalTok{), }\DataTypeTok{vcov=}\NormalTok{vcovHC)}
+\KeywordTok{linearHypothesis}\NormalTok{(model3_initial,}\KeywordTok{c}\NormalTok{(}\StringTok{"west=0"}\NormalTok{,}\StringTok{"central=0"}\NormalTok{), }\DataTypeTok{vcov=}\NormalTok{vcovHC)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2467,21 +2454,21 @@ and we thus remove the latter 2 variables from our model.
 ## Linear hypothesis test
 ## 
 ## Hypothesis:
-## regcodeWest = 0
-## regcodeCentral = 0
+## west = 0
+## central = 0
 ## 
 ## Model 1: restricted model
-## Model 2: logcrmrte ~ logScaledWages + logcrimJustEff + regcode + logpolpc + 
-##     logpctmin80 + density
+## Model 2: logcrmrte ~ logScaledWages + logcrimJustEff + west + central + 
+##     logpolpc + logpctmin80 + density
 ## 
 ## Note: Coefficient covariance matrix supplied.
 ## 
 ##   Res.Df Df      F Pr(>F)
 ## 1     84                 
-## 2     82  2 1.3608 0.2622
+## 2     82  2 1.3637 0.2614
 \end{verbatim}
 
-Our revised equation for model 3 is as follows:
+Our revised equation for model 3 thus becomes:
 \[log(CrimeRate) = \beta_0 + \beta_1log(UnweightedAverageWage) + \beta_2log(CriminalJusticeEffectiveness) +  \beta_3log(PolicePerCapita) +\beta_4log(PercentageofMinorities) + \beta_5Density +u\]
 
 \begin{Shaded}
@@ -2500,9 +2487,9 @@ lm(formula = logcrmrte ~ logcrimJustEff + logScaledWages + logpolpc +
 
 Coefficients:
    (Intercept)  logcrimJustEff  logScaledWages        logpolpc  
-      -7.68040        -0.42893         0.94129         0.28915  
+      -8.33055        -0.43948         1.03452         0.27337  
    logpctmin80         density  
-       0.25357         0.07587  
+       0.25511         0.06825  
 \end{verbatim}
 
 \begin{Shaded}
@@ -2512,7 +2499,7 @@ Coefficients:
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 0.7267955
+## [1] 0.7229166
 \end{verbatim}
 
 From the Residuals vs Leverage plot below, we also note that there are
@@ -2548,7 +2535,7 @@ points having a Cook's distance \textgreater{} 0.5.
 
 \begin{verbatim}
 ## logcrimJustEff logScaledWages       logpolpc    logpctmin80        density 
-##       1.361375       1.814602       1.320967       1.043891       2.129569
+##       1.334094       1.743971       1.324162       1.045325       2.072173
 \end{verbatim}
 
 \begin{itemize}
@@ -2590,12 +2577,12 @@ points having a Cook's distance \textgreater{} 0.5.
 t test of coefficients:
 
                 Estimate Std. Error t value  Pr(>|t|)    
-(Intercept)    -7.680402   4.257584 -1.8039   0.07483 .  
-logcrimJustEff -0.428930   0.098282 -4.3643 3.609e-05 ***
-logScaledWages  0.941288   0.612902  1.5358   0.12835    
-logpolpc        0.289152   0.185064  1.5624   0.12194    
-logpctmin80     0.253570   0.042186  6.0108 4.600e-08 ***
-density         0.075871   0.033654  2.2544   0.02677 *  
+(Intercept)    -8.330547   4.499280 -1.8515   0.06761 .  
+logcrimJustEff -0.439476   0.100332 -4.3802 3.401e-05 ***
+logScaledWages  1.034521   0.647198  1.5985   0.11370    
+logpolpc        0.273374   0.188957  1.4467   0.15169    
+logpctmin80     0.255106   0.041896  6.0890 3.281e-08 ***
+density         0.068247   0.034661  1.9690   0.05225 .  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -2624,15 +2611,17 @@ approaching the true parameter values in probability.
 \hypertarget{model-3-interpretation}{%
 \subsubsection{Model 3 Interpretation}\label{model-3-interpretation}}
 
-The model shows a good fit, with an adjusted R-squared of 0.725, meaning
-that the model explains 72.5\% of the variation in crime.
+The model shows a good fit, with an adjusted R-squared of 0.72, meaning
+that the model explains 72\% of the variation in crime with less
+variables than model 2.
 
 After accounting for coefficients that are robust to heteroscedasticity,
 we note only three them have individual statistical significance at the
 95\% level or better. These are criminal justice efficiency, minority
 percentages and density. However, running a F-test on the other two
 variables logpolpc and logScaledWages show that jointly they are still
-significant for our model.
+significant for our model, and thus we will include them for final
+analysis.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -2655,7 +2644,7 @@ significant for our model.
 ## 
 ##   Res.Df Df      F   Pr(>F)   
 ## 1     86                      
-## 2     84  2 4.9444 0.009331 **
+## 2     84  2 5.0553 0.008451 **
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -2673,34 +2662,34 @@ significant for our model.
 t test of coefficients:
 
                 Estimate Std. Error t value  Pr(>|t|)    
-(Intercept)    -7.680402   4.257584 -1.8039   0.07483 .  
-logcrimJustEff -0.428930   0.098282 -4.3643 3.609e-05 ***
-logScaledWages  0.941288   0.612902  1.5358   0.12835    
-logpolpc        0.289152   0.185064  1.5624   0.12194    
-logpctmin80     0.253570   0.042186  6.0108 4.600e-08 ***
-density         0.075871   0.033654  2.2544   0.02677 *  
+(Intercept)    -8.330547   4.499280 -1.8515   0.06761 .  
+logcrimJustEff -0.439476   0.100332 -4.3802 3.401e-05 ***
+logScaledWages  1.034521   0.647198  1.5985   0.11370    
+logpolpc        0.273374   0.188957  1.4467   0.15169    
+logpctmin80     0.255106   0.041896  6.0890 3.281e-08 ***
+density         0.068247   0.034661  1.9690   0.05225 .  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 
 Positive coefficients:\\
 * Police presence: If we increase police per capita by 1 percent, we
-expect the crime rate to increase by 0.28\%.\\
+expect the crime rate to increase by around 0.28\%.\\
 * scaledWages: If we increase wages by 1 percent, we expect the crime
-rate to increase by 0.94\%.\\
-* Density: If we increase density by 1 person per square mile, we expect
-the crime rate to increase by 7.62\%.\\
+rate to also increase by roughly 1\%.\\
+* Density: If we increase density by 100 people per square mile, we
+expect the crime rate to increase by approximately 6.6\%.\\
 * Percentage of minorities: If the percentage of minorities increase by
 1\%, we expect the crime rate to increase by 0.25\%.
 
 Negative coefficients:\\
 * Criminal justice efficiency: If we increase the criminal justice
-efficiency by 1\%, we expect the crime rate to decrease by 0.43\%.
+efficiency by 1\%, we expect the crime rate to decrease by around
+0.43\%.
 
 Of these different variables, we should pay particular attention to
 density given its large practical effect and statistical significance,
-which we address in our policy recommendations section below. In
-addition, as discussed
+which we address in our policy recommendations in the next section.
 
 \hypertarget{comparison-of-regression-models}{%
 \subsection{Comparison of Regression
@@ -2720,12 +2709,12 @@ Models}\label{comparison-of-regression-models}}
   \KeywordTok{return}\NormalTok{(rt)}
 \NormalTok{\}}
 \CommentTok{# Get vectors of robust standard errors from the coeftest output}
-\NormalTok{se.model1 <-}\StringTok{ }\KeywordTok{ctdf}\NormalTok{(}\KeywordTok{coeftest}\NormalTok{(mod1, }\DataTypeTok{vcov=}\NormalTok{vcovHC))[,}\StringTok{"Std. Error"}\NormalTok{]}
+\NormalTok{se.model1 <-}\StringTok{ }\KeywordTok{ctdf}\NormalTok{(}\KeywordTok{coeftest}\NormalTok{(model1, }\DataTypeTok{vcov=}\NormalTok{vcovHC))[,}\StringTok{"Std. Error"}\NormalTok{]}
 \NormalTok{se.model2 <-}\StringTok{ }\KeywordTok{ctdf}\NormalTok{(}\KeywordTok{coeftest}\NormalTok{(model2, }\DataTypeTok{vcov=}\NormalTok{vcovHC))[,}\StringTok{"Std. Error"}\NormalTok{]}
 \NormalTok{se.model3 <-}\StringTok{ }\KeywordTok{ctdf}\NormalTok{(}\KeywordTok{coeftest}\NormalTok{(model3, }\DataTypeTok{vcov=}\NormalTok{vcovHC))[,}\StringTok{"Std. Error"}\NormalTok{]}
 
 \CommentTok{# Pass the standard errors into stargazer}
-\KeywordTok{stargazer}\NormalTok{(mod1, model2, model3, }\DataTypeTok{type =} \StringTok{"text"}\NormalTok{, }\DataTypeTok{omit.stat =} \StringTok{"f"}\NormalTok{,}
+\KeywordTok{stargazer}\NormalTok{(model1, model2, model3, }\DataTypeTok{type =} \StringTok{"text"}\NormalTok{, }\DataTypeTok{omit.stat =} \StringTok{"f"}\NormalTok{,}
           \DataTypeTok{se =} \KeywordTok{list}\NormalTok{(se.model1, se.model2, se.model3),}
           \DataTypeTok{star.cutoffs =} \KeywordTok{c}\NormalTok{(}\FloatTok{0.05}\NormalTok{, }\FloatTok{0.01}\NormalTok{, }\FloatTok{0.001}\NormalTok{))}
 \end{Highlighting}
@@ -2733,52 +2722,52 @@ Models}\label{comparison-of-regression-models}}
 
 \begin{verbatim}
 
-=======================================================================
-                                      Dependent variable:              
-                        -----------------------------------------------
-                                           logcrmrte                   
-                              (1)             (2)             (3)      
------------------------------------------------------------------------
-logScaledWages             1.994***         1.191*           0.941     
-                            (0.490)         (0.475)         (0.613)    
-                                                                       
-logcrimJustEff             -0.480***       -0.424***       -0.429***   
-                            (0.105)         (0.107)         (0.098)    
-                                                                       
-logpolpc                                    0.563*           0.289     
-                                            (0.253)         (0.185)    
-                                                                       
-regcodeWest                -0.592***        -5.759*                    
-                            (0.102)         (2.917)                    
-                                                                       
-regcodeCentral             -0.243**          1.002                     
-                            (0.081)         (1.434)                    
-                                                                       
-logtaxpc                                    -0.152                     
-                                            (0.191)                    
-                                                                       
-logpolpc:regcodeWest                        -0.795                     
-                                            (0.446)                    
-                                                                       
-logpolpc:regcodeCentral                      0.186                     
-                                            (0.220)                    
-                                                                       
-logpctmin80                                                0.254***    
-                                                            (0.042)    
-                                                                       
-density                                                     0.076*     
-                                                            (0.034)    
-                                                                       
-Constant                  -15.831***        -6.888          -7.680     
-                            (2.677)         (3.600)         (4.258)    
-                                                                       
------------------------------------------------------------------------
-Observations                  90              90              90       
-R2                           0.650           0.725           0.742     
-Adjusted R2                  0.633           0.698           0.727     
-Residual Std. Error     0.332 (df = 85) 0.301 (df = 81) 0.287 (df = 84)
-=======================================================================
-Note:                                     *p<0.05; **p<0.01; ***p<0.001
+===================================================================
+                                  Dependent variable:              
+                    -----------------------------------------------
+                                       logcrmrte                   
+                          (1)             (2)             (3)      
+-------------------------------------------------------------------
+logScaledWages         1.995***         1.194*           1.035     
+                        (0.488)         (0.473)         (0.647)    
+                                                                   
+logcrimJustEff         -0.479***       -0.423***       -0.439***   
+                        (0.105)         (0.107)         (0.100)    
+                                                                   
+logpolpc                                0.562*           0.273     
+                                        (0.253)         (0.189)    
+                                                                   
+west                   -0.591***        -5.902*                    
+                        (0.102)         (2.952)                    
+                                                                   
+central                -0.242**          1.000                     
+                        (0.081)         (1.436)                    
+                                                                   
+logtaxpc                                -0.152                     
+                                        (0.190)                    
+                                                                   
+logpolpc:west                           -0.817                     
+                                        (0.451)                    
+                                                                   
+logpolpc:central                         0.185                     
+                                        (0.220)                    
+                                                                   
+logpctmin80                                            0.255***    
+                                                        (0.042)    
+                                                                   
+density                                                 0.068*     
+                                                        (0.035)    
+                                                                   
+Constant              -15.838***        -6.914          -8.331     
+                        (2.666)         (3.597)         (4.499)    
+                                                                   
+-------------------------------------------------------------------
+Observations              90              90              90       
+R2                       0.651           0.728           0.738     
+Adjusted R2              0.635           0.701           0.723     
+Residual Std. Error 0.332 (df = 85) 0.300 (df = 81) 0.289 (df = 84)
+===================================================================
+Note:                                 *p<0.05; **p<0.01; ***p<0.001
 \end{verbatim}
 
 \hypertarget{interpretation-and-discussion}{%
@@ -2787,24 +2776,24 @@ Discussion}\label{interpretation-and-discussion}}
 
 Comparing the 3 models, we see that by increasing the complexity of our
 model specifications we have increased the fit of our model. The
-adjusted R2 value has steadily increased from 63\% to 73\% between model
-1 and 3, indicating that we were able to explain approximately 10\% more
-of the variation in our model. At the same time, our overall standard
-errors (which have been adjusted to account for hetereoscedacity) have
-also decreased.
+adjusted R2 value has steadily increased from 63\% to nearly 73\%
+between model 1 and 3, indicating that we were able to explain
+approximately 10\% more of the variation in our model. At the same time,
+our overall standard errors (which have been adjusted to account for
+hetereoscedacity) have also decreased.
 
 \begin{itemize}
 \tightlist
 \item
   logScaledWages: As we dived deeper into our analysis of independent
   variables that operationalized economic conditions, we note that the
-  unweighted average weekly wage has decreased both in terms of its
+  scaled average weekly wage has decreased both in terms of its
   practical significance (as measured by the magnitude of the
   coefficient) as well as its statistical significance. This indicates
   that as we controlled for additional covariates, the effect of wages
-  was not as pronounced. In addition, our the size of our standard
-  errors increased from model 1 to 3. As a result, we do not believe
-  that the average wage is a good determinant of crime.\\
+  are not as pronounced. In addition, the size of our standard errors
+  increased from model 1 to 3. As a result, we do not believe that the
+  average wage is a good determinant of crime.\\
 \item
   logcrimJustEff: Criminal justice effectiveness has maintained
   relatively stable across all 3 models with a negative coefficient of
@@ -2817,7 +2806,9 @@ also decreased.
 \item
   logpolpc: Police per capita was statistically significant in the model
   2, but once we controlled for density and the minority percentage, it
-  became statistically insignificant in model 3.\\
+  became statistically insignificant in model 3. However, the higher
+  joint significance with wage shows there is justification that merits
+  further study.
 \item
   West and Central: The two regions were statistically significant in
   model 1, but became less significant in the later two models once we
@@ -2843,8 +2834,8 @@ also decreased.
   percentage in itself is a cause of crime.\\
 \item
   Density: Density is statistically significant at the 95\% confidence
-  level and represents a large practical effect as an increase in 1
-  person per square mile leads to approximately 8\% increase in the
+  level and represents a large practical effect as an increase in 100
+  people per square mile leads to approximately 6.7\% increase in the
   crime rate.
 \end{itemize}
 
@@ -2855,8 +2846,9 @@ the most important factors in explaining crime. Criminal justice
 effectiveness can be increased by either increasing convictions or
 decreasing the number of crimes, while the two demographic variables
 indicate the areas of focus for policy recommendations. We also note
-that the western region may be deserving of further analysis beyond the
-scope of this paper.
+that the western region and possible varations of policing style is
+deserving of further research and analysis beyond the scope of this
+paper.
 
 \hypertarget{ommitted-variables}{%
 \subsubsection{Ommitted Variables}\label{ommitted-variables}}
@@ -2967,15 +2959,20 @@ The 5 major identified ommited variables are shown above.
   Economic Inequality may also increase the crime rate as it may provide
   incentives for certain types of crime such as theft, kidnapping or
   extortion by people who have less economic means on those who have
-  more economic means.
+  more economic means. As discussed in model 1, it is possible that mean
+  wage is correlated to inequality, which explains why wages positively
+  correlate to crime in model 1. As we add more regressors in later
+  models, this effect is limited. Likely because inequality is better
+  correlated to these new regressors like density and minority
+  population.\\
 \item
-  Gang or Organized Crime is special case of crime that contains unique
-  causes. It is expected that it would be negatively correlated with
-  criminal justice effectiveness as large social pressures prevent
+  Gang or Organized Crime is a special case of crime that contains
+  unique causes. It is expected that it would be negatively correlated
+  with criminal justice effectiveness as large social pressures prevent
   witnesses from supporting prosecution. Gang crime is also negatively
   correlated with economic conditions. From these assumed correlations,
   we can say that criminal justice effectiveness and economic conditions
-  are both underestimated compared to including gang activity
+  are both underestimated compared to including a gang activity
   operationalized variable in the model.\\
 \item
   Government spending: Our analysis showed that local tax revenues per
@@ -3005,12 +3002,12 @@ local political candidates.
   \item Crime is more prevalent in places with higher population density and higher minority populations. Those seeking election in these areas should make crime reduction an important part of their message. Note that we do not offer recommendations on how important the issue of crime is relative to other issues as that is beyond the scope of our analysis.
   \item Increase the number of rightful convictions by providing appropriate staffing and resources to local law enforcement and legal system. In highly populated areas, this could include increasing public safety infrastructure (such as security cameras) and reducing police response times. With the right resources, density can be used against potential criminals and act as a deterrent to crime. However, note that simply increasing the number of police will not necessarily lead to an increase in criminal justice effectiveness.
   \item Provide additional support for areas with high minority populations, by conducting further studies on our ommitted variables. These could come in different forms such as better access to education, social support services or by reducing income equality. Our analysis has shown that average wages do not have a strong relationship with crime so it is important to get to the root of why these areas suffer from higher crime rates in order to provide more concrete recommendations to reduce crime in these areas.
-    \item Provide racial suboncious bias training to local law enforcement and judiciary officials to reduce the number of wrongful arrests or incidents labelled as potential crimes.
+    \item Provide racial subconscious bias training to local law enforcement and judiciary officials to reduce the number of wrongful arrests or incidents labelled as potential crimes.
 \end{itemize}
 
-\hypertarget{further-research-recommendations}{%
-\subsection{Further Research
-Recommendations}\label{further-research-recommendations}}
+\hypertarget{recommendations-for-future-research}{%
+\subsection{Recommendations for Future
+Research}\label{recommendations-for-future-research}}
 
 Our findings can be further strengthed by studying the ommitted
 variables we have identified, the differences in the western region, as
@@ -3019,8 +3016,17 @@ independent variables change over time. Political candidates who are
 interested in making crime reduction an important campaign promise
 should consider funding these studies.
 
+We thank you for the opportunity to research this important matter. We
+hope our suggestions benefit understanding and provide adequate material
+for policy discussion in the upcoming campaign.
+
 \hypertarget{appendix}{%
 \section{Appendix}\label{appendix}}
+
+We include below additional network correlation plots seperated by
+region and metro attributes. We drew further inspiration from these
+plots for policy recommendations and variables to test that are be
+influenced by the regional and density variations.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -3145,269 +3151,6 @@ Missing treated using: 'pairwise.complete.obs'
 \end{Shaded}
 
 \includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-91-5.pdf}
-
-\hypertarget{transformations}{%
-\subsection{Transformations}\label{transformations}}
-
-Transform examinations through ggplots.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{#dfEconVars <- as.data.frame(cbind(dfCrime$wcon, dfCrime$wtuc, dfCrime$wtrd, dfCrime$wfir,}
-\CommentTok{#                                  dfCrime$wser, dfCrime$wmfg, dfCrime$wfed, dfCrime$wsta,}
-\CommentTok{#                                  dfCrime$wloc))}
-\CommentTok{#names(dfEconVars) <- c('wcon', 'wtuc', 'wtrd', 'wfir', 'wser',}
-\CommentTok{#                              'wmfg', 'wfed', 'wsta', 'wloc')}
-\CommentTok{#}
-\CommentTok{#ggplot(melt(dfEconVars),aes(x=value)) + geom_histogram(bins=30) + facet_wrap(~variable)}
-
-\CommentTok{#The economic variables}
-\NormalTok{q1<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wcon, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q1a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wcon), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q2<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wtuc, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q2a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wtuc), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q3<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wtrd, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q3a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wtrd), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q4<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wfir, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q4a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wfir), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q5<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wser, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q5a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wser), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q6<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wmfg, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q6a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wmfg), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q7<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wfed, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q7a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wfed), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q8<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wsta, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q8a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wsta), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q9<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ wloc, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q9a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(wloc), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ metro)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-
-\KeywordTok{options}\NormalTok{(}\DataTypeTok{repr.plot.width=}\DecValTok{8}\NormalTok{, }\DataTypeTok{repr.plot.height=}\DecValTok{16}\NormalTok{)}
-\KeywordTok{grid.arrange}\NormalTok{(q1, q1a, q2, q2a, q3, q3a, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-92-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{grid.arrange}\NormalTok{(q4, q4a, q5, q5a, q6, q6a, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-92-2.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{grid.arrange}\NormalTok{(q7, q7a, q8, q8a, q9, q9a, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-92-3.pdf}
-
-The transforms make the relationship more linearly distributed. We will
-transform these variables to their log equivalents.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwcon<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wcon)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwtuc<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wtuc)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwtrd<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wtrd)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwfir<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wfir)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwser<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wser)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwmfg<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wmfg)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwfed<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wfed)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwsta<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wsta)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logwloc<-}\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{wloc)}
-\end{Highlighting}
-\end{Shaded}
-
-We move to the justice an law enforcement variables. With these
-variables being mostly \textless{} 1 we'll also take the log for
-comparison.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{#Plot of the criminal justice and law enforcment related variables vs crmrte}
-\NormalTok{q1<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ prbarr, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q1a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(prbarr), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q2<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ prbconv, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q2a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(prbconv), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q3<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ prbpris, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q3a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(prbpris), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q4<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ avgsen, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q4a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(avgsen), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q5<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ polpc, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q5a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(polpc), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q6<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ mix, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q6a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(mix), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-
-\KeywordTok{grid.arrange}\NormalTok{(q1, q1a, q2, q2a, q3, q3a, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-94-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{grid.arrange}\NormalTok{(q4, q4a, q5, q5a, q6, q6a, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-94-2.pdf}
-
-The log transformation for these variables makes the relationship more
-linear. We will transform these variables to their log equivalents.
-
-We also note that of the six variables, only prbarr, prbconv and polpc
-show univariate correlation with crime. We believe these will be better
-candidates for our model selection. Further, we see mix has no
-correlation with crmrate and may be its own outcome variable.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logprbarr <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{prbarr)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logprbconv <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{prbconv)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logprbpris <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{prbpris)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logavgsen <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{avgsen)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logpolpc <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{polpc)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logmix <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{mix)}
-\end{Highlighting}
-\end{Shaded}
-
-Next we take a look at the demographic variables and their log
-alternatives
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{q1<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ pctymle, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q1a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(pctymle), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q2<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ pctmin80, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q2a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(pctmin80), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q3<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ density, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q3a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(density), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-
-
-\KeywordTok{grid.arrange}\NormalTok{(q1, q1a, q2, q2a, q3, q3a, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-96-1.pdf}
-
-Again we see improvements after transformation. We will include
-transforms of these variables as well.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logdensity <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{density)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logpctmin80 <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{pctmin80)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logpctymle <-}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{pctymle)}
-\end{Highlighting}
-\end{Shaded}
-
-Finally, we'll take a look at taxpc and a histogram of the crmrte
-variable itself.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{q1<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ taxpc, }\DataTypeTok{y =}\NormalTok{ crmrte, }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-\NormalTok{q1a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(taxpc), }\DataTypeTok{y =} \KeywordTok{log}\NormalTok{(crmrte), }\DataTypeTok{color =}\NormalTok{ regcode)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =} \StringTok{"lm"}\NormalTok{)}
-
-\NormalTok{q2<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ crmrte)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_histogram}\NormalTok{(}\DataTypeTok{bins=}\DecValTok{30}\NormalTok{)}
-\NormalTok{q2a<-}\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ dfCrime, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{log}\NormalTok{(crmrte))) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_histogram}\NormalTok{(}\DataTypeTok{bins=}\DecValTok{30}\NormalTok{)}
-
-\KeywordTok{grid.arrange}\NormalTok{(q1, q1a, q2, q2a, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{Bagnard_Gaustad_Hartman_Leung_Lab_3_files/figure-latex/unnamed-chunk-98-1.pdf}
-
-The crmrte and taxpc variables also show improvement after
-transformation. We'll add those to our dataframe.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logcrmrte =}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{crmrte)}
-\NormalTok{dfCrime}\OperatorTok{$}\NormalTok{logtaxpc =}\StringTok{ }\KeywordTok{log}\NormalTok{(dfCrime}\OperatorTok{$}\NormalTok{taxpc)}
-\end{Highlighting}
-\end{Shaded}
 
 
 \end{document}
