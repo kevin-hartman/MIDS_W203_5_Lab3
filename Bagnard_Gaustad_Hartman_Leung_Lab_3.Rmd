@@ -964,7 +964,7 @@ options(repr.plot.width=8, repr.plot.height=16)
 grid.arrange(logpolpc_plot,logtaxpc_plot, ncol=2)
 ```
 
-Right away, we can see clear difference between each regions' logpolpc regression on logcrmerte."Other" and "Central" regions have positively slopped regression lines, while "West" has a negatively slopped regression line. This suggests that we should investigate the interactions between logpolpc and region (regcode) in our model. 
+Right away, we can see clear difference between each regions' logpolpc regression on logcrmerte."Other" and "Central" regions have positively sloped regression lines, while "West" has a negatively sloped regression line. This suggests that we should investigate the interactions between logpolpc and region (regcode) in our model. 
 
 logtaxpc to logcrmrte, on the other hand, does not demonstrate this regression slope variation between each regions. As result, we will not look into the interactions between logtaxpc and region in our model. 
 
