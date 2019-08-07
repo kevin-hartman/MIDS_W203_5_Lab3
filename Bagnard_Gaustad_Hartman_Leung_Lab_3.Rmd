@@ -936,14 +936,8 @@ In this model, we introduce the additional covariates of tax per capita (taxpc) 
 --- why we are removing regcode as a direct variable
 
 1. The **Police Per Capita** in a county can be influential on the Criminal Justice Effectiveness. With more police in a given area, one would think that crime rates would decrease, however our correlation plot below tells a different story. Including this variable in our analysis will give us more insight into the variables used in model 1. 
+
 2. The **Tax Per Capita** can have a direct impact on the Police Per Capita. A higher tax per capita, means that the county has more tax dollars to spend on public services like the police force (ie. increasing the number of police in the county). 
-
-
--- DELETE ME --
-The **Density** of an area can have significant impacts on:
-    - **Criminal Justice Effectiveness**: with more people in a given area, crime frequency increases (+ bias direction). However, more people means there are more potential witnesses, making it easier to catch criminals (- bias direction). 
-    - **Economic Opportunity (ie. scaledWages)**: in high density areas, there is an increase in demand for support services such as food, retail, utilities, etc. As a result, there is a high demand for service jobs, which increases the economic opportunities within the area (+ bias direction).  However, more people in a given area, there is a closer proximity to drugs, alcohol and gang violence - all of which are inhimitors to better economic outcomes. 
-------------
 
 
 $$logcrmrte = \beta_0 + \beta_1logScaledWages + \beta_2logcrimJustEff + \beta_3logpolpc * regcode + \beta_4logtaxpc + u$$
