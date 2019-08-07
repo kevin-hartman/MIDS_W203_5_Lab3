@@ -898,9 +898,6 @@ Overall, the model shows a moderately good fit, with an adjusted R square of 0.6
 ### Introduction
 In this model, we introduce the additional covariates of tax per capita (taxpc) and police per capita (polpc) to give us more insight into our economic related variables.
 
--- DELETE -- 
-increase the accuracy of our regression. We are including these additional variables to our second model, as they add accuracy to the explanatory variables used in our first model: 
-
 * **Police Per Capitas**  
 The Police Per Capita in a county can be influential on the Criminal Justice Effectiveness. With more police in a given area, one would assume that crime rates would decrease, however, as we mentioned earlier in our report, polpc has a negative correlation with crmrte. Including this variable in our analysis will give us more insight into the variables used in model 1. 
 
@@ -967,12 +964,6 @@ Right away, we can see clear difference between each regions' logpolpc regressio
 
 logtaxpc to logcrmrte, on the other hand, does not demonstrate this regression slope variation between each regions. As result, we will not look into the interactions between logtaxpc and region in our model. 
 
--- DELETE -- 
-NOTES: -regionally we see a difference in the polpc regression on crime rate
-      - this suggests that we should investigate the interaction between polpc and region. --> law enforcement style could be different in the regions which.  
-      - we do not need to look at taxpc and region as the slopes do not vary greatly across regions.
------      
-
 ### Model 2 Linear Model
 
 $$logcrmrte = \beta_0 + \beta_1logScaledWages + \beta_2logcrimJustEff + \beta_3logpolpc * regcode + \beta_4logtaxpc + u$$
@@ -1019,10 +1010,6 @@ linearHypothesis(model2, c("logpolpc:regcodeWest=0", "logpolpc:regcodeCentral"),
 ```
 
 We can see frome the F-test, above, that the interactions between logpolpc and regcodes west and central are not quite statistically significant to the model. However, given the slight significance of the interaction between logpolpc and west, we will continue to look at the standalone effect of west and central in our third model. 
-
--- DELETE ---
-NOTES: INTERACTIONS BETWETEEN POLPC AND REGCODE WEST AND CENTRAL ARE NOT BY THEMSELVES SIGNIFICANT.  LETS F TEST TO SEE IF THEY ARE JOINTLY SIGNIFICANT...and they are barely not significant.  The dummy variable for central is not significant which suggests that central and other are very similar while west is different.
----
 
 * **MLR6: Normal Distribution of Errors** The Normal Q-Q plot, below, provides evidence that our residuals follow a normal distribution. While there are some data points on the left and right side of the graph that stray from the diagonal line, since our data set has over 30 datapoints, per the CLT, we can assume residuals have a normal distribution. 
 
