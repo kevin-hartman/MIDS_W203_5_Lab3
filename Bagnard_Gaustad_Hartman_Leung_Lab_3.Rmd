@@ -900,6 +900,7 @@ mean(resid(mod1))
 plot(mod1, which=1)
 ```
 * **MLR5** There does appear to be heteroskedacity in the 'lips' appearance of the Residuals vs fitted plot.  This is acknowledged and can be accounted for by using the heteroskedastic robust standard errors.  This is seen in the coeftest.
+
 ```{r}
 coeftest(mod1, vcov=vcovHC) #coefficients with heteroskedastic consistent standard errors
 ```
@@ -930,36 +931,46 @@ Finally, the residuals vs fitted plot shows a well centered and mostly nromal di
 ## Model 2
 
 ### Introduction
-In this model, we introduce the additional covariates of population per square mile (density), tax per capita (taxpc) and police per capita (polpc) to increase the accuracy of our regression. We are including these additional variables to our second model, as they add accuracy to the explanatory variables used in our first model:  
+In this model, we introduce the additional covariates of tax per capita (taxpc) and police per capita (polpc) to increase the accuracy of our regression. We are including these additional variables to our second model, as they add accuracy to the explanatory variables used in our first model: 
+
+--- why we are removing regcode as a direct variable
+
+1. The **Police Per Capita** in a county can be influential on the Criminal Justice Effectiveness. With more police in a given area, one would think that crime rates would decrease, however our correlation plot below tells a different story. Including this variable in our analysis will give us more insight into the variables used in model 1. 
+2. The **Tax Per Capita** can have a direct impact on the Police Per Capita. A higher tax per capita, means that the county has more tax dollars to spend on public services like the police force (ie. increasing the number of police in the county). 
 
 
-NEED TO ADD REGION INTRODUCTION
-1. The **Density** of an area can have significant impacts on:
+-- DELETE ME --
+The **Density** of an area can have significant impacts on:
     - **Criminal Justice Effectiveness**: with more people in a given area, crime frequency increases (+ bias direction). However, more people means there are more potential witnesses, making it easier to catch criminals (- bias direction). 
     - **Economic Opportunity (ie. scaledWages)**: in high density areas, there is an increase in demand for support services such as food, retail, utilities, etc. As a result, there is a high demand for service jobs, which increases the economic opportunities within the area (+ bias direction).  However, more people in a given area, there is a closer proximity to drugs, alcohol and gang violence - all of which are inhimitors to better economic outcomes. 
-2. The **Police Per Capita** in a county can be influential on the Criminal Justice Effectiveness. With more police in a given area, one would think that crime rates would decrease, however our correlation plot below tells a different story. Including this variable in our analysis will give us more insight into the variables used in model 1. 
-3. The **Tax Per Capita** can have a direct impact on the Police Per Capita. A higher tax per capita, means that the county has more tax dollars to spend on protection services (ie. increasing the number of police in the county). 
+------------
 
 
-$$log(crmrate) = \beta_0 + \beta_1crimjusteff + \beta_2log(polpc) + \beta_3density + \beta_4scaledWages + \beta_5taxpc + u$$
+$$logcrmrte = \beta_0 + \beta_1logScaledWages + \beta_2logcrimJustEff + \beta_3logpolpc * regcode + \beta_4logtaxpc + u$$
 
 ### Model 2 EDA and Data Transformations
 
-To start, we will look at how police per capita is better 
+Before we create our model, we will analyze each of the additional variables to see if transformations are needed. 
+
+To start, we will look at the polpc variable:
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 p1 <- ggplot(dfCrime, aes(x = polpc, color=regcode, fill = regcode)) + 
   geom_histogram(position="identity", alpha=0.5, bins=30) +
   labs(title="Police per Capita", x="Police per Capita", y="Count")
 p2 <- ggplot(dfCrime, aes(x = log(polpc), color=regcode, fill = regcode)) + 
   geom_histogram(position="identity", alpha=0.5, bins=30) +
-  labs(title="Log TransformedPolice per Capita", x="Log(Police per Capita)", y="Count")
+  labs(title="Log Transformed Police per Capita", x="Log(Police per Capita)", y="Count")
 grid.arrange(p1, p2, ncol=2)
 ```
-why WE LIKE LOG of police per capita
+
+As we can see from the histograms above, taking the natural log of polpc brings its distribution closer to normal. As a result, we will use the log(polpc) in our analysis.
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+# creating the logpolpc variable
 dfCrime$logpolpc <- log(dfCrime$polpc)
 ```
+
+Next, we will take a look at our taxpc variable to see if a trasformation is warranted:
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 p1 <- ggplot(dfCrime, aes(x = taxpc, color=regcode, fill = regcode)) + 
@@ -970,76 +981,54 @@ p2 <- ggplot(dfCrime, aes(x = log(taxpc), color=regcode, fill = regcode)) +
   labs(title="Log Transformed Tax revenue per Capita", x="Log(Tax revenue per Capita)", y="Count")
 grid.arrange(p1, p2, ncol=2)
 ```
-In tax revenue, we see that each region is approximately normal but centered on a different mean.... and we like log.  more normal for each region. log transform helps outlier,  outlier--> this could be major economic hub...
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-
-q9<-ggplot(data = dfCrime, aes(x = logScaledWages, y = logcrmrte, color = regcode)) + 
-      geom_point()+
-  geom_smooth(method = "lm")
-q9a<-ggplot(data = dfCrime, aes(x = log(wfed), y = log(crmrte), color = regcode)) + 
-      geom_point()+
-  geom_smooth(method = "lm")
-
-options(repr.plot.width=8, repr.plot.height=16)
-grid.arrange(q9,q9a, ncol=2)
-```
-
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-
-q9<-ggplot(data = dfCrime, aes(x = logtaxpc, y = logcrmrte, color = regcode)) + 
-      geom_point()+
-  geom_smooth(method = "lm")
-q9a<-ggplot(data = dfCrime, aes(x = logpolpc, y = logcrmrte, color = regcode)) + 
-      geom_point()+
-  geom_smooth(method = "lm")
-
-options(repr.plot.width=8, repr.plot.height=16)
-grid.arrange(q9,q9a, ncol=2)
-```
-NOTES: -regionally we see a difference in the polpc regression on crime rate
-      - this suggests that we should investigate the interaction between polpc and region. --> law enforcement style could be different in the regions which.  
-      - we do not need to look at taxpc and region as the slopes do not vary greatly across regions.
+The histogram of taxpc, depicts each region as having an approximately normal distribution with each cenetred on a different mean. When we take the natural log of taxpc, we can see in the histogram, above, that each region has a more normal distribution. In addition, taking the natural log of taxpc reduces the extremity of the outlier seen in histogram of taxpc. As a result, we will use the log(taxpc) in our analysis. 
       
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 dfCrime$logtaxpc <- log(dfCrime$taxpc)
 ```
 
+Now that we have transformed the two variables we are adding to model two, we will take a look at how logtaxpc and logpolpc relate to logcrmrate and if these trends vary between each regcode.
+
+-- SHOULD WE MENTION WHY WE ARE LOOKING AT THIS BY REGCODE --
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-# density transformation analysis 
-par(mfrow = c(2,2))
-hist(dfCrime$density, main="Hist of density", breaks=50)
-hist(dfCrime$logdensity, main="Hist of logdensity",breaks=50)
-hist(1/dfCrime$density, main="Hist of Recip density", breaks=50)
-hist(sqrt(dfCrime$density), main="Hist of Sqrt density", breaks=50)
+
+logpolpc_plot<-ggplot(data = dfCrime, aes(x = logpolpc, y = logcrmrte, color = regcode)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+logtaxpc_plot<-ggplot(data = dfCrime, aes(x = logtaxpc, y = logcrmrte, color = regcode)) + 
+      geom_point()+
+  geom_smooth(method = "lm")
+
+options(repr.plot.width=8, repr.plot.height=16)
+grid.arrange(logpolpc_plot,logtaxpc_plot, ncol=2)
 ```
 
+Right away, we can see clear difference between each regions' logpolpc regression on logcrmerte."Other" and "Central" regions have positively slopped regression lines, while "West" has a negatively slopped regression line. This suggests that we should investigate the interactions between logpolpc and region (regcode) in our model. 
 
-```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-# par(mfrow = c(2,2))
-# plot(dfCrime$logcrimJustEff, dfCrime$polpc, main = 'polpc vs logcrimJustEff', xlab='logcrimJustEff', ylab='polpc')
-# plot(dfCrime$logcrimJustEff, dfCrime$logpolpc, main = 'logpolpc vs logcrimJustEff', xlab='logcrimJustEff', ylab='logpolpc')
-# plot(dfCrime$logcrimJustEff, dfCrime$taxpc, main = 'taxpc vs logcrimJustEff', xlab='logcrimJustEff', ylab='taxpc')
-# plot(dfCrime$logcrimJustEff, dfCrime$logtaxpc, main = 'logtaxpc vs logcrimJustEff', xlab='logcrimJustEff', ylab='logtaxpc')
-```
+logtaxpc to logcrmrte, on the other hand, does not demonstrate this regression slope variation between each regions. As result, we will not look into the interactions between logtaxpc and region in our model. 
 
--- AXLB - WIP
-
-In the histograms above, we see that the both polpc and taxpc exhibit right skew. Taking the natural log of polpc brings the distribution closer to normal. However, the $log$ of taxpc and density makes the distributions even more skewed. 
-
-As a result, we will use the $log$ of polpc (logpolpc) in our second model and will not transform the taxpc and density variables. 
-
+-- DELETE -- 
+NOTES: -regionally we see a difference in the polpc regression on crime rate
+      - this suggests that we should investigate the interaction between polpc and region. --> law enforcement style could be different in the regions which.  
+      - we do not need to look at taxpc and region as the slopes do not vary greatly across regions.
+-----      
 
 ### Model 2 Linear Model
 
+$$logcrmrte = \beta_0 + \beta_1logScaledWages + \beta_2logcrimJustEff + \beta_3logpolpc * regcode + \beta_4logtaxpc + u$$
+
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
-model2 <- lm(logcrmrte ~ logcrimJustEff + logpolpc*regcode + logtaxpc + logScaledWages, data = dfCrime)
+model2 <- lm(logcrmrte ~ logScaledWages + logcrimJustEff + logpolpc*regcode + logtaxpc, data = dfCrime)
 model2
 summary(model2)$adj.r.square
 ```
 
--- cooks distance analysis -- 
+From the Residuals vs Leverage graph, below, we can see that our model does not contain any outliers with have significant influence (ie. there are no points with a Cook's distance of 0.5 or greater).
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+plot(model2, which=5) 
+```
 
 **Model 2 CLM Assumptions:**
 
@@ -1051,32 +1040,37 @@ summary(model2)$adj.r.square
 vif(model2)
 ```
 
-* **MLR4: Zero Conditional Mean** The residual vs. fitted chart, below, gives us evidence that we meet the zero conditional mean assumption as the majority of the residual means lie close to zero. The exceptions to this trend, lie on the right side of the chart where there are fewer data points (evidence for heteroscedasticity - see MLR5, below). 
+* **MLR4: Zero Conditional Mean** The residual vs. fitted chart, below, gives us evidence that we meet the zero conditional mean assumption as the majority of the residual means lie close to zero. The exceptions to this trend, lie on the left and right sides of the chart where there are fewer data points (evidence for heteroscedasticity - see MLR5, below). 
 ```{r}
 plot(model2, which=1)
 ```
 
-* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right side of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the White test to generate coefficients with robust with vcovHC
-
-non-significan coeffs (pr(>t)) > .05...make a model to remove all the non-significant and then analyze using the f-test. 
-
--- AXLB - WIP
+* **MLR5: Homoscedasticity** The above Residuals vs Fitted graph provides evidence of heteroscedasticity as right side of the chart have fewer datepoints. To provide further evidence of heteroscedasticity, we will use the White-Huber test with the vcovHC method to generate coefficients that are robust to heteroscedasticity
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 coeftest(model2, vcov=vcovHC)
 ```
-NOTES: INTERACTIONS BETWETEEN POLPC AND REGCODE WEST AND CENTRAL ARE NOT BY THEMSELVES SIGNIFICANT.  LETS F TEST TO SEE IF THEY ARE JOINTLY SIGNIFICANT...and they are barely not significant.  The dummy variable for central is not significant which suggests that central and other are very similar while west is different.
+
+As we can see from the coeftest results above, the interactions between logpolpc and regcode west and central are not statistically significant (at least by themselves).  
+
+However, they may be jointly significant. We will run a f-test to see if this might be the case:
 
 ```{R}
 linearHypothesis(model2, c("logpolpc:regcodeWest=0", "logpolpc:regcodeCentral"), vcov=vcovHC)
 ```
+
+We can see frome the f-test, above, that the interactions between logpolpc and regcodes west and central are not statistically significant to the model. 
+
+-- DELETE ---
+NOTES: INTERACTIONS BETWETEEN POLPC AND REGCODE WEST AND CENTRAL ARE NOT BY THEMSELVES SIGNIFICANT.  LETS F TEST TO SEE IF THEY ARE JOINTLY SIGNIFICANT...and they are barely not significant.  The dummy variable for central is not significant which suggests that central and other are very similar while west is different.
+---
 
 * **MLR6: Normal Distribution of Errors** The Normal Q-Q plot, below, provides evidence that our residuals follow a normal distribution. While there are some data points on the left and right side of the graph that stray from the diagonal line, since our data set has over 30 datapoints, per the CLT, we can assume residuals have a normal distribution. 
 
 ```{r}
 plot(model2, which=2)
 # hist(model2$residuals)
-# shapiro.test(model2$residuals)
+#shapiro.test(model2$residuals)
 #null hypothesis: residuals drawn from population with a normal distribution. 
 #small p-value tells you if you can reject the null hypothesis. 
 #this test depends on sample size, it does not take very much deviation from normality for
@@ -1088,9 +1082,11 @@ plot(model2, which=2)
 summary(model2)
 ```
 
-The Adjusted R-squared variable penalizes for additional variables, which means there is a chance that this value will decrease if the added variables do not contribute to the model. By comparing the Adjusted R-squared value between our first and second models, we see that log(polpc), taxpc and density help describe log(crmrate). Our second model has an Adjusted R-squared value of 0.5004, which means 50.04% of the variation in the $log_{10}$ of crime rate is explained by the explanatory variables used in this model. This is a significant increase compared to our first model, that has an Adjusted R-squared value of  0.4520. 
+The Adjusted R-squared variable penalizes for additional variables, which means there is a chance that this value will decrease if the added variables do not contribute to the model. By comparing the Adjusted R-squared value between our first and second models, we see that logtaxpc and the interaction between logpolpc and regcode help describe logcrmrte. 
 
-In addition, the F-statistic is 16.62 with a statistically significant p-value of < 6.263e-11. As a result, we reject the null hypothesis that none of the independent variables help to describe log(crmrate). 
+Our second model has an Adjusted R-squared value of 0.6989, which means 69.89% of the variation in the natural log of the crime rate is explained by the explanatory variables used in this model. This is a slight increase compared to our first model, that has an Adjusted R-squared value of 0.6345. 
+
+In addition, the F-statistic is 26.83 with a statistically significant p-value of < 2.2e-16. As a result, we reject the null hypothesis that none of the independent variables help to describe logcrmrte.
 
 Coefficient Analysis (assuming ceterus paribus):
 - logcrimJustEff: -0.1607. This suggests that for a 1% increase in criminal justice efficiency, there is a 0.1607% decrease in crime rate. 
