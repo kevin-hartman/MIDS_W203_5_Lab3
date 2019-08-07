@@ -742,8 +742,9 @@ For "probability" of arrest, it could be possible there are multiple arrests for
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+# County number of outlier
+(dfCrime$county[dfCrime$crimJustEff > 1]) 
 # how many standard deviations away the outlier lies
-dfCrime[dfCrime$crimJustEff > 1,]$county
 (dfCrime[dfCrime$crimJustEff > 1,]$prbarr - mean(dfCrime$prbarr))/sd(dfCrime$prbarr)
 ```
 
@@ -826,7 +827,7 @@ p1 <- ggplot(dfCrime, aes(x = logScaledWages, color=regcode, fill = regcode)) +
   labs(title="log(Scaled Wages)", x="log(Scaled Wages)", y="Count")
 p1
 ```
-Interestingly, when viewing the wage data plotted against crime rate (below).  We see that there is a positive correlation between wages and crime.  We will see if this holds when taking into account the Criminal Justice Effectiveness in model 1 and discuss some possible causes.  
+Interestingly, when viewing the wage data plotted against crime rate (below).  We see that there is a positive correlation between wages and crime.  In model 1, we will see if this holds when taking into account the effect of Criminal Justice Effectiveness and discuss some possible causes.  
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
 
 q9<-ggplot(data = dfCrime, aes(x = logScaledWages, y = logcrmrte, color = regcode)) +
@@ -837,7 +838,22 @@ q9
 ```
 
 **Data Transformations: Regions**  
-Finally, regions will be used as explained in the EDA section. No transformations are necessary.
+Regions will be used as explained in the EDA section. No transformations are necessary.
+
+**Data Transformations: Crime Rate**  
+Our dependent variable is crime.  Operationalized it is given as a rate of crimes per capita. We will apply a log transform for two reasons.  First, since this value tends to be small (<.1), the log transform gives us a much better range away from zero, and limits the effect of high crime counties from exerting large leverage on our model. Second, the log transform allows us talk about relative percentage changes in crime rate for the counties.  This allows changes in crime rate to be reported in percent which is relevant to all counties, irrespective of their current staus as low or high crime counties. In the below histograms, the improved normality is also observed in the log transformed variable. 
+
+```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE}
+dfCrime$logcrmrte <- log(dfCrime$crmrte)
+options(repr.plot.width=4, repr.plot.height=4)
+p1 <- ggplot(dfCrime, aes(x = crmrte, color=regcode, fill = regcode)) +
+  geom_histogram(position="identity", alpha=0.5, bins=30) +
+  labs(title="Crime Rate", x="Crimes per Capita", y="Count")
+p2 <- ggplot(dfCrime, aes(x = logcrmrte, color=regcode, fill = regcode)) +
+  geom_histogram(position="identity", alpha=0.5, bins=30) +
+  labs(title="log(Crime Rate)", x="log(Crimes per capita)", y="Count")
+grid.arrange(p1, p2, ncol=2)
+```
 
 ### Model 1 Linear Model
 
