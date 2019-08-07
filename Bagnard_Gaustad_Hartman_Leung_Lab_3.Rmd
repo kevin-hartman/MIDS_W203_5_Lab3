@@ -6,7 +6,7 @@ author:
 - "(W203 Wednesday 6:30pm Summer 2019)"
 date: "8/7/2019"
 tags: [crime, lab, w203, berkeley]
-abstract: This is our study on crime. Crime does not pay. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+abstract: The manner and ways in which crime can be reduced in society is a topic of frequent research study. Here, we examine a sample population of data collected in 1987 from statistically signifcant counties in North Carolina to inform policy making for political organizations. Over the course of our study we examine several explanatory variables which have been operationalized as proxies to economic, demographic, law enforcement and judiciary conditions of the county as they relate to crime. In our exploratory data analysis we uncover regional variations between our explanatory variables and use that information to inform our model specification. We investigate three different models, the choices we made in specification, and present our findings. Finally, we conclue with concrete policy recommendations as well as advice for subsequent research in this important domain.
 output:
   pdf_document:
     latex_engine: xelatex
