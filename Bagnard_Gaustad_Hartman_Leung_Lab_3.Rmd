@@ -607,12 +607,12 @@ dfCrime$density[which(dfCrime$county==173)]<- NA
 
 
 ```{r, include=TRUE, comment=NA, warning=FALSE, echo=TRUE, results='hide'}
-impute_arg <- aregImpute(~ crmrte + urban + central + west + 
+impute_arg <- aregImpute(~ crmrte  + 
                          prbarr + prbconv + prbpris + avgsen + polpc +
                          density + taxpc + pctmin80 + wcon + wtuc +
                          wtrd + wfir + wser + wmfg + wfed + wsta + wloc +
-                         mix + pctymle, data = dfCrime, #%>% filter(urban==0 & west ==1),
-                         match="weighted",  nk=3, B=10, n.impute = 100)
+                         mix + pctymle, data = dfCrime %>% filter(urban==0 & west ==1),
+                         match="weighted",  nk=3, B=10, n.impute = 15)
 ```
 
 
@@ -1032,8 +1032,8 @@ The Adjusted R-squared variable penalizes for additional variables, which means 
 Our second model has an Adjusted R-squared value of approx 0.70, which means 70% of the variation in the natural log of the crime rate is explained by the explanatory variables used in this model. This is a slight increase compared to our first model, that has an Adjusted R-squared value that explaines 63% of the model.
 
 Coefficient Analysis (assuming ceterus paribus):
-- logcrimJustEff: If we were to increase criminal justice efficiency by 1%, we would expect the crime rate to decrease by approximately 0.42%.
-- logpolpc: If we were to increase police per capita by 1%, we would expect the crime rate to increase by approximately 0.56%.
+- logcrimJustEff: If we were to increase criminal justice efficiency by 1%, we would expect the crime rate to decrease by approximately 0.4%.
+- logpolpc: If we were to increase police per capita by 1%, we would expect the crime rate to increase by approximately 0.6%.
 - logScaledWages: If we were to increase average wages by 1%, we would expect the crime rate to increase by approximately 1.2%.
 - taxpc: If we were to increase tax per capita by 1%, we would expect the crime rate to decrease by approximately 0.15%.
 
@@ -1169,13 +1169,13 @@ linearHypothesis(model3,c("logpolpc=0","logScaledWages=0"), vcov=vcovHC)
 coeftest(model3, vcov=vcovHC)
 ```
 Positive coefficients:  
-* Police presence: If we increase police per capita by 1 percent, we expect the crime rate to increase by around 0.28%.  
+* Police presence: If we increase police per capita by 1 percent, we expect the crime rate to increase by around 0.3%.  
 * scaledWages: If we increase wages by 1 percent, we expect the crime rate to also increase by roughly 1%.  
-* Density: If we increase density by 100 people per square mile, we expect the crime rate to increase by approximately 6.9%.  
-* Percentage of minorities: If the percentage of minorities increase by 1%, we expect the crime rate to increase by 0.25%.   
+* Density: If we increase density by 100 people per square mile, we expect the crime rate to increase by approximately 7%.  
+* Percentage of minorities: If the percentage of minorities increase by 1%, we expect the crime rate to increase by 0.3%.   
 
 Negative coefficients:  
-* Criminal justice efficiency: If we increase the criminal justice efficiency by 1%, we expect the crime rate to decrease by around 0.43%.
+* Criminal justice efficiency: If we increase the criminal justice efficiency by 1%, we expect the crime rate to decrease by around 0.4%.
 
 Of these different variables, we should pay particular attention to density given its large practical effect and statistical significance, which we address in our policy recommendations in the next section.
 
@@ -1214,7 +1214,7 @@ Comparing the 3 models, we see that by increasing the complexity of our model sp
 * Interactions between police presence and regions: These interactions were deemed not statistically significant and removed for model 3.  
 * Tax per capita: Taxes did not appear to be practically or statistically significant.  
 * Percentage of minorities: This variable was highly statistically significant, and its inclusion helped explain some of the variation in the different regions. In addition, compared to the other variables, it has a relatively low residual standard error. While we think that the percentage of minorities is an important consideration for crime rates, but due to the fact that is opertionalizes a difficult demographic concept (racism), it is unlikely that a high minority percentage in itself is a cause of crime.   
-* Density: Density is statistically significant at the 95% confidence level and represents a large practical effect as an increase in 100 people per square mile leads to approximately 6.9% increase in the crime rate.  
+* Density: Density is statistically significant at the 95% confidence level and represents a large practical effect as an increase in 100 people per square mile leads to approximately 7% increase in the crime rate.  
 
 From the analysis of the coefficients, as well as their practical and statistical significance, we highlight specifically 1) Criminal Justice Effectiveness, 2) Percentage of Minorities and 3) Population density as the most important factors in explaining crime. Criminal justice effectiveness can be increased by either increasing convictions or decreasing the number of crimes, while the two demographic variables indicate the areas of focus for policy recommendations. We also note that the western region and possible varations of policing style is deserving of further research and analysis beyond the scope of this paper.
 
