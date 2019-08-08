@@ -898,11 +898,11 @@ Overall, the model shows a moderately good fit, with an adjusted R square of 0.6
 ### Introduction
 In this model, we introduce the additional covariates of tax per capita (taxpc) and police per capita (polpc) to give us more insight into our economic and law enforcement related variables.
 
-* **Police Per Capitas**  
+* **Police Per Capita**  
 The Police Per Capita in a county can be influential on the Criminal Justice Effectiveness. With more police in a given area, one would assume that crime rates would decrease, however, as we mentioned earlier in our EDA, polpc has a positive correlation with crmrte. Including this variable in our analysis will give us more insight into the relationship of variables used in model 1.
 
 * **Tax Per Capita**  
-The Tax Per Capita can have a direct impact on the Police Per Capita. A higher tax per capita means that the county has more revenue to spend on public services like the police force (ie. increasing the number of police in the county). This positive correlation relationship can be seen in our prior introductory data analysis. However, taxpc may also serve as an inidication of economic health as well.
+The Tax Per Capita can have a direct impact on the Police Per Capita. A higher tax per capita means that the county has more revenue to spend on public services like the police force (ie. increasing the number of police in the county). This positive correlation relationship can be seen in our prior introductory data analysis. However, taxpc may also serve as an inidication of economic health as well. The largest sources of tax revenues are the individual income tax and payroll taxes, followed by the corporate income tax. As a result, by including taxpc in our model will give us additional insight into our economic variables.
 
 
 ### Model 2 EDA and Data Transformations
@@ -1031,12 +1031,12 @@ The Adjusted R-squared variable penalizes for additional variables, which means 
 Our second model has an Adjusted R-squared value of approx 0.70, which means 70% of the variation in the natural log of the crime rate is explained by the explanatory variables used in this model. This is a slight increase compared to our first model, that has an Adjusted R-squared value that explaines 63% of the model.
 
 Coefficient Analysis (assuming ceterus paribus):
-- logcrimJustEff: This suggests that for a 1% increase in criminal justice efficiency, there is approximately 6.9% decrease in crime rate.
-- logpolpc: This suggests that for a 1% increase in police per capita, there is a 0.5% increase in crime rate.
-- logScaledWages: This suggests that for a 1% increase in total average weekly wage, there is a 1.2% increase in crime rate.
-- taxpc: This suggests that for a 1% increase in tax per capita, there is a 0.15% decrease in crime rate.
+- logcrimJustEff: If we were to increase criminal justice efficiency by 1%, we would expect the crime rate to decrease by approximately 0.42%.
+- logpolpc: If we were to increase police per capita by 1%, we would expect the crime rate to increase by approximately 0.56%.
+- logScaledWages: If we were to increase average wages by 1%, we would expect the crime rate to increase by approximately 1.2%.
+- taxpc: If we were to increase tax per capita by 1%, we would expect the crime rate to decrease by approximately 0.15%.
 
-Compared to model 1, the adjusted $R^2$ of model 2 shows improvement from the variables selected, although interaction behavior for the regions was less pronounced. This suggests we should continue our analysis by focusing on the joint significance of the variables we added in model 2, but without the regional interactions. 
+Compared to model 1, the adjusted R-squared of model 2 shows improvement from the variables selected, although interaction behavior for the regions was less pronounced. This suggests we should continue our analysis by focusing on the joint significance of the variables we added in model 2, but without the regional interactions. 
 
 
 ## Model 3
